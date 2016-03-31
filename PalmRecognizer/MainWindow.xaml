@@ -1,0 +1,27 @@
+﻿<Window x:Class="PalmRecognizer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PalmRecognizer"
+        mc:Ignorable="d"
+        Title="Palm Recognizer" Height="500" Width="700">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Background="LightBlue">
+            <Button Margin="2" Content="Log in" Command="{Binding LogInCommand}"/>
+            <Button Margin="2,2,55,2" Content="Log out" Command="{Binding LogOutCommand}"/>
+            <Button Margin="2" Content="Load file" Command="{Binding LoadFileCommand}"/>
+            <Button Margin="2" Content="Measure palm" Command="{Binding RecognizePalmCommand}"/>
+            <Button Margin="2" Content="Search palm" Command="{Binding SearchPalmCommand}"/>
+            <Label Margin="82,2,2,2" Content="PALM RECOGNIZER" VerticalContentAlignment="Center" FontWeight="Bold"/>
+            <Image Source="Hand.ico"/>
+        </StackPanel>
+        <Border Grid.Row="1" Margin="2" BorderThickness="3" BorderBrush="DarkBlue">
+            <Image Stretch="Uniform" Source="{Binding PalmLoadedImage}"/>
+        </Border>
+    </Grid>
+</Window>
