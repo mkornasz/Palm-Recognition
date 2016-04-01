@@ -123,6 +123,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="InverseValueConverter.cs" />
+    <Compile Include="MatExtension.cs" />
     <Compile Include="PalmTool.cs" />
     <Compile Include="ViewModel.cs" />
     <Compile Include="ViewModelBase.cs" />

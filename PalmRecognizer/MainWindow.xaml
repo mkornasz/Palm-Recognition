@@ -5,23 +5,48 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PalmRecognizer"
         mc:Ignorable="d"
-        Title="Palm Recognizer" Height="500" Width="700">
+        Title="Palm Recognizer" Height="700" Width="1000" WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <local:InverseValueConverter x:Key="InverseValueConverter" />
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
             <RowDefinition Height="40"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Orientation="Horizontal" Background="LightBlue">
-            <Button Margin="2" Content="Log in" Command="{Binding LogInCommand}"/>
-            <Button Margin="2,2,55,2" Content="Log out" Command="{Binding LogOutCommand}"/>
-            <Button Margin="2" Content="Load file" Command="{Binding LoadFileCommand}"/>
-            <Button Margin="2" Content="Measure palm" Command="{Binding RecognizePalmCommand}"/>
-            <Button Margin="2" Content="Search palm" Command="{Binding SearchPalmCommand}"/>
-            <Label Margin="82,2,2,2" Content="PALM RECOGNIZER" VerticalContentAlignment="Center" FontWeight="Bold"/>
+            <Button Margin="2"  Width="100" Content="Log in" Command="{Binding LogInCommand}"/>
+            <Button Margin="2,2,55,2"  Width="100" Content="Log out" Command="{Binding LogOutCommand}"/>
+            <Button Margin="2" Width="100" Content="Load file" Command="{Binding LoadFileCommand}"/>
+            <Button Margin="2" Width="100" Content="Detect edges" IsEnabled="{Binding IsFileLoaded}" Command="{Binding RecognizePalmCommand}"/>
+            <Button Margin="2" Width="100" Content="Measure palm" IsEnabled="{Binding IsFileLoaded}" Command="{Binding MeasurePalmCommand}"/>
+            <Button Margin="2" Width="100" Content="Search palm" IsEnabled="{Binding IsFileLoaded}" Command="{Binding SearchPalmCommand}"/>
+            <Label Margin="100,2,2,2" Content="PALM RECOGNIZER" VerticalContentAlignment="Center" FontWeight="Bold"/>
             <Image Source="Hand.ico"/>
         </StackPanel>
-        <Border Grid.Row="1" Margin="2" BorderThickness="3" BorderBrush="DarkBlue">
-            <Image Stretch="Uniform" Source="{Binding PalmLoadedImage}"/>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Background="LightBlue">
+            <Label Margin="2,2,45,2" FontWeight="Bold" Content="PARAMETERS:" VerticalContentAlignment="Center" />
+            <Label Margin="2" Content="Canny's threshold low:" VerticalContentAlignment="Center" />
+            <TextBox Margin="2" Width="50" Text="{Binding CannyParamLow}" VerticalContentAlignment="Center" />
+            <Label Margin="2" Content="Canny's threshold high:" VerticalContentAlignment="Center" />
+            <TextBox Margin="2" Width="50" Text="{Binding CannyParamHigh}" VerticalContentAlignment="Center" />
+        </StackPanel>
+        <Border Grid.Row="2" BorderThickness="3" BorderBrush="DarkBlue">
+            <TabControl>
+                <TabItem Header="Edges" Visibility="{Binding IsEdgesDetected}" Selector.IsSelected="{Binding IsEdgesDetectedToSelection, Mode=OneWay, Converter={StaticResource InverseValueConverter}}">
+                    <Image Stretch="Uniform" Source="{Binding PalmEdgesImage}"/>
+                </TabItem>
+                <TabItem Header="Blured" Visibility="{Binding IsEdgesDetected}">
+                    <Image Stretch="Uniform" Source="{Binding PalmBlurImage}"/>
+                </TabItem>
+                <TabItem Header="Gray" Visibility="{Binding IsEdgesDetected}">
+                    <Image Stretch="Uniform" Source="{Binding PalmGrayImage}"/>
+                </TabItem>
+                <TabItem Header="Original" Selector.IsSelected="{Binding IsEdgesDetectedToSelection, Mode=OneWay}">
+                    <Image Stretch="Uniform" Source="{Binding PalmLoadedImage}"/>
+                </TabItem>
+            </TabControl>
         </Border>
     </Grid>
 </Window>
