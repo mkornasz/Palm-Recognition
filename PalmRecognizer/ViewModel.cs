@@ -127,7 +127,7 @@ namespace PalmRecognizer
         #endregion
 
         #region Commands
-        private ICommand _loadFileCommand, _measurePalmCommand, _recognizePalmCommand, _searchPalmCommand, _logInCommand, _logOutCommand;
+        private ICommand _loadFileCommand, _measurePalmCommand, _recognizePalmCommand, _searchPalmCommand, _addPalmToBaseCommand, _logInCommand, _logOutCommand;
 
         public ICommand LoadFileCommand
         {
@@ -147,6 +147,11 @@ namespace PalmRecognizer
         public ICommand SearchPalmCommand
         {
             get { return _searchPalmCommand ?? (_searchPalmCommand = new DelegateCommand(SearchPalmCommandExecuted)); }
+        }
+
+        public ICommand AddPalmToBaseCommand
+        {
+            get { return _addPalmToBaseCommand ?? (_addPalmToBaseCommand = new DelegateCommand(AddPalmToBaseCommandExecuted)); }
         }
 
         public ICommand LogInCommand
@@ -185,6 +190,11 @@ namespace PalmRecognizer
         }
 
         private void SearchPalmCommandExecuted()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void AddPalmToBaseCommandExecuted()
         {
             throw new NotImplementedException();
         }

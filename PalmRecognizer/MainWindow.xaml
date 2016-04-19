@@ -16,13 +16,14 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Orientation="Horizontal" Background="LightBlue">
-            <Button Margin="2"  Width="100" Content="Log in" Command="{Binding LogInCommand}"/>
-            <Button Margin="2,2,55,2"  Width="100" Content="Log out" Command="{Binding LogOutCommand}"/>
+            <Button Margin="2"  Width="60" Content="Log in" Command="{Binding LogInCommand}"/>
+            <Button Margin="2,2,55,2"  Width="60" Content="Log out" Command="{Binding LogOutCommand}"/>
             <Button Margin="2" Width="100" Content="Load file" Command="{Binding LoadFileCommand}"/>
             <Button Margin="2" Width="100" Content="Detect edges" IsEnabled="{Binding IsFileLoaded}" Command="{Binding RecognizePalmCommand}"/>
             <Button Margin="2" Width="100" Content="Measure palm" IsEnabled="{Binding IsFileLoaded}" Command="{Binding MeasurePalmCommand}"/>
+            <Button Margin="2" Width="100" Content="Add palm to base" IsEnabled="{Binding IsFileLoaded}" Command="{Binding AddPalmToBaseCommand}"/>
             <Button Margin="2" Width="100" Content="Search palm" IsEnabled="{Binding IsFileLoaded}" Command="{Binding SearchPalmCommand}"/>
-            <Label Margin="100,2,2,2" Content="PALM RECOGNIZER" VerticalContentAlignment="Center" FontWeight="Bold"/>
+            <Label Margin="80,2,2,2" Content="PALM RECOGNIZER" VerticalContentAlignment="Center" FontWeight="Bold"/>
             <Image Source="Hand.ico"/>
         </StackPanel>
         <StackPanel Grid.Row="1" Orientation="Horizontal" Background="LightBlue">
@@ -34,6 +35,9 @@
         </StackPanel>
         <Border Grid.Row="2" BorderThickness="3" BorderBrush="DarkBlue">
             <TabControl>
+                <!--<TabItem Header="Search results" Visibility="{DODAC W VIEWMODEL Binding IsResultVisible}">
+                    <UniformGrid Rows="2" Columns="3" />
+                </TabItem>-->
                 <TabItem Header="Edges" Visibility="{Binding IsEdgesDetected}" Selector.IsSelected="{Binding IsEdgesDetectedToSelection, Mode=OneWay, Converter={StaticResource InverseValueConverter}}">
                     <Image Stretch="Uniform" Source="{Binding PalmEdgesImage}"/>
                 </TabItem>
