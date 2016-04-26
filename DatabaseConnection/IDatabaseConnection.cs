@@ -10,8 +10,8 @@ namespace DatabaseConnection
 {
     public interface IDatabaseConnection
     {
-        bool Login();
-        void AddNewUser(string login, string password);
+        bool Login(string login, string password);
+        bool AddNewUser(string login, string password);
         void AddNewData(Image palmImage, string description, PalmParameters parameters);
         void RemoveData(int palmId);
         List<Palm> GetAll();

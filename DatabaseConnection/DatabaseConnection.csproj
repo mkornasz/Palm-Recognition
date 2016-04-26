@@ -37,6 +37,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Database.cs" />
+    <Compile Include="PasswordEncoder.cs" />
     <Compile Include="IDatabaseConnection.cs" />
     <Compile Include="Model\Palm.cs" />
     <Compile Include="Model\User.cs" />

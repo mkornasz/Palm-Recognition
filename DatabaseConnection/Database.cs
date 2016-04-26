@@ -68,19 +68,35 @@ namespace DatabaseConnection
             throw new NotImplementedException();
         }
 
-        public void AddNewUser(string login, string password)
+        public bool AddNewUser(string login, string password) // zmienić, żeby login był unikalny
         {
+            if (!Login(login, password))
+                return false;
             using (var db = new UserContext())
             {
-                var user = new User { Login = login, Password = password };
+                var salt = PasswordEncoder.GeneratePassword(10);
+                var encodedPassword = PasswordEncoder.EncodePassword(password, salt);
+                var user = new User { Login = login, Password = encodedPassword, Salt = salt };
                 db.Users.Add(user);
                 db.SaveChanges();
             }
+            return true;
         }
 
-        public bool Login()
+        public bool Login(string login, string password)
         {
-            throw new NotImplementedException();
+            using (var db = new UserContext())
+            {
+                var user = db.Users.FirstOrDefault(u => u.Login == login);
+                if (user != null) // zgodność loginu
+                {
+                    var hashCode = user.Salt; 
+                    var encodingPasswordString = PasswordEncoder.EncodePassword(password, hashCode);
+                    var userLP = db.Users.FirstOrDefault(u => u.Login == login && u.Password == encodingPasswordString);
+                    return userLP != null;
+                }
+            }
+            return false;
         }
 
         public List<Palm> GetAll()
