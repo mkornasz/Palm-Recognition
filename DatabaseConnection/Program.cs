@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DatabaseConnection.Model;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -12,10 +13,10 @@ namespace DatabaseConnection
         static void Main(string[] args)
         {
             IDatabaseConnection connection = Database.Instance;
-            Image image = Image.FromFile(@"C:\Users\Kuba\Desktop\test.png");
-            PalmParameters pp = new PalmParameters();
-            pp.PalmRadius = 100;
-            connection.AddNewData(image, "testImage", pp);
+            Palm palm = connection.GetAll().First();
+            Form1 form = new Form1();
+            form.pictureBox1.Image = connection.ByteArraytToImage(palm.Image);
+            form.ShowDialog();
         } 
     }
 }
