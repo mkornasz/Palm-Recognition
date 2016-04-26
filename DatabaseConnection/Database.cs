@@ -82,7 +82,12 @@ namespace DatabaseConnection
         {
             throw new NotImplementedException();
         }
-
+        public Image ByteArraytToImage(byte[] data)
+        {
+            MemoryStream ms = new MemoryStream(data);
+            return Image.FromStream(ms);
+        }
+        
         public List<Palm> GetAll()
         {
             List<Palm> result = new List<Palm>();
@@ -98,13 +103,7 @@ namespace DatabaseConnection
         }
         #endregion
         #region Private Methods
-        private Image ByteArraytToImage(byte[] data)
-        {
-            MemoryStream ms = new MemoryStream(data);
-            return Image.FromStream(ms);
-        }
-
-        private byte[] ImageToByteArray(Image image)
+        public byte[] ImageToByteArray(Image image)
         {
             MemoryStream ms = new MemoryStream();
             image.Save(ms, ImageFormat.Gif);

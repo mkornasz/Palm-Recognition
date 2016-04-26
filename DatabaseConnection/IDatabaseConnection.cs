@@ -16,5 +16,6 @@ namespace DatabaseConnection
         void RemoveData(int palmId);
         List<Palm> GetAll();
         List<Palm> Identify(PalmParameters parameters);
+        Image ByteArraytToImage(byte[] data);
     }
 }
