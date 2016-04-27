@@ -30,7 +30,7 @@ namespace DatabaseConnection
         {
             using (var db = new PalmContext())
             {
-                Palm palm = new Palm() { Image = ImageToByteArray(palmImage), Description = description };
+                Palm palm = new Palm() { Description = description };
                 palm.IndexFingerBot = parameters.IndexFingerBot;
                 palm.IndexFingerMid = parameters.IndexFingerMid;
                 palm.IndexFingerTop = parameters.IndexFingerTop;
@@ -46,6 +46,13 @@ namespace DatabaseConnection
                 palm.PalmRadius = parameters.PalmRadius;
 
                 db.Palms.Add(palm);
+                db.SaveChanges();
+
+                PalmImage image = new PalmImage() { PalmId = palm.PalmId, Image = ImageToByteArray(palmImage) };
+                db.PalmImages.Add(image);
+                db.SaveChanges();
+
+                palm.Image = image;
                 db.SaveChanges();
             }
         }
