@@ -70,10 +70,12 @@ namespace DatabaseConnection
 
         public bool AddNewUser(string login, string password) // zmienić, żeby login był unikalny
         {
-            if (!Login(login, password))
-                return false;
             using (var db = new UserContext())
             {
+                var userLogin = db.Users.FirstOrDefault(u => u.Login == login);
+                if (userLogin != null)
+                    return false;
+
                 var salt = PasswordEncoder.GeneratePassword(10);
                 var encodedPassword = PasswordEncoder.EncodePassword(password, salt);
                 var user = new User { Login = login, Password = encodedPassword, Salt = salt };
