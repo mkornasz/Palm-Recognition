@@ -22,16 +22,21 @@ namespace DatabaseConnection
                 bool su1 = connection.Login("aaa", "xxx");
                 bool su2 = connection.Login("aaa", "bbb");
                 bool su3 = connection.Login("aaa", "xyz");
+                Console.WriteLine(su1 + " " + su2 + " " + su3);
                 Console.ReadKey();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
-            //Palm palm = connection.GetAll().First();
-            //Form1 form = new Form1();
-            //form.pictureBox1.Image = connection.ByteArraytToImage(palm.Image);
-            //form.ShowDialog();
+
+            /*Image image = Image.FromFile(@"C:\Users\Kuba\Desktop\test.png");
+            connection.AddNewData(image, "testtest", new PalmParameters() { PalmRadius = 100 });*/
+            
+            /*List<Palm> list = connection.GetAll();
+            foreach (var elem in list)
+                connection.RemoveData(elem.PalmId);*/
+            
         } 
     }
 }

@@ -65,6 +65,7 @@ namespace DatabaseConnection
                             where p.PalmId == palmId
                             select p;
 
+                db.PalmImages.RemoveRange(db.PalmImages.Where(pi => palms.Any(p => p.PalmId == pi.PalmId)));
                 db.Palms.Remove(palms.First());
                 db.SaveChanges();
             }
