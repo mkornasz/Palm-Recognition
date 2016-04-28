@@ -18,7 +18,7 @@ namespace PalmRecognizer
         private Visibility _isEdgesDetected;
         private int _cannyParamLow, _cannyParamHigh;
         private double angle = 0.0;
-        private bool _isFileLoaded, _isImageReadyForRotation;
+        private bool _isFileLoaded, _isUserLogIn, _isImageReadyForRotation;
         private string _palmFilename;
         private ImageSource _palmImage, _palmEdgesImage, _palmBlurImage, _palmGrayImage;
         private Bitmap _palmImageBitmap, _palmRotatedImageBitmap;
@@ -97,6 +97,17 @@ namespace PalmRecognizer
                 if (_isFileLoaded != value)
                     _isFileLoaded = value;
                 OnPropertyChanged("IsFileLoaded");
+            }
+        }
+
+        public bool IsUserLogIn
+        {
+            get { return _isUserLogIn; }
+            set
+            {
+                if (_isUserLogIn != value)
+                    _isUserLogIn = value;
+                OnPropertyChanged("IsUserLogIn");
             }
         }
 
@@ -183,7 +194,6 @@ namespace PalmRecognizer
             float numSteps = Mouse.RightButton == MouseButtonState.Pressed ? -a / 15 : a / 15;
             angle += numSteps / 10.0;
 
-            _palmRotatedImageBitmap = new Bitmap(_palmImageBitmap);
             RotateImage(_palmRotatedImageBitmap, (float)angle);
             PalmLoadedImage = ConvertFromBitmapToBitmapSource(_palmRotatedImageBitmap);
         }
@@ -197,20 +207,21 @@ namespace PalmRecognizer
             IsFileLoaded = true;
             _palmFilename = fileDialog.FileName;
             PalmLoadedImage = new BitmapImage(new Uri(fileDialog.FileName));
-            _palmImageBitmap = ConvertFromBitmapSourceToBitmap(PalmLoadedImage as BitmapSource);
+            _palmRotatedImageBitmap = _palmImageBitmap = ConvertFromBitmapSourceToBitmap(PalmLoadedImage as BitmapSource);
 
             if (MessageBox.Show("Image rotated properly?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
                 _isImageReadyForRotation = true;
         }
 
-        public void RotateImage(Bitmap bitmap, float angle)
+        public void RotateImage(Bitmap bmp, float angle)
         {
+            var bitmap = _palmImageBitmap;
             using (Graphics graphics = Graphics.FromImage(bitmap))
             {
                 graphics.TranslateTransform((float)bitmap.Width / 2, (float)bitmap.Height / 2);
                 graphics.RotateTransform(angle);
                 graphics.TranslateTransform(-(float)bitmap.Width / 2, -(float)bitmap.Height / 2);
-                graphics.DrawImage(bitmap, new PointF(0, 0));
+                graphics.DrawImage(bmp, new PointF(0, 0));
             }
         }
 
@@ -258,7 +269,9 @@ namespace PalmRecognizer
         {
             NewUserWindow nw = new NewUserWindow();
             if (nw.ShowDialog() == true)
-                if (connection.Login(nw.newUserName, nw.newUserPassword) == false)
+                if (connection.Login(nw.newUserName, nw.newUserPassword))
+                    IsUserLogIn = true;
+                else
                     MessageBox.Show("Can't log in user");
         }
         #endregion
@@ -268,6 +281,7 @@ namespace PalmRecognizer
             connection = Database.Instance;
             _isEdgesDetected = Visibility.Collapsed;
             _isFileLoaded = false;
+            _isUserLogIn = false;
             _cannyParamHigh = 250;
             _cannyParamLow = 100;
         }
