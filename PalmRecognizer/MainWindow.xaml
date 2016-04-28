@@ -18,7 +18,7 @@
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Orientation="Horizontal" Background="LightBlue">
             <Button Margin="2"  Width="60" Content="Log in" Command="{Binding LogInCommand}"/>
-            <Button Margin="2,2,55,2"  Width="60" Content="Log out" Command="{Binding LogOutCommand}"/>
+            <Button Margin="2,2,55,2"  Width="60" Content="Add user" Command="{Binding AddUserToBaseCommand}"/>
             <Button Margin="2" Width="100" Content="Load file" Command="{Binding LoadFileCommand}"/>
             <Button Margin="2" Width="100" Content="Detect edges" IsEnabled="{Binding IsFileLoaded}" Command="{Binding RecognizePalmCommand}"/>
             <Button Margin="2" Width="100" Content="Measure palm" IsEnabled="{Binding IsFileLoaded}" Command="{Binding MeasurePalmCommand}"/>

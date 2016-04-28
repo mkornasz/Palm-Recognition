@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using DatabaseConnection;
 using Prism.Commands;
 using System;
 using System.Drawing;
@@ -13,6 +14,7 @@ namespace PalmRecognizer
     class ViewModel : ViewModelBase
     {
         #region Variables
+        private IDatabaseConnection connection;
         private Visibility _isEdgesDetected;
         private int _cannyParamLow, _cannyParamHigh;
         private double angle = 0.0;
@@ -132,7 +134,7 @@ namespace PalmRecognizer
         #endregion
 
         #region Commands
-        private ICommand _mouseWheelCommand, _loadFileCommand, _measurePalmCommand, _recognizePalmCommand, _searchPalmCommand, _addPalmToBaseCommand, _logInCommand, _logOutCommand;
+        private ICommand _mouseWheelCommand, _loadFileCommand, _measurePalmCommand, _recognizePalmCommand, _searchPalmCommand, _addPalmToBaseCommand, _logInCommand, _addUserToBaseCommand;
 
         public ICommand MouseWheelCommand
         {
@@ -169,11 +171,10 @@ namespace PalmRecognizer
             get { return _logInCommand ?? (_logInCommand = new DelegateCommand(LogInCommandExecuted)); }
         }
 
-        public ICommand LogOutCommand
+        public ICommand AddUserToBaseCommand
         {
-            get { return _logOutCommand ?? (_logOutCommand = new DelegateCommand(LogOutCommandExecuted)); }
+            get { return _addUserToBaseCommand ?? (_addUserToBaseCommand = new DelegateCommand(AddUserToBaseCommandExecuted)); }
         }
-        
         private void MouseWheelCommandExecuted()
         {
             if (_isImageReadyForRotation == false) return;
@@ -186,7 +187,7 @@ namespace PalmRecognizer
             RotateImage(_palmRotatedImageBitmap, (float)angle);
             PalmLoadedImage = ConvertFromBitmapToBitmapSource(_palmRotatedImageBitmap);
         }
-        
+
         private void LoadFileCommandExecuted()
         {
             var fileDialog = new OpenFileDialog();
@@ -245,19 +246,26 @@ namespace PalmRecognizer
             throw new NotImplementedException();
         }
 
-        private void LogInCommandExecuted()
+        private void AddUserToBaseCommandExecuted()
         {
-            throw new NotImplementedException();
+            NewUserWindow nw = new NewUserWindow();
+            if (nw.ShowDialog() == true)
+                if (connection.AddNewUser(nw.newUserName, nw.newUserPassword) == false)
+                    MessageBox.Show("Can't add new user to base");
         }
 
-        private void LogOutCommandExecuted()
+        private void LogInCommandExecuted()
         {
-            throw new NotImplementedException();
+            NewUserWindow nw = new NewUserWindow();
+            if (nw.ShowDialog() == true)
+                if (connection.Login(nw.newUserName, nw.newUserPassword) == false)
+                    MessageBox.Show("Can't log in user");
         }
         #endregion
 
         public ViewModel()
         {
+            connection = Database.Instance;
             _isEdgesDetected = Visibility.Collapsed;
             _isFileLoaded = false;
             _cannyParamHigh = 250;
