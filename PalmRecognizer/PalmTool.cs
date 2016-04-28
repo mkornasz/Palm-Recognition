@@ -9,7 +9,6 @@ namespace PalmRecognizer
     {
         private Mat _palmOriginal, _palmGray, _palmBlur, _palmEdges;
         private int _cannyParamLow, _cannyParamHigh;
-
         #region Properties
         public Bitmap GetBlurPalmBitmap { get { return _palmBlur.Bitmap; } }
 
@@ -22,10 +21,9 @@ namespace PalmRecognizer
         {
             _cannyParamLow = cannyParamLow;
             _cannyParamHigh = cannyParamHigh;
-
             _palmOriginal = new Mat(palmFilename, Emgu.CV.CvEnum.LoadImageType.Color);
             _palmGray = new Mat(palmFilename, Emgu.CV.CvEnum.LoadImageType.Grayscale);
-
+            
             _palmBlur = new Mat();
             CvInvoke.GaussianBlur(_palmGray, _palmBlur, new Size(5, 5), 0);
 
@@ -38,6 +36,8 @@ namespace PalmRecognizer
             _palmEdges = new Mat();
             CvInvoke.Canny(_palmBlur, _palmEdges, _cannyParamLow, _cannyParamHigh);
         }
+
+        #region Methods for own Canny
 
         private void OwnCannyDetector()
         {
@@ -60,7 +60,6 @@ namespace PalmRecognizer
             var bmp = _palmEdges.Bitmap;
         }
 
-        #region Methods for own Canny
         private Mat Hysteresis(double lowT, double highT, Mat gradValue, Mat thetaValue)
         {
             Stack pointsStack = new Stack();

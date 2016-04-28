@@ -124,6 +124,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="InverseValueConverter.cs" />
+    <Compile Include="LogWriter.cs" />
     <Compile Include="MatExtension.cs" />
     <Compile Include="PalmTool.cs" />
     <Compile Include="ViewModel.cs" />
