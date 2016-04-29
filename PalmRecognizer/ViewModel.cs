@@ -15,10 +15,11 @@ namespace PalmRecognizer
     {
         #region Variables
         private IDatabaseConnection connection;
+        private PalmTool _tool;
         private Visibility _isEdgesDetected;
         private int _cannyParamLow, _cannyParamHigh;
         private double angle = 0.0;
-        private bool _isFileLoaded, _isUserLogIn, _isImageReadyForRotation;
+        private bool _isFileLoaded, _isPalmMeasured, _isUserLogIn, _isImageReadyForRotation;
         private string _palmFilename;
         private ImageSource _palmImage, _palmEdgesImage, _palmBlurImage, _palmGrayImage;
         private Bitmap _palmImageBitmap, _palmRotatedImageBitmap;
@@ -111,6 +112,17 @@ namespace PalmRecognizer
             }
         }
 
+        public bool IsPalmMeasured
+        {
+            get { return _isPalmMeasured; }
+            set
+            {
+                if (_isPalmMeasured != value)
+                    _isPalmMeasured = value;
+                OnPropertyChanged("IsPalmMeasured");
+            }
+        }
+
         public string CannyParamLow
         {
             get { return _cannyParamLow.ToString(); }
@@ -186,15 +198,16 @@ namespace PalmRecognizer
         {
             get { return _addUserToBaseCommand ?? (_addUserToBaseCommand = new DelegateCommand(AddUserToBaseCommandExecuted)); }
         }
+
         private void MouseWheelCommandExecuted()
         {
             if (_isImageReadyForRotation == false) return;
 
             int a = Mouse.MouseWheelDeltaForOneLine / 5;
             float numSteps = Mouse.RightButton == MouseButtonState.Pressed ? -a / 15 : a / 15;
-            angle += numSteps / 10.0;
+            angle += numSteps;
 
-            RotateImage(_palmRotatedImageBitmap, (float)angle);
+            _palmRotatedImageBitmap = RotateImage(new Bitmap(_palmImageBitmap), (float)angle);
             PalmLoadedImage = ConvertFromBitmapToBitmapSource(_palmRotatedImageBitmap);
         }
 
@@ -213,16 +226,18 @@ namespace PalmRecognizer
                 _isImageReadyForRotation = true;
         }
 
-        public void RotateImage(Bitmap bmp, float angle)
+        public Bitmap RotateImage(Bitmap bitmap, float angle)
         {
-            var bitmap = _palmImageBitmap;
-            using (Graphics graphics = Graphics.FromImage(bitmap))
+            Bitmap newBmp = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat);
+            using (Graphics graphics = Graphics.FromImage(newBmp))
             {
+                graphics.Clear(System.Drawing.Color.Black);
                 graphics.TranslateTransform((float)bitmap.Width / 2, (float)bitmap.Height / 2);
                 graphics.RotateTransform(angle);
                 graphics.TranslateTransform(-(float)bitmap.Width / 2, -(float)bitmap.Height / 2);
-                graphics.DrawImage(bmp, new PointF(0, 0));
+                graphics.DrawImage(bitmap, new PointF(0, 0));
             }
+            return newBmp;
         }
 
         private void RecognizePalmCommandExecuted()
@@ -233,7 +248,7 @@ namespace PalmRecognizer
                 _palmFilename = _palmFilename.Replace(".jpg", "ROTATED.jpg");
                 _palmRotatedImageBitmap.Save(_palmFilename);
             }
-            PalmTool _tool = new PalmTool(_palmFilename, _cannyParamLow, _cannyParamHigh);
+            _tool = new PalmTool(_palmFilename, _cannyParamLow, _cannyParamHigh);
             IsEdgesDetected = Visibility.Visible;
             PalmEdgesImage = ConvertFromBitmapToBitmapSource(_tool.GetEdgesPalmBitmap);
             PalmGrayImage = ConvertFromBitmapToBitmapSource(_tool.GetGrayPalmBitmap);
@@ -244,7 +259,8 @@ namespace PalmRecognizer
 
         private void MeasurePalmCommandExecuted()
         {
-            throw new NotImplementedException();
+            //najpierw czynnosci w _tool związane z pomiarem + inicjalizacja _tool.MeasuredParameters 
+            IsPalmMeasured = true;
         }
 
         private void SearchPalmCommandExecuted()
@@ -254,7 +270,18 @@ namespace PalmRecognizer
 
         private void AddPalmToBaseCommandExecuted()
         {
-            throw new NotImplementedException();
+            string description = "";
+            DescriptionWindow dw = new DescriptionWindow();
+            if (dw.ShowDialog() == true)
+                description = dw.Description;
+            if (description == "")
+                if (MessageBox.Show("Add without description?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                    description = " ";
+                else
+                    return;
+
+            connection.AddNewData(Image.FromFile(_palmFilename), description, new PalmParameters()); //_tool.MeasuredParameters);
+            MessageBox.Show("Palm added to base.");
         }
 
         private void AddUserToBaseCommandExecuted()
@@ -281,6 +308,7 @@ namespace PalmRecognizer
             connection = Database.Instance;
             _isEdgesDetected = Visibility.Collapsed;
             _isFileLoaded = false;
+            _isPalmMeasured = false;
             _isUserLogIn = false;
             _cannyParamHigh = 250;
             _cannyParamLow = 100;

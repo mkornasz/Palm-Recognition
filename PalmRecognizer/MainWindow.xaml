@@ -22,9 +22,9 @@
             <Button Margin="2" Width="100" Content="Load file" IsEnabled="{Binding IsUserLogIn}" Command="{Binding LoadFileCommand}"/>
             <Button Margin="2" Width="100" Content="Detect edges" IsEnabled="{Binding IsFileLoaded}" Command="{Binding RecognizePalmCommand}"/>
             <Button Margin="2" Width="100" Content="Measure palm" IsEnabled="{Binding IsFileLoaded}" Command="{Binding MeasurePalmCommand}"/>
-            <Button Margin="2" Width="100" Content="Add palm to base" IsEnabled="{Binding IsFileLoaded}" Command="{Binding AddPalmToBaseCommand}"/>
-            <Button Margin="2" Width="100" Content="Search palm" IsEnabled="{Binding IsFileLoaded}" Command="{Binding SearchPalmCommand}"/>
-            <Label Margin="80,2,2,2" Content="PALM RECOGNIZER" VerticalContentAlignment="Center" FontWeight="Bold"/>
+            <Button Margin="2" Width="100" Content="Add palm to base" IsEnabled="{Binding IsPalmMeasured}" Command="{Binding AddPalmToBaseCommand}"/>
+            <Button Margin="2" Width="100" Content="Search palm" IsEnabled="{Binding IsPalmMeasured}" Command="{Binding SearchPalmCommand}"/>
+            <Label Margin="70,2,2,2" Content="PALM RECOGNIZER" VerticalContentAlignment="Center" FontWeight="Bold"/>
             <Image Source="Hand.ico"/>
         </StackPanel>
         <StackPanel Grid.Row="1" Orientation="Horizontal" Background="LightBlue">

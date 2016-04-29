@@ -15,6 +15,8 @@ namespace PalmRecognizer
         public Bitmap GetGrayPalmBitmap { get { return _palmGray.Bitmap; } }
 
         public Bitmap GetEdgesPalmBitmap { get { return _palmEdges.Bitmap; } }
+
+        public DatabaseConnection.PalmParameters MeasuredParameters { get; private set; }
         #endregion
 
         public PalmTool(string palmFilename, int cannyParamLow, int cannyParamHigh)
