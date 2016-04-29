@@ -22,7 +22,7 @@ namespace PalmRecognizer
         private bool _isFileLoaded, _isPalmMeasured, _isUserLogIn, _isImageReadyForRotation;
         private string _palmFilename;
         private ImageSource _palmImage, _palmEdgesImage, _palmBlurImage, _palmGrayImage;
-        private Bitmap _palmImageBitmap, _palmRotatedImageBitmap;
+        private Bitmap _palmEdgesBitmap, _palmRotatedEdgesBitmap;
         #endregion 
 
         #region Properties
@@ -207,8 +207,8 @@ namespace PalmRecognizer
             float numSteps = Mouse.RightButton == MouseButtonState.Pressed ? -a / 15 : a / 15;
             angle += numSteps;
 
-            _palmRotatedImageBitmap = RotateImage(new Bitmap(_palmImageBitmap), (float)angle);
-            PalmLoadedImage = ConvertFromBitmapToBitmapSource(_palmRotatedImageBitmap);
+            _palmRotatedEdgesBitmap = RotateImage(new Bitmap(_palmEdgesBitmap), (float)angle);
+            PalmEdgesImage = ConvertFromBitmapToBitmapSource(_palmRotatedEdgesBitmap);
         }
 
         private void LoadFileCommandExecuted()
@@ -220,10 +220,6 @@ namespace PalmRecognizer
             IsFileLoaded = true;
             _palmFilename = fileDialog.FileName;
             PalmLoadedImage = new BitmapImage(new Uri(fileDialog.FileName));
-            _palmRotatedImageBitmap = _palmImageBitmap = ConvertFromBitmapSourceToBitmap(PalmLoadedImage as BitmapSource);
-
-            if (MessageBox.Show("Image rotated properly?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
-                _isImageReadyForRotation = true;
         }
 
         public Bitmap RotateImage(Bitmap bitmap, float angle)
@@ -242,23 +238,26 @@ namespace PalmRecognizer
 
         private void RecognizePalmCommandExecuted()
         {
-            if (_isImageReadyForRotation)
-            {
-                _isImageReadyForRotation = false;
-                _palmFilename = _palmFilename.Replace(".jpg", "ROTATED.jpg");
-                _palmRotatedImageBitmap.Save(_palmFilename);
-            }
             _tool = new PalmTool(_palmFilename, _cannyParamLow, _cannyParamHigh);
             IsEdgesDetected = Visibility.Visible;
             PalmEdgesImage = ConvertFromBitmapToBitmapSource(_tool.GetEdgesPalmBitmap);
             PalmGrayImage = ConvertFromBitmapToBitmapSource(_tool.GetGrayPalmBitmap);
             PalmBlurImage = ConvertFromBitmapToBitmapSource(_tool.GetBlurPalmBitmap);
+
+            _palmEdgesBitmap = ConvertFromBitmapSourceToBitmap(PalmEdgesImage as BitmapSource);
             if (MessageBox.Show("Edges detected properly?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
-            { }
+                if (MessageBox.Show("Image rotated properly?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+                    _isImageReadyForRotation = true;
         }
 
         private void MeasurePalmCommandExecuted()
         {
+            if (_isImageReadyForRotation)
+            {
+                _isImageReadyForRotation = false;
+                _palmRotatedEdgesBitmap.Save(_palmFilename.Replace(".jpg", "ROTATED.jpg"));
+            }
+
             //najpierw czynnosci w _tool związane z pomiarem + inicjalizacja _tool.MeasuredParameters 
             IsPalmMeasured = true;
         }
@@ -309,7 +308,7 @@ namespace PalmRecognizer
             _isEdgesDetected = Visibility.Collapsed;
             _isFileLoaded = false;
             _isPalmMeasured = false;
-            _isUserLogIn = false;
+            _isUserLogIn = true;
             _cannyParamHigh = 250;
             _cannyParamLow = 100;
         }

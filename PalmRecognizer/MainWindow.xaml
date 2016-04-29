@@ -40,7 +40,13 @@
                     <UniformGrid Rows="2" Columns="3" />
                 </TabItem>-->
                 <TabItem Header="Edges" Visibility="{Binding IsEdgesDetected}" Selector.IsSelected="{Binding IsEdgesDetectedToSelection, Mode=OneWay, Converter={StaticResource InverseValueConverter}}">
-                    <Image Stretch="Uniform" Source="{Binding PalmEdgesImage}"/>
+                    <Image Stretch="Uniform" Source="{Binding PalmEdgesImage}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseWheel">
+                                <i:InvokeCommandAction Command="{Binding MouseWheelCommand}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Image>
                 </TabItem>
                 <TabItem Header="Blured" Visibility="{Binding IsEdgesDetected}">
                     <Image Stretch="Uniform" Source="{Binding PalmBlurImage}"/>
@@ -49,13 +55,7 @@
                     <Image Stretch="Uniform" Source="{Binding PalmGrayImage}"/>
                 </TabItem>
                 <TabItem Header="Original" Selector.IsSelected="{Binding IsEdgesDetectedToSelection, Mode=OneWay}">
-                    <Image Stretch="Uniform" x:Name="ImageArea" Source="{Binding PalmLoadedImage}">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="MouseWheel">
-                                <i:InvokeCommandAction Command="{Binding MouseWheelCommand}" />
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </Image>
+                    <Image Stretch="Uniform" x:Name="ImageArea" Source="{Binding PalmLoadedImage}"/>
                 </TabItem>
             </TabControl>
         </Border>
