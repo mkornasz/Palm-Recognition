@@ -11,7 +11,7 @@ namespace DatabaseConnection
     public class Database : IDatabaseConnection
     {
         private static Database instance = null;
-        public static Database Instance 
+        public static Database Instance
         {
             get
             {
@@ -24,6 +24,20 @@ namespace DatabaseConnection
         private Database() { }
 
         #region IDatabaseConnection
+        private void ClearAllData()
+        {
+            using (var db = new PalmContext())
+            {
+                foreach (var p in db.PalmImages)
+                    db.PalmImages.Remove(p);
+
+                foreach (var p in db.Palms)
+                    db.Palms.Remove(p);
+
+                db.SaveChanges();
+            }
+        }
+
         public void AddNewData(Image palmImage, string description, PalmParameters parameters)
         {
             using (var db = new PalmContext())
@@ -59,7 +73,7 @@ namespace DatabaseConnection
         {
             using (var db = new PalmContext())
             {
-                var palms = from p in db.Palms 
+                var palms = from p in db.Palms
                             where p.PalmId == palmId
                             select p;
 
@@ -98,7 +112,7 @@ namespace DatabaseConnection
                 var user = db.Users.FirstOrDefault(u => u.Login == login);
                 if (user != null) // zgodność loginu
                 {
-                    var hashCode = user.Salt; 
+                    var hashCode = user.Salt;
                     var encodingPasswordString = PasswordEncoder.EncodePassword(password, hashCode);
                     var userLP = db.Users.FirstOrDefault(u => u.Login == login && u.Password == encodingPasswordString);
                     return userLP != null;
@@ -111,13 +125,27 @@ namespace DatabaseConnection
             MemoryStream ms = new MemoryStream(data);
             return Image.FromStream(ms);
         }
-        
+
         public List<Palm> GetAll()
         {
             List<Palm> result = new List<Palm>();
             using (var db = new PalmContext())
             {
                 var palms = from p in db.Palms
+                            orderby p.PalmId
+                            select p;
+
+                result = palms.ToList();
+            }
+            return result;
+        }
+
+        public List<PalmImage> GetAllImages()
+        {
+            List<PalmImage> result = new List<PalmImage>();
+            using (var db = new PalmContext())
+            {
+                var palms = from p in db.PalmImages
                             orderby p.PalmId
                             select p;
 

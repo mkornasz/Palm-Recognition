@@ -1,31 +1,71 @@
-﻿using Microsoft.Win32;
-using DatabaseConnection;
+﻿using DatabaseConnection;
+using Microsoft.Win32;
 using Prism.Commands;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Point = System.Windows.Point;
 
 namespace PalmRecognizer
 {
     class ViewModel : ViewModelBase
     {
         #region Variables
-        private IDatabaseConnection connection;
+        private IDatabaseConnection _connection;
+        private LogWriter _logWriter;
         private PalmTool _tool;
         private Visibility _isEdgesDetected;
-        private int _cannyParamLow, _cannyParamHigh;
-        private double angle = 0.0;
-        private bool _isFileLoaded, _isPalmMeasured, _isUserLogIn, _isImageReadyForRotation;
-        private string _palmFilename;
+        private int _cannyParamLow, _cannyParamHigh, _brightnessParam, _selectedTabIndex;
+        private double angle = 0.0, _contrastParam;
+        private bool _isFileLoaded, _isPalmMeasured, _isUserLogIn, _isMouseDown, _isImageReadyForRotation, _isImageReadyForCrop;
+        private string _palmFilename, _actualUser;
+        private System.Windows.Shapes.Rectangle _imageCroppedArea;
+        private Point _startMousePoint, _startMousePointImage;
         private ImageSource _palmImage, _palmEdgesImage, _palmBlurImage, _palmGrayImage;
-        private Bitmap _palmEdgesBitmap, _palmRotatedEdgesBitmap;
+        private Bitmap _palmBitmap, _palmEdgesBitmap, _palmRotatedEdgesBitmap;
+        private DatabaseConnection.Model.Palm _selectedPalm;
+        private DatabaseConnection.Model.PalmImage _selectedPalmImage;
         #endregion 
 
         #region Properties
+        public string LogContent
+        {
+            get { return _logWriter.LogContent; }
+        }
+
+        public List<DatabaseConnection.Model.PalmImage> PalmItems
+        {
+            get { return _connection.GetAllImages(); }
+        }
+
+        public DatabaseConnection.Model.Palm SelectedPalm
+        {
+            get { return _selectedPalm; }
+            set
+            {
+                if (_selectedPalm != value)
+                    _selectedPalm = value;
+                OnPropertyChanged("SelectedPalm");
+            }
+        }
+
+        public DatabaseConnection.Model.PalmImage SelectedPalmImage
+        {
+            get { return _selectedPalmImage; }
+            set
+            {
+                if (_selectedPalmImage != value)
+                    _selectedPalmImage = value;
+                OnPropertyChanged("SelectedPalmImage");
+            }
+        }
+
         public ImageSource PalmLoadedImage
         {
             get { return _palmImage; }
@@ -90,6 +130,17 @@ namespace PalmRecognizer
             }
         }
 
+        public bool IsImageReadyForCrop
+        {
+            get { return _isImageReadyForCrop; }
+            set
+            {
+                if (_isImageReadyForCrop != value)
+                    _isImageReadyForCrop = value;
+                OnPropertyChanged("IsImageReadyForCrop");
+            }
+        }
+
         public bool IsFileLoaded
         {
             get { return _isFileLoaded; }
@@ -120,6 +171,45 @@ namespace PalmRecognizer
                 if (_isPalmMeasured != value)
                     _isPalmMeasured = value;
                 OnPropertyChanged("IsPalmMeasured");
+            }
+        }
+
+        public int SelectedTab
+        {
+            get { return _selectedTabIndex; }
+            set
+            {
+                if (_selectedTabIndex != value)
+                    _selectedTabIndex = value;
+                OnPropertyChanged("SelectedTab");
+            }
+        }
+
+        public int BrightnessValue
+        {
+            get { return _brightnessParam; }
+            set
+            {
+                if (_brightnessParam != value)
+                    _brightnessParam = value;
+                if (_tool == null)
+                    _tool = new PalmTool(_palmFilename);
+                PalmLoadedImage = ConvertFromBitmapToBitmapSource(_tool.ChangeContrastBroghtness(ContrastValue, BrightnessValue));
+                OnPropertyChanged("BrightnessValue");
+            }
+        }
+
+        public double ContrastValue
+        {
+            get { return _contrastParam; }
+            set
+            {
+                if (_contrastParam != value)
+                    _contrastParam = value;
+                if (_tool == null)
+                    _tool = new PalmTool(_palmFilename);
+                PalmLoadedImage = ConvertFromBitmapToBitmapSource(_tool.ChangeContrastBroghtness(ContrastValue, BrightnessValue));
+                OnPropertyChanged("ContrastValue");
             }
         }
 
@@ -157,7 +247,8 @@ namespace PalmRecognizer
         #endregion
 
         #region Commands
-        private ICommand _mouseWheelCommand, _loadFileCommand, _measurePalmCommand, _recognizePalmCommand, _searchPalmCommand, _addPalmToBaseCommand, _logInCommand, _addUserToBaseCommand;
+        private ICommand _mouseWheelCommand, _mouseDownCommand, _mouseDownBorderCommand, _mouseUpCommand, _mouseMoveCommand, _loadFileCommand, _saveFileCommand, _cropFileCommand, _measurePalmCommand,
+            _recognizePalmCommand, _searchPalmCommand, _addPalmToBaseCommand, _logInCommand, _logOutCommand, _addUserToBaseCommand, _closingCommand;
 
         public ICommand MouseWheelCommand
         {
@@ -167,6 +258,16 @@ namespace PalmRecognizer
         public ICommand LoadFileCommand
         {
             get { return _loadFileCommand ?? (_loadFileCommand = new DelegateCommand(LoadFileCommandExecuted)); }
+        }
+
+        public ICommand SaveFileCommand
+        {
+            get { return _saveFileCommand ?? (_saveFileCommand = new DelegateCommand(SaveFileCommandExecuted)); }
+        }
+
+        public ICommand CropFileCommand
+        {
+            get { return _cropFileCommand ?? (_cropFileCommand = new DelegateCommand(CropFileCommandExecuted)); }
         }
 
         public ICommand MeasurePalmCommand
@@ -194,9 +295,91 @@ namespace PalmRecognizer
             get { return _logInCommand ?? (_logInCommand = new DelegateCommand(LogInCommandExecuted)); }
         }
 
+        public ICommand LogOutCommand
+        {
+            get { return _logOutCommand ?? (_logOutCommand = new DelegateCommand(LogOutCommandExecuted)); }
+        }
+
+        public ICommand WindowClosingCommand
+        {
+            get { return _closingCommand ?? (_closingCommand = new DelegateCommand(ClosingCommandExecuted)); }
+        }
+
         public ICommand AddUserToBaseCommand
         {
             get { return _addUserToBaseCommand ?? (_addUserToBaseCommand = new DelegateCommand(AddUserToBaseCommandExecuted)); }
+        }
+
+        public ICommand MouseDownCommand
+        {
+            get { return _mouseDownCommand ?? (_mouseDownCommand = new DelegateCommand(MouseDownCommandExecuted)); }
+        }
+
+        public ICommand MouseDownBorderCommand
+        {
+            get { return _mouseDownBorderCommand ?? (_mouseDownBorderCommand = new DelegateCommand<object>(MouseDownBorderCommandExecuted)); }
+        }
+
+        public ICommand MouseUpCommand
+        {
+            get { return _mouseUpCommand ?? (_mouseUpCommand = new DelegateCommand(MouseUpCommandExecuted)); }
+        }
+
+        public ICommand MouseMoveCommand
+        {
+            get { return _mouseMoveCommand ?? (_mouseMoveCommand = new DelegateCommand(MouseMoveCommandExecuted)); }
+        }
+
+        private void MouseMoveCommandExecuted()
+        {
+            if (_isMouseDown == false) return;
+
+            var selectionPanelPoint = Mouse.GetPosition((Application.Current.MainWindow as MainWindow).SelecionPanel);
+            _imageCroppedArea = (Application.Current.MainWindow as MainWindow).SelectionRectangle;
+
+            _imageCroppedArea.SetValue(Canvas.LeftProperty, Math.Min(selectionPanelPoint.X, _startMousePoint.X));
+            _imageCroppedArea.SetValue(Canvas.TopProperty, Math.Min(selectionPanelPoint.Y, _startMousePoint.Y));
+            _imageCroppedArea.Width = Math.Abs(selectionPanelPoint.X - _startMousePoint.X);
+            _imageCroppedArea.Height = Math.Abs(selectionPanelPoint.Y - _startMousePoint.Y);
+
+            if (_imageCroppedArea.Visibility != Visibility.Visible)
+                _imageCroppedArea.Visibility = Visibility.Visible;
+        }
+
+        private void MouseUpCommandExecuted()
+        {
+            _isMouseDown = false;
+            if (IsImageReadyForCrop == false) return;
+            if (MessageBox.Show("Image cropped properly?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+            {
+                _imageCroppedArea.Visibility = Visibility.Collapsed;
+                return;
+            }
+            IsImageReadyForCrop = false;
+            _imageCroppedArea.Visibility = Visibility.Collapsed;
+            CropImage();
+        }
+
+        private void MouseDownCommandExecuted()
+        {
+            if (IsImageReadyForCrop == false) return;
+            _isMouseDown = true;
+
+            _startMousePoint = Mouse.GetPosition((Application.Current.MainWindow as MainWindow).SelecionPanel);
+            _startMousePointImage = Mouse.GetPosition((Application.Current.MainWindow as MainWindow).ImageArea);
+        }
+
+        private void MouseDownBorderCommandExecuted(object ob)
+        {
+            SelectedPalmImage = (ob as DatabaseConnection.Model.PalmImage);
+            var palmList = _connection.GetAll();
+            var palmImgList = _connection.GetAllImages();
+            SelectedPalm = palmList.Find(p => p.PalmId == SelectedPalmImage.PalmId);
+        }
+
+        private void CropFileCommandExecuted()
+        {
+            IsImageReadyForCrop = !IsImageReadyForCrop;
         }
 
         private void MouseWheelCommandExecuted()
@@ -216,34 +399,60 @@ namespace PalmRecognizer
             var fileDialog = new OpenFileDialog();
             fileDialog.Filter = "Image files (*.png;*.jpg;*.jpeg;*.bmp)|*.png;*.jpg;*.jpeg;*.bmp";
             if (fileDialog.ShowDialog() != true) return;
+
             IsEdgesDetected = Visibility.Collapsed;
             IsFileLoaded = true;
             _palmFilename = fileDialog.FileName;
-            PalmLoadedImage = new BitmapImage(new Uri(fileDialog.FileName));
+            PalmLoadedImage = new BitmapImage(new Uri(_palmFilename));
+            _palmBitmap = ConvertFromBitmapSourceToBitmap(_palmImage as BitmapSource);
+
+            _logWriter.AddLoadInfo(_actualUser, _palmFilename);
+            OnPropertyChanged("LogContent");
         }
 
-        public Bitmap RotateImage(Bitmap bitmap, float angle)
+        private void SaveFileCommandExecuted()
         {
-            Bitmap newBmp = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat);
-            using (Graphics graphics = Graphics.FromImage(newBmp))
+            var fileDialog = new SaveFileDialog();
+            fileDialog.Filter = "Image files (*.jpg)|*.jpg";
+            if (fileDialog.ShowDialog() != true) return;
+            switch (SelectedTab)
             {
-                graphics.Clear(System.Drawing.Color.Black);
-                graphics.TranslateTransform((float)bitmap.Width / 2, (float)bitmap.Height / 2);
-                graphics.RotateTransform(angle);
-                graphics.TranslateTransform(-(float)bitmap.Width / 2, -(float)bitmap.Height / 2);
-                graphics.DrawImage(bitmap, new PointF(0, 0));
+                case 1:
+                    {
+                        var tabs = (Application.Current.MainWindow as MainWindow).TabItems;
+                        ConvertFromBitmapSourceToBitmap(tabs.Items.Count == 2 ? PalmLoadedImage as BitmapSource : PalmEdgesImage as BitmapSource).Save(fileDialog.FileName);
+                        break;
+                    }
+                case 2:
+                    {
+                        ConvertFromBitmapSourceToBitmap(PalmBlurImage as BitmapSource).Save(fileDialog.FileName);
+                        break;
+                    }
+                case 3:
+                    {
+                        ConvertFromBitmapSourceToBitmap(PalmGrayImage as BitmapSource).Save(fileDialog.FileName);
+                        break;
+                    }
+                case 4:
+                    {
+                        ConvertFromBitmapSourceToBitmap(PalmLoadedImage as BitmapSource).Save(fileDialog.FileName);
+                        break;
+                    }
             }
-            return newBmp;
+            _logWriter.AddSaveInfo(_actualUser, fileDialog.FileName);
+            OnPropertyChanged("LogContent");
         }
 
         private void RecognizePalmCommandExecuted()
         {
-            _tool = new PalmTool(_palmFilename, _cannyParamLow, _cannyParamHigh);
+            if (_tool == null)
+                _tool = new PalmTool(_palmFilename);
+
+            _tool.DetectEdges(_cannyParamLow, _cannyParamHigh);
             IsEdgesDetected = Visibility.Visible;
-            PalmEdgesImage = ConvertFromBitmapToBitmapSource(_tool.GetEdgesPalmBitmap);
             PalmGrayImage = ConvertFromBitmapToBitmapSource(_tool.GetGrayPalmBitmap);
             PalmBlurImage = ConvertFromBitmapToBitmapSource(_tool.GetBlurPalmBitmap);
-
+            PalmEdgesImage = ConvertFromBitmapToBitmapSource(_tool.GetEdgesPalmBitmap);
             _palmEdgesBitmap = ConvertFromBitmapSourceToBitmap(PalmEdgesImage as BitmapSource);
             if (MessageBox.Show("Edges detected properly?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                 if (MessageBox.Show("Image rotated properly?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
@@ -252,18 +461,16 @@ namespace PalmRecognizer
 
         private void MeasurePalmCommandExecuted()
         {
-            if (_isImageReadyForRotation)
-            {
-                _isImageReadyForRotation = false;
-                _palmRotatedEdgesBitmap.Save(_palmFilename.Replace(".jpg", "ROTATED.jpg"));
-            }
+            _isImageReadyForRotation = false;
 
-            //najpierw czynnosci w _tool związane z pomiarem + inicjalizacja _tool.MeasuredParameters 
+            //wywolanie metody _tool -> czynnosci związane z pomiarem + inicjalizacja _tool.MeasuredParameters 
             IsPalmMeasured = true;
         }
 
         private void SearchPalmCommandExecuted()
         {
+            //wywolanie metod przeszukujacych baze danych dajacych liste kandydatow
+            //wyswietlenie listy kandydatow
             throw new NotImplementedException();
         }
 
@@ -279,50 +486,116 @@ namespace PalmRecognizer
                 else
                     return;
 
-            connection.AddNewData(Image.FromFile(_palmFilename), description, new PalmParameters()); //_tool.MeasuredParameters);
+            //NIE WIEM CZY OBRAZEK W BAZIE MA BYC ORYGINALNY CZY PRZEROBIONY
+            //var fileName = _palmFilename.Contains("CROPPED") ? _palmFilename.Replace("CROPPED", "") : _palmFilename;
+
+            var img = System.Drawing.Image.FromFile(_palmFilename);
+
+            _connection.AddNewData(img, description, new PalmParameters()); //_tool.MeasuredParameters);
             MessageBox.Show("Palm added to base.");
+            OnPropertyChanged("PalmItems");
         }
 
         private void AddUserToBaseCommandExecuted()
         {
             NewUserWindow nw = new NewUserWindow();
             if (nw.ShowDialog() == true)
-                if (connection.AddNewUser(nw.newUserName, nw.newUserPassword) == false)
+            {
+                if (_connection.AddNewUser(nw.newUserName, nw.newUserPassword) == false)
                     MessageBox.Show("Can't add new user to base");
+                else
+                    MessageBox.Show("New user added to base");
+            }
         }
 
         private void LogInCommandExecuted()
         {
             NewUserWindow nw = new NewUserWindow();
             if (nw.ShowDialog() == true)
-                if (connection.Login(nw.newUserName, nw.newUserPassword))
+                if (_connection.Login(nw.newUserName, nw.newUserPassword))
+                {
+                    MessageBox.Show("User logged in");
                     IsUserLogIn = true;
+                    _actualUser = nw.newUserName;
+                    OnPropertyChanged("PalmItems");
+                }
                 else
                     MessageBox.Show("Can't log in user");
+
+            _logWriter.AddLogInInfo(_actualUser);
+            OnPropertyChanged("LogContent");
         }
+
+        private void LogOutCommandExecuted()
+        {
+            MessageBox.Show("User logged out");
+            IsUserLogIn = false;
+
+            _logWriter.AddLogOutInfo(_actualUser);
+            OnPropertyChanged("LogContent");
+        }
+
+        private void ClosingCommandExecuted()
+        {
+            if (IsUserLogIn)
+            {
+                MessageBox.Show("User will be log out automatically.\nUnsaved data will be lost.");
+                LogOutCommandExecuted();
+            }
+
+            _logWriter.SaveLogFile();
+            MessageBox.Show("Log file saved automatically");
+        }
+
         #endregion
 
         public ViewModel()
         {
-            connection = Database.Instance;
+            _logWriter = new LogWriter();
+            _connection = Database.Instance;
             _isEdgesDetected = Visibility.Collapsed;
+            _isImageReadyForCrop = false;
             _isFileLoaded = false;
             _isPalmMeasured = false;
-            _isUserLogIn = true;
+            _isUserLogIn = false;
             _cannyParamHigh = 250;
             _cannyParamLow = 100;
+            _contrastParam = 1;
+            _brightnessParam = 0;
+        }
+
+        private void CropImage()
+        {
+            var img = (Application.Current.MainWindow as MainWindow).ImageArea;
+            var cropX = (int)((_startMousePointImage.X) * (_palmImage as BitmapSource).PixelWidth / (img.ActualWidth));
+            var cropY = (int)((_startMousePointImage.Y) * (_palmImage as BitmapSource).PixelHeight / (img.ActualHeight));
+            var cropWidth = (int)((_imageCroppedArea.Width) * (_palmImage as BitmapSource).PixelWidth / (img.ActualWidth));
+            var cropHeight = (int)((_imageCroppedArea.Height) * (_palmImage as BitmapSource).PixelHeight / (img.ActualHeight));
+            PalmLoadedImage = new CroppedBitmap(_palmImage as BitmapSource, new Int32Rect(cropX, cropY, cropWidth, cropHeight));
+
+            _palmFilename = _palmFilename.Replace(".jpg", "CROPPED.jpg");
+            ConvertFromBitmapSourceToBitmap(PalmLoadedImage as BitmapSource).Save(_palmFilename);
+            MessageBox.Show("Cropped image saved automatically .");
+        }
+
+        private Bitmap RotateImage(Bitmap bitmap, float angle)
+        {
+            Bitmap newBmp = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat);
+            using (Graphics graphics = Graphics.FromImage(newBmp))
+            {
+                graphics.Clear(System.Drawing.Color.Black);
+                graphics.TranslateTransform((float)bitmap.Width / 2, (float)bitmap.Height / 2);
+                graphics.RotateTransform(angle);
+                graphics.TranslateTransform(-(float)bitmap.Width / 2, -(float)bitmap.Height / 2);
+                graphics.DrawImage(bitmap, new PointF(0, 0));
+            }
+            return newBmp;
         }
 
         private BitmapSource ConvertFromBitmapToBitmapSource(Bitmap bmp)
         {
             MemoryStream stream = new MemoryStream();
-            BitmapSource image = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap
-                (
-                bmp.GetHbitmap(),
-                IntPtr.Zero,
-                System.Windows.Int32Rect.Empty,
-                BitmapSizeOptions.FromEmptyOptions()
-                );
+            BitmapSource image = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, System.Windows.Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
             return image;
         }
 
@@ -335,6 +608,5 @@ namespace PalmRecognizer
             encoder.Save(stream);
             return new Bitmap(stream);
         }
-
     }
 }

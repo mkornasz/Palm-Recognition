@@ -1,4 +1,5 @@
 ﻿using Emgu.CV;
+using Emgu.CV.Structure;
 using System;
 using System.Collections;
 using System.Drawing;
@@ -7,9 +8,12 @@ namespace PalmRecognizer
 {
     class PalmTool
     {
+        private Image<Bgr, Byte> _palmOriginalImage, _newImage;
         private Mat _palmOriginal, _palmGray, _palmBlur, _palmEdges;
         private int _cannyParamLow, _cannyParamHigh;
+
         #region Properties
+
         public Bitmap GetBlurPalmBitmap { get { return _palmBlur.Bitmap; } }
 
         public Bitmap GetGrayPalmBitmap { get { return _palmGray.Bitmap; } }
@@ -19,21 +23,37 @@ namespace PalmRecognizer
         public DatabaseConnection.PalmParameters MeasuredParameters { get; private set; }
         #endregion
 
-        public PalmTool(string palmFilename, int cannyParamLow, int cannyParamHigh)
+        public PalmTool(string palmFilename)
+        {
+            _palmOriginal = new Mat(palmFilename, Emgu.CV.CvEnum.LoadImageType.Color);
+            _newImage = _palmOriginalImage = _palmOriginal.ToImage<Bgr, Byte>();
+        }
+
+        public Bitmap ChangeContrastBroghtness(double alpha, int beta)
+        {
+            _newImage = _palmOriginalImage.Convert(b => SaturateCast(alpha * b + beta));
+            return _newImage.Mat.Bitmap;
+        }
+
+        private byte SaturateCast(double value)
+        {
+            var rounded = Math.Round(value, 0);
+            return rounded < byte.MinValue ? byte.MinValue : rounded > byte.MaxValue ? byte.MaxValue : (byte)rounded;
+        }
+
+        public void DetectEdges(int cannyParamLow, int cannyParamHigh)
         {
             _cannyParamLow = cannyParamLow;
             _cannyParamHigh = cannyParamHigh;
-            _palmOriginal = new Mat(palmFilename, Emgu.CV.CvEnum.LoadImageType.Color);
-            _palmGray = new Mat(palmFilename, Emgu.CV.CvEnum.LoadImageType.Grayscale);
-            
+
+            _palmGray = new Mat();
+            CvInvoke.CvtColor(_newImage.Mat, _palmGray, Emgu.CV.CvEnum.ColorConversion.Bgr2Gray);
             _palmBlur = new Mat();
             CvInvoke.GaussianBlur(_palmGray, _palmBlur, new Size(5, 5), 0);
-
-            //  OwnCannyDetector();
-            OpenCVCannyDetector();
+            OpenCvCannyDetector();
         }
 
-        private void OpenCVCannyDetector()
+        private void OpenCvCannyDetector()
         {
             _palmEdges = new Mat();
             CvInvoke.Canny(_palmBlur, _palmEdges, _cannyParamLow, _cannyParamHigh);

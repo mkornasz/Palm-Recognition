@@ -139,6 +139,7 @@
     <Compile Include="NewUserWindow.xaml.cs">
       <DependentUpon>NewUserWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="PalmImageConverter.cs" />
     <Compile Include="PalmTool.cs" />
     <Compile Include="ViewModel.cs" />
     <Compile Include="ViewModelBase.cs" />
@@ -189,7 +190,9 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Hand.ico" />

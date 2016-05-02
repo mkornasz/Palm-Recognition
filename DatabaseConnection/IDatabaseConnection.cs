@@ -10,6 +10,7 @@ namespace DatabaseConnection
         bool AddNewUser(string login, string password);
         void AddNewData(Image palmImage, string description, PalmParameters parameters);
         void RemoveData(int palmId);
+        List<PalmImage> GetAllImages();
         List<Palm> GetAll();
         List<Palm> Identify(PalmParameters parameters);
         Image ByteArraytToImage(byte[] data);

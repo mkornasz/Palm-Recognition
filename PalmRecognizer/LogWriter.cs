@@ -1,17 +1,34 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace PalmRecognizer
 {
     class LogWriter
     {
-        public void AddRotationInfo()
+        public string LogContent { get; private set; }
+
+        public LogWriter()
         {
-            //czy byl poprawnie obrocony, czy ekspert obracal
-            //moze kąt obrotu?
+            LogContent += DateTime.Now.ToString() + " log created."+ Environment.NewLine;
+        }
+        public void AddLogInInfo(string user)
+        {
+            LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " log in." + Environment.NewLine;
+        }
+
+        public void AddLogOutInfo(string user)
+        {
+            LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " log out." + Environment.NewLine;
+        }
+
+        public void AddLoadInfo(string user, string fileName)
+        {
+            LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " load file from location " + fileName + Environment.NewLine;
+        }
+
+        public void AddSaveInfo(string user, string fileName)
+        {
+            LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " save file to location " + fileName + Environment.NewLine;
         }
 
         public void AddEdgesDetectionInfo()
@@ -29,7 +46,34 @@ namespace PalmRecognizer
         {
             //stosowana metoda porownywania
             //wyniki metody
-            //moze kilka pozycji ustawionych wg % podobienstwa
+            //kilka pozycji ustawionych wg % podobienstwa
+        }
+
+        public void AddPreprocessingInfo()
+        {
+            //czy zmianiono kontrast/jasnosc
+            //moze nowe wartosci kontrastu/jasnosci
+        }
+
+        public void AddRotationInfo()
+        {
+            //czy byl poprawnie obrocony, czy ekspert obracal
+            //moze kąt obrotu?
+        }
+
+        public void AddCropInfo()
+        {
+            //czy byl przycinany
+            //kto przycial
+        }
+
+        public void SaveLogFile()
+        {
+            string name = "PalmRecognizerLog" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".txt";
+            using (var streamWriter = new StreamWriter(name))
+            {
+                streamWriter.Write(LogContent);
+            }
         }
     }
 }

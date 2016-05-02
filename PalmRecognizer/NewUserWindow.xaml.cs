@@ -13,9 +13,9 @@ namespace PalmRecognizer
         public NewUserWindow()
         {
             InitializeComponent();
+            UserName.Focus();
         }
-
-
+        
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             newUserName = UserName.Text;
