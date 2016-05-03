@@ -146,6 +146,9 @@
                         </i:Interaction.Triggers>
                     </Image>
                 </TabItem>
+                <TabItem Header="Contour" Visibility="{Binding IsEdgesDetected}">
+                    <Image Stretch="Uniform" Source="{Binding PalmContourImage}"/>
+                </TabItem>
                 <TabItem Header="Blured" Visibility="{Binding IsEdgesDetected}">
                     <Image Stretch="Uniform" Source="{Binding PalmBlurImage}"/>
                 </TabItem>

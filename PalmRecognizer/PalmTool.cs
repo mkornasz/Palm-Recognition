@@ -6,182 +6,190 @@ using System.Drawing;
 
 namespace PalmRecognizer
 {
-    class PalmTool
-    {
-        private Image<Bgr, Byte> _palmOriginalImage, _newImage;
-        private Mat _palmOriginal, _palmGray, _palmBlur, _palmEdges;
-        private int _cannyParamLow, _cannyParamHigh;
+	class PalmTool
+	{
+		private Image<Bgr, Byte> _palmOriginalImage, _newImage;
+		private Mat _palmOriginal, _palmGray, _palmBlur, _palmEdges, _palmContour;
+		private int _cannyParamLow, _cannyParamHigh;
 
-        #region Properties
+		#region Properties
 
-        public Bitmap GetBlurPalmBitmap { get { return _palmBlur.Bitmap; } }
+		public Bitmap GetBlurPalmBitmap { get { return _palmBlur.Bitmap; } }
 
-        public Bitmap GetGrayPalmBitmap { get { return _palmGray.Bitmap; } }
+		public Bitmap GetGrayPalmBitmap { get { return _palmGray.Bitmap; } }
 
-        public Bitmap GetEdgesPalmBitmap { get { return _palmEdges.Bitmap; } }
+		public Bitmap GetEdgesPalmBitmap { get { return _palmEdges.Bitmap; } }
 
-        public DatabaseConnection.PalmParameters MeasuredParameters { get; private set; }
-        #endregion
+		public Bitmap GetContourPalmBitmap { get { return _palmContour.Bitmap; } }
 
-        public PalmTool(string palmFilename)
-        {
-            _palmOriginal = new Mat(palmFilename, Emgu.CV.CvEnum.LoadImageType.Color);
-            _newImage = _palmOriginalImage = _palmOriginal.ToImage<Bgr, Byte>();
-        }
+		public DatabaseConnection.PalmParameters MeasuredParameters { get; private set; }
+		#endregion
 
-        public Bitmap ChangeContrastBroghtness(double alpha, int beta)
-        {
-            _newImage = _palmOriginalImage.Convert(b => SaturateCast(alpha * b + beta));
-            return _newImage.Mat.Bitmap;
-        }
+		public PalmTool(string palmFilename)
+		{
+			_palmOriginal = new Mat(palmFilename, Emgu.CV.CvEnum.LoadImageType.Color);
+			_newImage = _palmOriginalImage = _palmOriginal.ToImage<Bgr, Byte>();
+		}
 
-        private byte SaturateCast(double value)
-        {
-            var rounded = Math.Round(value, 0);
-            return rounded < byte.MinValue ? byte.MinValue : rounded > byte.MaxValue ? byte.MaxValue : (byte)rounded;
-        }
+		public Bitmap ChangeContrastBroghtness(double alpha, int beta)
+		{
+			_newImage = _palmOriginalImage.Convert(b => SaturateCast(alpha * b + beta));
+			return _newImage.Mat.Bitmap;
+		}
 
-        public void DetectEdges(int cannyParamLow, int cannyParamHigh)
-        {
-            _cannyParamLow = cannyParamLow;
-            _cannyParamHigh = cannyParamHigh;
+		private byte SaturateCast(double value)
+		{
+			var rounded = Math.Round(value, 0);
+			return rounded < byte.MinValue ? byte.MinValue : rounded > byte.MaxValue ? byte.MaxValue : (byte)rounded;
+		}
 
-            _palmGray = new Mat();
-            CvInvoke.CvtColor(_newImage.Mat, _palmGray, Emgu.CV.CvEnum.ColorConversion.Bgr2Gray);
-            _palmBlur = new Mat();
-            CvInvoke.GaussianBlur(_palmGray, _palmBlur, new Size(5, 5), 0);
-            OpenCvCannyDetector();
-        }
+		public void DetectEdges(int cannyParamLow, int cannyParamHigh)
+		{
+			_cannyParamLow = cannyParamLow;
+			_cannyParamHigh = cannyParamHigh;
 
-        private void OpenCvCannyDetector()
-        {
-            _palmEdges = new Mat();
-            CvInvoke.Canny(_palmBlur, _palmEdges, _cannyParamLow, _cannyParamHigh);
-        }
+			_palmGray = new Mat();
+			CvInvoke.CvtColor(_newImage.Mat, _palmGray, Emgu.CV.CvEnum.ColorConversion.Bgr2Gray);
+			_palmBlur = new Mat();
+			CvInvoke.GaussianBlur(_palmGray, _palmBlur, new Size(5, 5), 0);
+			OpenCvCannyDetector();
+		}
 
-        #region Methods for own Canny
+		public void GetMeasurements()
+		{
+			var measurementDetector = new MeasurementDetector(_palmEdges);
+			_palmContour = measurementDetector.MeasureHand();
+		}
 
-        private void OwnCannyDetector()
-        {
-            _palmEdges = new Mat();
-            Mat grad_x = new Mat();
-            Mat grad_y = new Mat();
-            CvInvoke.Sobel(_palmBlur, grad_x, Emgu.CV.CvEnum.DepthType.Cv16S, 1, 0, 3);
-            CvInvoke.Sobel(_palmBlur, grad_y, Emgu.CV.CvEnum.DepthType.Cv16S, 0, 1, 3);
+		private void OpenCvCannyDetector()
+		{
+			_palmEdges = new Mat();
+			CvInvoke.Canny(_palmBlur, _palmEdges, _cannyParamLow, _cannyParamHigh);
+		}
 
-            Mat grad, theta;
+		#region Methods for own Canny
 
-            CalculateGradTheta(grad_x, grad_y, out grad, out theta);
+		private void OwnCannyDetector()
+		{
+			_palmEdges = new Mat();
+			Mat grad_x = new Mat();
+			Mat grad_y = new Mat();
+			CvInvoke.Sobel(_palmBlur, grad_x, Emgu.CV.CvEnum.DepthType.Cv16S, 1, 0, 3);
+			CvInvoke.Sobel(_palmBlur, grad_y, Emgu.CV.CvEnum.DepthType.Cv16S, 0, 1, 3);
 
-            Mat grad_border = new Mat(grad.Rows + 2, grad.Cols + 2, grad.Depth, 1);
-            CvInvoke.CopyMakeBorder(grad, grad_border, 1, 1, 1, 1, Emgu.CV.CvEnum.BorderType.Replicate);
+			Mat grad, theta;
 
-            CalculateBorder(ref grad, theta, grad_border);
+			CalculateGradTheta(grad_x, grad_y, out grad, out theta);
 
-            _palmEdges = Hysteresis(250, 100, grad, theta);
-            var bmp = _palmEdges.Bitmap;
-        }
+			Mat grad_border = new Mat(grad.Rows + 2, grad.Cols + 2, grad.Depth, 1);
+			CvInvoke.CopyMakeBorder(grad, grad_border, 1, 1, 1, 1, Emgu.CV.CvEnum.BorderType.Replicate);
 
-        private Mat Hysteresis(double lowT, double highT, Mat gradValue, Mat thetaValue)
-        {
-            Stack pointsStack = new Stack();
+			CalculateBorder(ref grad, theta, grad_border);
 
-            for (int i = 0; i < gradValue.Cols; i++)
-                for (int j = 0; j < gradValue.Rows; j++)
-                {
-                    if (gradValue.GetValue(j, i) > highT)
-                        pointsStack.Push(new Point(j, i));
-                }
+			_palmEdges = Hysteresis(250, 100, grad, theta);
+			var bmp = _palmEdges.Bitmap;
+		}
 
-            Mat grad_border = new Mat(gradValue.Rows + 2, gradValue.Cols + 2, Emgu.CV.CvEnum.DepthType.Cv8U, 1);
+		private Mat Hysteresis(double lowT, double highT, Mat gradValue, Mat thetaValue)
+		{
+			Stack pointsStack = new Stack();
 
-            for (int i = 0; i < grad_border.Cols; i++)
-                for (int j = 0; j < grad_border.Rows; j++)
-                    SetMatValue(j, i, ref grad_border, 0);
+			for (int i = 0; i < gradValue.Cols; i++)
+				for (int j = 0; j < gradValue.Rows; j++)
+				{
+					if (gradValue.GetValue(j, i) > highT)
+						pointsStack.Push(new Point(j, i));
+				}
 
-            while (pointsStack.Count != 0)
-            {
-                Point p = (Point)pointsStack.Pop();
+			Mat grad_border = new Mat(gradValue.Rows + 2, gradValue.Cols + 2, Emgu.CV.CvEnum.DepthType.Cv8U, 1);
 
-                if (grad_border.GetValue(p.X, p.Y) == 255)
-                    continue;
+			for (int i = 0; i < grad_border.Cols; i++)
+				for (int j = 0; j < grad_border.Rows; j++)
+					SetMatValue(j, i, ref grad_border, 0);
 
-                SetMatValue(p.X, p.Y, ref grad_border, 255);
-                Point a, b;
-                CheckNeighbors(thetaValue.GetValue(p.X, p.Y), out a, out b);
-                if (gradValue.GetValue(p.X + a.Y, p.Y + a.X) > lowT)
-                    pointsStack.Push(new Point(p.X + a.Y, p.Y + a.X));
-                if (gradValue.GetValue(p.X - a.Y, p.Y - a.X) > lowT)
-                    pointsStack.Push(new Point(p.X - a.Y, p.Y - a.X));
-            }
+			while (pointsStack.Count != 0)
+			{
+				Point p = (Point)pointsStack.Pop();
 
-            return grad_border;
-        }
+				if (grad_border.GetValue(p.X, p.Y) == 255)
+					continue;
 
-        private void CalculateGradTheta(Mat grad_x, Mat grad_y, out Mat gradVal, out Mat thetaVal)
-        {
-            gradVal = new Mat(grad_x.Rows, grad_x.Cols, Emgu.CV.CvEnum.DepthType.Cv16S, 1);
-            thetaVal = new Mat(grad_x.Rows, grad_x.Cols, Emgu.CV.CvEnum.DepthType.Cv16S, 1);
+				SetMatValue(p.X, p.Y, ref grad_border, 255);
+				Point a, b;
+				CheckNeighbors(thetaValue.GetValue(p.X, p.Y), out a, out b);
+				if (gradValue.GetValue(p.X + a.Y, p.Y + a.X) > lowT)
+					pointsStack.Push(new Point(p.X + a.Y, p.Y + a.X));
+				if (gradValue.GetValue(p.X - a.Y, p.Y - a.X) > lowT)
+					pointsStack.Push(new Point(p.X - a.Y, p.Y - a.X));
+			}
 
-            for (int i = 0; i < gradVal.Cols; i++)
-                for (int j = 0; j < gradVal.Rows; j++)
-                {
-                    var valueGrad = Math.Sqrt(Math.Pow(grad_x.GetValue(j, i), 2) + Math.Pow(grad_y.GetValue(j, i), 2));
-                    var valueTheta = Math.Atan2(grad_y.GetValue(j, i), grad_x.GetValue(j, i));
+			return grad_border;
+		}
 
-                    SetMatValue(j, i, ref gradVal, valueGrad);
-                    SetMatValue(j, i, ref thetaVal, valueTheta);
-                }
-        }
+		private void CalculateGradTheta(Mat grad_x, Mat grad_y, out Mat gradVal, out Mat thetaVal)
+		{
+			gradVal = new Mat(grad_x.Rows, grad_x.Cols, Emgu.CV.CvEnum.DepthType.Cv16S, 1);
+			thetaVal = new Mat(grad_x.Rows, grad_x.Cols, Emgu.CV.CvEnum.DepthType.Cv16S, 1);
 
-        private void CalculateBorder(ref Mat gradVal, Mat thetaVal, Mat grad_border)
-        {
-            Point m1, m2;
-            for (int i = 0; i < gradVal.Cols; i++)
-                for (int j = 0; j < gradVal.Rows; j++)
-                {
-                    float w = CheckNeighbors(thetaVal.GetValue(j, i), out m1, out m2);
-                    float f1 = (grad_border.GetValue(j + 1 + m1.Y, i + 1 + m1.X) * w) + (grad_border.GetValue(j + 1 + m2.Y, i + 1 + m2.X) * (1 - w));
-                    float f2 = (grad_border.GetValue(j + 1 - m1.Y, i + 1 - m1.X) * w) + (grad_border.GetValue(j + 1 - m2.Y, i + 1 - m2.X) * (1 - w));
+			for (int i = 0; i < gradVal.Cols; i++)
+				for (int j = 0; j < gradVal.Rows; j++)
+				{
+					var valueGrad = Math.Sqrt(Math.Pow(grad_x.GetValue(j, i), 2) + Math.Pow(grad_y.GetValue(j, i), 2));
+					var valueTheta = Math.Atan2(grad_y.GetValue(j, i), grad_x.GetValue(j, i));
 
-                    if (gradVal.GetValue(j, i) < f1 || gradVal.GetValue(j, i) < f2)
-                        SetMatValue(j, i, ref gradVal, 0);
-                }
-        }
+					SetMatValue(j, i, ref gradVal, valueGrad);
+					SetMatValue(j, i, ref thetaVal, valueTheta);
+				}
+		}
 
-        private float CheckNeighbors(short angle, out Point m1, out Point m2)
-        {
-            if (angle >= 180)
-                angle -= 180;
-            int quarter = angle / 45;
-            int weight = angle - quarter;
+		private void CalculateBorder(ref Mat gradVal, Mat thetaVal, Mat grad_border)
+		{
+			Point m1, m2;
+			for (int i = 0; i < gradVal.Cols; i++)
+				for (int j = 0; j < gradVal.Rows; j++)
+				{
+					float w = CheckNeighbors(thetaVal.GetValue(j, i), out m1, out m2);
+					float f1 = (grad_border.GetValue(j + 1 + m1.Y, i + 1 + m1.X) * w) + (grad_border.GetValue(j + 1 + m2.Y, i + 1 + m2.X) * (1 - w));
+					float f2 = (grad_border.GetValue(j + 1 - m1.Y, i + 1 - m1.X) * w) + (grad_border.GetValue(j + 1 - m2.Y, i + 1 - m2.X) * (1 - w));
 
-            switch (quarter)
-            {
-                case 0:
-                    m1 = new Point(1, 0);
-                    m2 = new Point(1, 1);
-                    break;
-                case 1:
-                    m1 = new Point(1, 1);
-                    m2 = new Point(0, 1);
-                    break;
-                case 2:
-                    m1 = new Point(0, 1);
-                    m2 = new Point(-1, 1);
-                    break;
-                default:
-                    m1 = new Point(-1, 1);
-                    m2 = new Point(-1, 0);
-                    break;
-            }
-            return weight / 45.0f;
-        }
+					if (gradVal.GetValue(j, i) < f1 || gradVal.GetValue(j, i) < f2)
+						SetMatValue(j, i, ref gradVal, 0);
+				}
+		}
 
-        private void SetMatValue(int j, int i, ref Mat mat, double value)
-        {
-            mat.SetDoubleValue(j, i, value);
-        }
-        #endregion
-    }
+		private float CheckNeighbors(short angle, out Point m1, out Point m2)
+		{
+			if (angle >= 180)
+				angle -= 180;
+			int quarter = angle / 45;
+			int weight = angle - quarter;
+
+			switch (quarter)
+			{
+				case 0:
+					m1 = new Point(1, 0);
+					m2 = new Point(1, 1);
+					break;
+				case 1:
+					m1 = new Point(1, 1);
+					m2 = new Point(0, 1);
+					break;
+				case 2:
+					m1 = new Point(0, 1);
+					m2 = new Point(-1, 1);
+					break;
+				default:
+					m1 = new Point(-1, 1);
+					m2 = new Point(-1, 0);
+					break;
+			}
+			return weight / 45.0f;
+		}
+
+		private void SetMatValue(int j, int i, ref Mat mat, double value)
+		{
+			mat.SetDoubleValue(j, i, value);
+		}
+		#endregion
+	}
 }

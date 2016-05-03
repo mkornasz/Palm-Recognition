@@ -136,6 +136,7 @@
     <Compile Include="InverseValueConverter.cs" />
     <Compile Include="LogWriter.cs" />
     <Compile Include="MatExtension.cs" />
+    <Compile Include="MeasurementDetector.cs" />
     <Compile Include="NewUserWindow.xaml.cs">
       <DependentUpon>NewUserWindow.xaml</DependentUpon>
     </Compile>

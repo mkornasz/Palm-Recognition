@@ -86,20 +86,31 @@ namespace PalmRecognizer
                     _palmEdgesImage = value;
                 OnPropertyChanged("PalmEdgesImage");
             }
-        }
+		}
 
-        public ImageSource PalmBlurImage
-        {
-            get { return _palmBlurImage; }
-            set
-            {
-                if (_palmBlurImage != value)
-                    _palmBlurImage = value;
-                OnPropertyChanged("PalmBlurImage");
-            }
-        }
+		public ImageSource PalmBlurImage
+		{
+			get { return _palmBlurImage; }
+			set
+			{
+				if (_palmBlurImage != value)
+					_palmBlurImage = value;
+				OnPropertyChanged("PalmBlurImage");
+			}
+		}
 
-        public ImageSource PalmGrayImage
+		public ImageSource PalmContourImage
+		{
+			get { return _palmContourImage; }
+			set
+			{
+				if (_palmContourImage != value)
+					_palmContourImage = value;
+				OnPropertyChanged("PalmContourImage");
+			}
+		}
+
+		public ImageSource PalmGrayImage
         {
             get { return _palmGrayImage; }
             set
@@ -249,8 +260,9 @@ namespace PalmRecognizer
         #region Commands
         private ICommand _mouseWheelCommand, _mouseDownCommand, _mouseDownBorderCommand, _mouseUpCommand, _mouseMoveCommand, _loadFileCommand, _saveFileCommand, _cropFileCommand, _measurePalmCommand,
             _recognizePalmCommand, _searchPalmCommand, _addPalmToBaseCommand, _logInCommand, _logOutCommand, _addUserToBaseCommand, _closingCommand;
+		private ImageSource _palmContourImage;
 
-        public ICommand MouseWheelCommand
+		public ICommand MouseWheelCommand
         {
             get { return _mouseWheelCommand ?? (_mouseWheelCommand = new DelegateCommand(MouseWheelCommandExecuted)); }
         }
@@ -463,8 +475,9 @@ namespace PalmRecognizer
         {
             _isImageReadyForRotation = false;
 
-            //wywolanie metody _tool -> czynnosci związane z pomiarem + inicjalizacja _tool.MeasuredParameters 
-            IsPalmMeasured = true;
+			_tool.GetMeasurements();
+			PalmContourImage = ConvertFromBitmapToBitmapSource(_tool.GetContourPalmBitmap);
+			IsPalmMeasured = true;
         }
 
         private void SearchPalmCommandExecuted()
