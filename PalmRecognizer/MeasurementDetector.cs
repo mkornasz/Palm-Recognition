@@ -24,20 +24,9 @@
 
 		public Mat MeasureHand()
 		{
-			//Mat downM = new Mat();
-			//CvInvoke.PyrDown(_originalImg, downM);
-			//CvInvoke.GaussianBlur(downM, downM, new Size(3, 3), 0, 0, BorderType.Constant);
-			//CvInvoke.CvtColor(downM, downM, ColorConversion.Bgr2Hls);
-			////CvInvoke.MedianBlur(downM, downM, 7);
-			////ProduceBinaries(mat);
-			//CvInvoke.CvtColor(downM, downM, ColorConversion.Hls2Bgr);
-			//CvInvoke.PyrUp(_originalImg, _originalImg);
-
 			var scalar = new MCvScalar(0);
 			var m = new Mat(_originalImg.Size, _originalImg.Depth, _originalImg.NumberOfChannels);
 			m.SetTo(scalar);
-			var m1 = new Mat(_originalImg.Size, _originalImg.Depth, _originalImg.NumberOfChannels);
-			m1.SetTo(scalar);
 
 			using (VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint())
 			{
@@ -55,7 +44,6 @@
 				//		CvInvoke.Polylines(m, contour.ToArray(), false, new Bgr(Color.DarkBlue).MCvScalar, 1);
 				//	}
 				//}
-
 
 				var convexHullP = new VectorOfPoint();
 				var convexHullI = new VectorOfInt();

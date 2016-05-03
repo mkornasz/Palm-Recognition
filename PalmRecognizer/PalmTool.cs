@@ -9,7 +9,7 @@ namespace PalmRecognizer
 	class PalmTool
 	{
 		private Image<Bgr, Byte> _palmOriginalImage, _newImage;
-		private Mat _palmOriginal, _palmGray, _palmBlur, _palmEdges, _palmContour;
+		private Mat _palmOriginal, _palmGray, _palmBlur, _palmEdges, _palmContour, _palmBw;
 		private int _cannyParamLow, _cannyParamHigh;
 
 		#region Properties
@@ -22,6 +22,8 @@ namespace PalmRecognizer
 
 		public Bitmap GetContourPalmBitmap { get { return _palmContour.Bitmap; } }
 
+		public Bitmap GetBwPalmBitmap { get { return _palmBw.Bitmap; } }
+
 		public DatabaseConnection.PalmParameters MeasuredParameters { get; private set; }
 		#endregion
 
@@ -29,6 +31,11 @@ namespace PalmRecognizer
 		{
 			_palmOriginal = new Mat(palmFilename, Emgu.CV.CvEnum.LoadImageType.Color);
 			_newImage = _palmOriginalImage = _palmOriginal.ToImage<Bgr, Byte>();
+			_palmBw = new Mat();
+			_palmContour = new Mat();
+			_palmGray = new Mat();
+			_palmEdges = new Mat();
+			_palmBlur = new Mat();
 		}
 
 		public Bitmap ChangeContrastBroghtness(double alpha, int beta)
@@ -47,12 +54,12 @@ namespace PalmRecognizer
 		{
 			_cannyParamLow = cannyParamLow;
 			_cannyParamHigh = cannyParamHigh;
-
-			_palmGray = new Mat();
+			
 			CvInvoke.CvtColor(_newImage.Mat, _palmGray, Emgu.CV.CvEnum.ColorConversion.Bgr2Gray);
-			_palmBlur = new Mat();
-			CvInvoke.GaussianBlur(_palmGray, _palmBlur, new Size(5, 5), 0);
-			OpenCvCannyDetector();
+			CvInvoke.Threshold(_palmGray, _palmBw, 50, 255, Emgu.CV.CvEnum.ThresholdType.Binary);
+			CvInvoke.GaussianBlur(_palmBw, _palmBlur, new Size(5, 5), 0);
+
+			OpenCvCannyDetector(_palmBlur);
 		}
 
 		public void GetMeasurements()
@@ -61,10 +68,10 @@ namespace PalmRecognizer
 			_palmContour = measurementDetector.MeasureHand();
 		}
 
-		private void OpenCvCannyDetector()
+		private void OpenCvCannyDetector(Mat matToFindEdges)
 		{
 			_palmEdges = new Mat();
-			CvInvoke.Canny(_palmBlur, _palmEdges, _cannyParamLow, _cannyParamHigh);
+			CvInvoke.Canny(matToFindEdges, _palmEdges, _cannyParamLow, _cannyParamHigh);
 		}
 
 		#region Methods for own Canny

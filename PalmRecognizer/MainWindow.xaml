@@ -152,6 +152,9 @@
                 <TabItem Header="Blured" Visibility="{Binding IsEdgesDetected}">
                     <Image Stretch="Uniform" Source="{Binding PalmBlurImage}"/>
                 </TabItem>
+                <TabItem Header="Black - White" Visibility="{Binding IsEdgesDetected}">
+                    <Image Stretch="Uniform" Source="{Binding PalmBwImage}"/>
+                </TabItem>
                 <TabItem Header="Gray" Visibility="{Binding IsEdgesDetected}">
                     <Image Stretch="Uniform" Source="{Binding PalmGrayImage}"/>
                 </TabItem>
