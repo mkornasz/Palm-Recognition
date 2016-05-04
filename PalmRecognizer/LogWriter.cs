@@ -9,26 +9,42 @@ namespace PalmRecognizer
 
         public LogWriter()
         {
-            LogContent += DateTime.Now.ToString() + " log created."+ Environment.NewLine;
+            LogContent += DateTime.Now.ToString() + " Log created." + Environment.NewLine;
         }
+
+        public void AddCloseInfo()
+        {
+            LogContent += DateTime.Now.ToString() + " Application closed. Log saved.";
+        }
+
         public void AddLogInInfo(string user)
         {
-            LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " log in." + Environment.NewLine;
+            LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " logged in." + Environment.NewLine;
         }
 
         public void AddLogOutInfo(string user)
         {
-            LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " log out." + Environment.NewLine;
+            LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " logged out." + Environment.NewLine;
         }
 
         public void AddLoadInfo(string user, string fileName)
         {
-            LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " load file from location " + fileName + Environment.NewLine;
+            LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " loaded file from location " + fileName + Environment.NewLine;
         }
 
-        public void AddSaveInfo(string user, string fileName)
+        public void AddSaveInfo(string user, string type, string fileName)
         {
-            LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " save file to location " + fileName + Environment.NewLine;
+            LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " saved file of type " + type + " to location " + fileName + Environment.NewLine;
+        }
+
+        public void AddRotationInfo(string user)
+        {
+            LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " rotated file by 1 degree"  + Environment.NewLine;
+        }
+
+        public void AddCropInfo(string user, string fileName)
+        {
+            LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " cropped file, new name " + fileName + Environment.NewLine;
         }
 
         public void AddEdgesDetectionInfo()
@@ -53,18 +69,6 @@ namespace PalmRecognizer
         {
             //czy zmianiono kontrast/jasnosc
             //moze nowe wartosci kontrastu/jasnosci
-        }
-
-        public void AddRotationInfo()
-        {
-            //czy byl poprawnie obrocony, czy ekspert obracal
-            //moze kąt obrotu?
-        }
-
-        public void AddCropInfo()
-        {
-            //czy byl przycinany
-            //kto przycial
         }
 
         public void SaveLogFile()

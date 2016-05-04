@@ -9,6 +9,7 @@
         Title="Palm Recognizer" Height="800" Width="1300" WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <local:InverseValueConverter x:Key="InverseValueConverter" />
+        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <local:PalmImageConverter x:Key="PalmImageConverter"/>
     </Window.Resources>
     <i:Interaction.Triggers>
@@ -23,14 +24,14 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Orientation="Horizontal" Background="LightBlue">
-            <Button Margin="2"  Width="60" Content="Log in" Command="{Binding LogInCommand}"/>
-            <Button Margin="2"  Width="60" Content="Log out" Command="{Binding LogOutCommand}"/>
-            <Button Margin="2,2,55,2"  Width="60" Content="Add user" Command="{Binding AddUserToBaseCommand}"/>
+            <Button Margin="2"  Width="60" Content="Log in" IsEnabled="{Binding IsUserLogIn, Converter={StaticResource InverseValueConverter}}" Command="{Binding LogInCommand}"/>
+            <Button Margin="2"  Width="60" Content="Log out"  IsEnabled="{Binding IsUserLogIn}" Command="{Binding LogOutCommand}"/>
+            <Button Margin="2,2,55,2"  Width="60" Content="Add user" IsEnabled="{Binding IsUserLogIn, Converter={StaticResource InverseValueConverter}}" Command="{Binding AddUserToBaseCommand}"/>
             <Button Margin="2" Width="100" Content="Load file" IsEnabled="{Binding IsUserLogIn}" Command="{Binding LoadFileCommand}"/>
             <Button Margin="2" Width="100" Content="Save file" IsEnabled="{Binding IsFileLoaded}" Command="{Binding SaveFileCommand}"/>
             <Button Margin="2" Width="100" Content="Detect edges" IsEnabled="{Binding IsFileLoaded}" Command="{Binding RecognizePalmCommand}"/>
-            <Button Margin="2" Width="100" Content="Measure palm" IsEnabled="{Binding IsFileLoaded}" Command="{Binding MeasurePalmCommand}"/>
-            <Button Margin="2" Width="100" Content="Add palm to base" IsEnabled="{Binding IsPalmMeasured}" Command="{Binding AddPalmToBaseCommand}"/>
+            <Button Margin="2" Width="100" Content="Measure palm" IsEnabled="{Binding IsEdgesDetected}" Command="{Binding MeasurePalmCommand}"/>
+            <Button Margin="2" Width="100" Content="Add palm to base" IsEnabled="{Binding IsFileLoaded}" Command="{Binding AddPalmToBaseCommand}"/>            <!-- POTEM ZMIENIC NA IsPalmMeasured-->
             <Button Margin="2" Width="100" Content="Search palm" IsEnabled="{Binding IsPalmMeasured}" Command="{Binding SearchPalmCommand}"/>
             <Label Margin="70,2,2,2" Content="PALM RECOGNIZER" VerticalContentAlignment="Center" FontWeight="Bold"/>
             <Image Source="Hand.ico"/>
@@ -40,14 +41,15 @@
             <TextBox Margin="2" Width="50" Text="{Binding CannyParamLow}" VerticalContentAlignment="Center" />
             <Label Margin="2" Content="Canny's threshold high:" VerticalContentAlignment="Center" />
             <TextBox Margin="2" Width="50" Text="{Binding CannyParamHigh}" VerticalContentAlignment="Center" />
+            <Label Margin="2" FontWeight="Bold" Content="Preprocessing:" VerticalContentAlignment="Center" />
             <Label Margin="2" Content="Contrast:" VerticalContentAlignment="Center" />
-            <Slider Minimum="0" Maximum="3"  IsSnapToTickEnabled="True" TickFrequency="0.1" IsEnabled="{Binding IsFileLoaded}" Value="{Binding ContrastValue}" VerticalAlignment="Center" Width="100"/>
+            <Slider Minimum="0" Maximum="3"  IsSnapToTickEnabled="True" TickFrequency="0.1" IsEnabled="{Binding IsFileLoaded}" Value="{Binding ContrastValue, Mode=TwoWay}" VerticalAlignment="Center" Width="100"/>
             <Label Margin="2" Content="Brightness:" VerticalContentAlignment="Center" />
-            <Slider Minimum="-50" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="1" IsEnabled="{Binding IsFileLoaded}" Value="{Binding BrightnessValue}" VerticalAlignment="Center" Width="100"/>
+            <Slider Minimum="-50" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="1" IsEnabled="{Binding IsFileLoaded}" Value="{Binding BrightnessValue, Mode=TwoWay}" VerticalAlignment="Center" Width="100"/>
             <ToggleButton Margin="2" Width="100"  Content="Crop image" IsEnabled="{Binding IsFileLoaded}" IsChecked="{Binding IsImageReadyForCrop, Mode=OneWay}" Command="{Binding CropFileCommand}"/>
         </StackPanel>
         <Border Grid.Row="2" BorderThickness="3" BorderBrush="DarkBlue">
-            <TabControl x:Name="TabItems" IsEnabled="{Binding IsUserLogIn}" SelectedIndex="{Binding SelectedTab,  Mode=TwoWay}">
+            <TabControl x:Name="TabItems" IsEnabled="{Binding IsUserLogIn}" SelectedItem="{Binding SelectedTab}">
                 <TabItem Header="Database Browser">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -63,7 +65,7 @@
                             </ListBox.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border>
+                                    <Border Height="250" >
                                         <i:Interaction.Triggers>
                                             <i:EventTrigger EventName="MouseLeftButtonDown" >
                                                 <i:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource AncestorType=Window, Mode=FindAncestor}, Path=DataContext.MouseDownBorderCommand }" CommandParameter="{Binding}"/>
@@ -79,7 +81,7 @@
                                                 </Style.Triggers>
                                             </Style>
                                         </Border.Style>
-                                        <Image Stretch="Uniform" Source="{ Binding Path=Image, Converter={StaticResource PalmImageConverter} }"/>
+                                        <Image Stretch="Fill" Source="{ Binding Path=Image, Converter={StaticResource PalmImageConverter} }"/>
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -137,7 +139,10 @@
                 </TabItem>
                 <!--<TabItem Header="Search results" Visibility="{DODAC W VIEWMODEL Binding IsResultVisible}">
                 </TabItem>-->
-                <TabItem Header="Edges" Visibility="{Binding IsEdgesDetected}" Selector.IsSelected="{Binding IsEdgesDetectedToSelection, Mode=OneWay, Converter={StaticResource InverseValueConverter}}">
+                <TabItem Header="Contour" Visibility="{Binding IsPalmMeasured, Converter={StaticResource BoolToVisibilityConverter}}" Selector.IsSelected="{Binding IsPalmMeasured, Mode=OneWay}">
+                    <Image Stretch="Uniform" Source="{Binding PalmContourImage}"/>
+                </TabItem>
+                <TabItem Header="Edges" Visibility="{Binding IsEdgesDetected, Converter={StaticResource BoolToVisibilityConverter}}" Selector.IsSelected="{Binding IsEdgesDetectedToSelection, Mode=OneWay, Converter={StaticResource InverseValueConverter}}">
                     <Image Stretch="Uniform" Source="{Binding PalmEdgesImage}">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseWheel">
@@ -146,16 +151,13 @@
                         </i:Interaction.Triggers>
                     </Image>
                 </TabItem>
-                <TabItem Header="Contour" Visibility="{Binding IsEdgesDetected}">
-                    <Image Stretch="Uniform" Source="{Binding PalmContourImage}"/>
-                </TabItem>
-                <TabItem Header="Blured" Visibility="{Binding IsEdgesDetected}">
+                <TabItem Header="Blured" Visibility="{Binding IsEdgesDetected, Converter={StaticResource BoolToVisibilityConverter}}" >
                     <Image Stretch="Uniform" Source="{Binding PalmBlurImage}"/>
                 </TabItem>
-                <TabItem Header="Black - White" Visibility="{Binding IsEdgesDetected}">
+                <TabItem Header="Black - White" Visibility="{Binding IsEdgesDetected, Converter={StaticResource BoolToVisibilityConverter}}" >
                     <Image Stretch="Uniform" Source="{Binding PalmBwImage}"/>
                 </TabItem>
-                <TabItem Header="Gray" Visibility="{Binding IsEdgesDetected}">
+                <TabItem Header="Gray" Visibility="{Binding IsEdgesDetected, Converter={StaticResource BoolToVisibilityConverter}}" >
                     <Image Stretch="Uniform" Source="{Binding PalmGrayImage}"/>
                 </TabItem>
                 <TabItem Header="Original" Selector.IsSelected="{Binding IsEdgesDetectedToSelection, Mode=OneWay}">
@@ -177,7 +179,7 @@
                         </i:Interaction.Triggers>
                     </Grid>
                 </TabItem>
-                <TabItem Header="Log">
+                <TabItem Header="Log Browser">
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled">
                         <TextBlock FontFamily="Courier New" Text="{Binding LogContent}"/>
                     </ScrollViewer>
