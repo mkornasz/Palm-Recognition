@@ -658,9 +658,7 @@ namespace PalmRecognizer
 
         private BitmapSource ConvertFromBitmapToBitmapSource(Bitmap bmp)
         {
-            MemoryStream stream = new MemoryStream();
-            BitmapSource image = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, System.Windows.Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-            return image;
+           return System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, System.Windows.Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
         }
 
         private Bitmap ConvertFromBitmapSourceToBitmap(BitmapSource bmp)
