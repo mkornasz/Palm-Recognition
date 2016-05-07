@@ -39,12 +39,17 @@ namespace PalmRecognizer
 
         public void AddRotationInfo(string user)
         {
-            LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " rotated file by 1 degree"  + Environment.NewLine;
+            LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " rotated file by 1 degree" + Environment.NewLine;
         }
 
         public void AddCropInfo(string user, string fileName)
         {
             LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " cropped file, new name " + fileName + Environment.NewLine;
+        }
+
+        public void AddResizeInfo(string fileName)
+        {
+            LogContent += Environment.NewLine + DateTime.Now.ToString() + " Program resized file automatically, new name " + fileName + Environment.NewLine;
         }
 
         public void AddEdgesDetectionInfo()

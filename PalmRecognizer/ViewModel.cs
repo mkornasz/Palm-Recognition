@@ -441,7 +441,6 @@ namespace PalmRecognizer
             _palmFilenameExtension = Path.GetExtension(_palmFilename);
             PalmLoadedImage = new BitmapImage(new Uri(_palmFilename));
             _palmBitmap = ConvertFromBitmapSourceToBitmap(_palmImage as BitmapSource);
-            var IMGCONTROL = (Application.Current.MainWindow as MainWindow).ImageArea;
             _tool = new PalmTool(_palmFilename, _cannyParamHigh, _cannyParamLow, _contrastParam, _brightnessParam);
             _logWriter.AddLoadInfo(_actualUser, _palmFilename);
             OnPropertyChanged("LogContent");
@@ -450,6 +449,8 @@ namespace PalmRecognizer
             CannyParamLow = "100";
             ContrastValue = 1.0;
             BrightnessValue = 0;
+
+            ResizeImage();
         }
 
         private void SaveFileCommandExecuted()
@@ -639,6 +640,22 @@ namespace PalmRecognizer
             _startMousePoint = new Point();
             _startMousePointImage = new Point();
             _logWriter.AddCropInfo(_actualUser, _palmFilename);
+            OnPropertyChanged("LogContent");
+        }
+
+        private void ResizeImage()
+        {
+            var bitmap = _palmImage as BitmapSource;
+            if (bitmap.PixelHeight <= 900 && bitmap.PixelWidth <= 900) return;
+
+            var scale = bitmap.PixelWidth > 900 ? 900.0 / bitmap.PixelWidth : 900.0 / bitmap.PixelHeight;
+            PalmLoadedImage = new TransformedBitmap(bitmap, new ScaleTransform(scale, scale));
+            
+            _palmFilename = _palmFilename.Replace(_palmFilenameExtension, "RESIZED" + _palmFilenameExtension);
+            ConvertFromBitmapSourceToBitmap(PalmLoadedImage as BitmapSource).Save(_palmFilename);
+            MessageBox.Show("Resized image saved automatically .");
+            _tool = new PalmTool(_palmFilename, _cannyParamHigh, _cannyParamLow, _contrastParam, _brightnessParam);
+            _logWriter.AddResizeInfo(_palmFilename);
             OnPropertyChanged("LogContent");
         }
 
