@@ -6,81 +6,92 @@
 	using Emgu.CV.Util;
 	using System;
 	using System.Drawing;
+	using System.Windows;
+
+	using Point = System.Drawing.Point;
 
 	internal class MeasurementDetector
 	{
+		#region Private Members
+
 		private Mat _originalImg;
+
 		private VectorOfPoint _fingerTips;
+
+		private MCvScalar[] _colors = new[]
+		{
+			new MCvScalar(255, 0, 0),
+			new MCvScalar(255, 255, 0),
+			new MCvScalar(0, 255, 0),
+			new MCvScalar(0, 0, 255),
+			new MCvScalar(255, 0, 255),
+			new MCvScalar(0, 255, 255),
+			new MCvScalar(255, 255, 255),
+			new MCvScalar(255, 100, 0),
+			new MCvScalar(255, 0, 100),
+			new MCvScalar(100, 100, 100),
+			new MCvScalar(100, 255, 0),
+			new MCvScalar(100, 0, 255),
+		};
+
+		#endregion Private Members
+
+		#region Public Properties
+
+		#endregion Public Properties
+
+		#region Constructors
 
 		public MeasurementDetector(Mat src)
 		{
 			_originalImg = src;
 		}
 
+		#endregion Constructors
+
+		#region Public Methods
+
 		public Mat MeasureHand()
 		{
-			var scalar = new MCvScalar(0);
+			var zeroValue = new MCvScalar(0);
 			var m = new Mat(_originalImg.Size, DepthType.Cv8U, 3);
-			m.SetTo(scalar);
+			m.SetTo(zeroValue);
 
 			using (VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint())
 			{
-				CvInvoke.FindContours(_originalImg, contours, null, RetrType.Tree, ChainApproxMethod.ChainApproxSimple);
-
-				var maxContourIndex = FindBiggestContour(contours);
-				var maxContour = contours[maxContourIndex];
-
-				var convexHullP = new VectorOfPoint();
-				var convexHullI = new VectorOfInt();
-				var approxContour = new VectorOfPoint();
 				var defects = new VectorOfRect();
-
-				CvInvoke.ConvexHull(maxContour, convexHullP, false, false);
-				CvInvoke.ConvexHull(maxContour, convexHullI, false, false);
-				CvInvoke.ApproxPolyDP(convexHullP, convexHullP, 18, true);
-
-				if (maxContour.Size > 3)
-				{
-					CvInvoke.ConvexityDefects(maxContour, convexHullI, defects);
-					defects = EleminateDefects(maxContour, defects);
-				}
-
-				if (maxContour.Size > 0)
-				{
-					CvInvoke.DrawContours(m, contours, maxContourIndex, new MCvScalar(0, 255, 0));
-					CvInvoke.Polylines(m, convexHullP.ToArray(), true, new MCvScalar(0, 0, 255));
-
-					for (int i = 0; i < defects.Size; i++)
-					{
-
-						int startIdx = defects[i].X;
-						Point ptStart = maxContour[startIdx];
-
-						int endIdx = defects[i].Y;
-						Point ptEnd = maxContour[endIdx];
-
-						int farIdx = defects[i].Width;
-						Point ptFar = maxContour[farIdx];
-
-						double depth = defects[i].Height / 256;
-						//display start points
-						CvInvoke.Circle(m, ptStart, 5, new MCvScalar(255, 0, 0), 2);
-						//display all end points
-						CvInvoke.Circle(m, ptEnd, 5, new MCvScalar(255, 255, 0), 2);
-						//display all far points
-						CvInvoke.Circle(m, ptFar, 5, new MCvScalar(0, 0, 255), 2);
-					}
-				}
-
-
-
-				//GetFingerTips(m, maxContour, defects);
-				//var boundingBox = CvInvoke.BoundingRectangle(maxContour);
-
-				//var isHand = DetectIfHand(boundingBox);
+				var isHand = GetImageDefects(m, contours, ref defects);
 			}
 
 			return m;
+		}
+
+		#endregion Public Methods
+
+		#region Private Methods
+
+		private bool GetImageDefects(Mat m, VectorOfVectorOfPoint contours, ref VectorOfRect defects)
+		{
+			CvInvoke.FindContours(_originalImg, contours, null, RetrType.Tree, ChainApproxMethod.ChainApproxSimple);
+
+			var maxContourIndex = FindBiggestContour(contours);
+			var maxContour = contours[maxContourIndex];
+
+			var convexHullP = new VectorOfPoint();
+			var convexHullI = new VectorOfInt();
+
+			CvInvoke.ConvexHull(maxContour, convexHullP, false, false);
+			CvInvoke.ConvexHull(maxContour, convexHullI, false, false);
+
+			if (maxContour.Size > 3)
+			{
+				CvInvoke.ConvexityDefects(maxContour, convexHullI, defects);
+				defects = EleminateDefects(maxContour, defects);
+				DrawDefects(m, contours, maxContourIndex, maxContour, convexHullP, defects);
+			}
+
+			var boundingBox = CvInvoke.BoundingRectangle(maxContour);
+			return DetectIfHand(defects, boundingBox);
 		}
 
 		private int FindBiggestContour(VectorOfVectorOfPoint contours)
@@ -106,7 +117,8 @@
 			int minTolerance = boundingBox.Height / 5;
 			int maxTolerance = boundingBox.Height / 2;
 
-			double angleTol = 40;
+			double angleMinTol = 5;
+			double angleMaxTol = 40;
 			var newDefects = new VectorOfRect();
 			foreach (var defect in defects.ToArray())
 			{
@@ -116,10 +128,11 @@
 
 				var distFar = Distance(ptStart, ptFar);
 				var distEnd = Distance(ptFar, ptEnd);
+				var angle = Angle(ptStart, ptFar, ptEnd);
 
 				if (distFar > minTolerance && distEnd > minTolerance &&
 					//distFar < maxTolerance && distEnd < maxTolerance && 
-					Angle(ptStart, ptFar, ptEnd) < angleTol &&
+					angle < angleMaxTol && angle > angleMinTol &&
 					ptEnd.Y < (boundingBox.Y + boundingBox.Height - boundingBox.Height / 4) && ptStart.Y < (boundingBox.Y + boundingBox.Height - boundingBox.Height / 4))
 				{
 					newDefects.Push(new[] { defect });
@@ -130,7 +143,6 @@
 			//return RemoveRedundantEndPoints(contour, newDefects, boundingBox.Width);
 		}
 
-		// remove endpoint of convexity defects if they are at the same fingertip
 		private VectorOfPoint RemoveRedundantEndPoints(VectorOfPoint contour, VectorOfRect defects, double width)
 		{
 			double tolerance = width / 6;
@@ -196,75 +208,48 @@
 			return angle;
 		}
 
-		private void GetFingerTips(Mat m, VectorOfPoint contour, VectorOfRect defects)
-		{
-			_fingerTips = new VectorOfPoint();
-			int i = 0;
-			foreach (var d in defects.ToArray())
-			{
-				int startidx = d.X;
-				Point ptStart = contour[startidx];
-
-				int endidx = d.Y;
-				Point ptEnd = contour[endidx];
-
-				int faridx = d.Width;
-				Point ptFar = contour[faridx];
-
-				if (i == 0)
-				{
-					_fingerTips.Push(new[] { ptStart });
-					i++;
-				}
-				_fingerTips.Push(new[] { ptEnd });
-				i++;
-			}
-
-			RemoveRedundantFingerTips();
-		}
-		private void RemoveRedundantFingerTips()
-		{
-			var newFingers = new VectorOfPoint();
-			for (int i = 0; i < _fingerTips.Size; i++)
-			{
-				for (int j = i; j < _fingerTips.Size; j++)
-				{
-					if (Distance(_fingerTips[i], _fingerTips[j]) < 50 && i != j)
-					{
-					}
-					else
-					{
-						newFingers.Push(new[] { _fingerTips[i] });
-						break;
-					}
-				}
-			}
-			_fingerTips = newFingers;
-		}
-
-		private bool DetectIfHand(Rectangle boundingBox)
+		private bool DetectIfHand(VectorOfRect defects, Rectangle boundingBox)
 		{
 			double h = boundingBox.Height;
 			double w = boundingBox.Width;
-			bool isHand = true;
 
-			if (_fingerTips.Size > 5)
+			if (defects.Size > 5
+				|| h == 0 || w == 0
+				|| h / w > 4 || w / h > 4
+				|| boundingBox.X < 20)
 			{
-				isHand = false;
+				MessageBox.Show("The provided photo doesn't present a hand");
+				return false;
 			}
-			else if (h == 0 || w == 0)
-			{
-				isHand = false;
-			}
-			else if (h / w > 4 || w / h > 4)
-			{
-				isHand = false;
-			}
-			else if (boundingBox.X < 20)
-			{
-				isHand = false;
-			}
-			return isHand;
+
+			return true;
 		}
+
+		private void DrawDefects(Mat m, VectorOfVectorOfPoint contours, int maxContourIndex, VectorOfPoint maxContour, VectorOfPoint convexHullP, VectorOfRect defects)
+		{
+			CvInvoke.DrawContours(m, contours, maxContourIndex, new MCvScalar(0, 255, 0));
+			CvInvoke.Polylines(m, convexHullP.ToArray(), true, new MCvScalar(0, 0, 255));
+
+			for (int i = 0; i < defects.Size; i++)
+			{
+				int startIdx = defects[i].X;
+				Point ptStart = maxContour[startIdx];
+
+				int endIdx = defects[i].Y;
+				Point ptEnd = maxContour[endIdx];
+
+				int farIdx = defects[i].Width;
+				Point ptFar = maxContour[farIdx];
+
+				CvInvoke.Circle(m, ptStart, 5, new MCvScalar(255, 0, 0), 2);
+				CvInvoke.Circle(m, ptEnd, 5, new MCvScalar(255, 255, 0), 2);
+				CvInvoke.Circle(m, ptFar, 5, new MCvScalar(0, 0, 255), 2);
+
+				CvInvoke.Line(m, ptFar, ptStart, _colors[i]);
+				CvInvoke.Line(m, ptEnd, ptFar, _colors[i]);
+			}
+		}
+
+		#endregion Private Methods
 	}
 }
