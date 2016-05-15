@@ -20,5 +20,11 @@ namespace PalmRecognizer
             this.DialogResult = true;
             this.Close();
         }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (this.DialogResult == null)
+                this.DialogResult = false;
+        }
     }
 }

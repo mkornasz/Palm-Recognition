@@ -31,7 +31,8 @@
             <Button Margin="2" Width="100" Content="Save file" IsEnabled="{Binding IsFileLoaded}" Command="{Binding SaveFileCommand}"/>
             <Button Margin="2" Width="100" Content="Detect edges" IsEnabled="{Binding IsFileLoaded}" Command="{Binding RecognizePalmCommand}"/>
             <Button Margin="2" Width="100" Content="Measure palm" IsEnabled="{Binding IsEdgesDetected}" Command="{Binding MeasurePalmCommand}"/>
-            <Button Margin="2" Width="100" Content="Add palm to base" IsEnabled="{Binding IsFileLoaded}" Command="{Binding AddPalmToBaseCommand}"/>            <!-- POTEM ZMIENIC NA IsPalmMeasured-->
+            <Button Margin="2" Width="100" Content="Add palm to base" IsEnabled="{Binding IsFileLoaded}" Command="{Binding AddPalmToBaseCommand}"/>
+            <!-- POTEM ZMIENIC NA IsPalmMeasured-->
             <Button Margin="2" Width="100" Content="Search palm" IsEnabled="{Binding IsPalmMeasured}" Command="{Binding SearchPalmCommand}"/>
             <Label Margin="70,2,2,2" Content="PALM RECOGNIZER" VerticalContentAlignment="Center" FontWeight="Bold"/>
             <Image Source="Hand.ico"/>
@@ -109,7 +110,13 @@
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
                             <Label Grid.ColumnSpan="2" Grid.RowSpan="2" Grid.Row="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontWeight="Bold"  Content="Selected palm - details"/>
-                            <Image  Grid.ColumnSpan="2" Grid.Row="2" Stretch="Uniform" Source="{ Binding Path=SelectedPalmImage.Image, Converter={StaticResource PalmImageConverter} }"/>
+                            <Image  Grid.ColumnSpan="2" Grid.Row="2" Stretch="Uniform" Source="{ Binding Path=SelectedPalmImage.Image, Converter={StaticResource PalmImageConverter} }">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="MouseDown">
+                                        <i:InvokeCommandAction Command="{Binding MouseDownPreviewCommand}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Image>
                             <Label Grid.Column="0" Grid.Row="3" FontWeight="Bold"  Content="Date"/>
                             <Label Grid.Column="1" Grid.Row="3" Content="{Binding SelectedPalm}"/>
                             <Label Grid.Column="0" Grid.Row="4" FontWeight="Bold" Content="User"/>

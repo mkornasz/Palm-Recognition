@@ -272,7 +272,7 @@ namespace PalmRecognizer
         #endregion
 
         #region Commands
-        private ICommand _mouseWheelCommand, _mouseDownCommand, _mouseDownBorderCommand, _mouseUpCommand, _mouseMoveCommand, _loadFileCommand, _saveFileCommand, _cropFileCommand, _measurePalmCommand,
+        private ICommand _mouseWheelCommand, _mouseDownCommand, _mouseDownBorderCommand, _mouseDownPreviewCommand, _mouseUpCommand, _mouseMoveCommand, _loadFileCommand, _saveFileCommand, _cropFileCommand, _measurePalmCommand,
             _recognizePalmCommand, _searchPalmCommand, _addPalmToBaseCommand, _logInCommand, _logOutCommand, _addUserToBaseCommand, _closingCommand;
 
         public ICommand MouseWheelCommand
@@ -333,6 +333,11 @@ namespace PalmRecognizer
         public ICommand AddUserToBaseCommand
         {
             get { return _addUserToBaseCommand ?? (_addUserToBaseCommand = new DelegateCommand(AddUserToBaseCommandExecuted)); }
+        }
+
+        public ICommand MouseDownPreviewCommand
+        {
+            get { return _mouseDownPreviewCommand ?? (_mouseDownPreviewCommand = new DelegateCommand(MouseDownPreviewCommandExecuted)); }
         }
 
         public ICommand MouseDownCommand
@@ -415,6 +420,17 @@ namespace PalmRecognizer
             PalmEdgesImage = ConvertFromBitmapToBitmapSource(_palmRotatedEdgesBitmap);
             _logWriter.AddRotationInfo(_actualUser);
             OnPropertyChanged("LogContent");
+        }
+
+        private void MouseDownPreviewCommandExecuted()
+        {
+            MemoryStream ms = new MemoryStream(SelectedPalmImage.Image);
+            var img = System.Drawing.Image.FromStream(ms);
+            Window window = new Window { WindowStyle = WindowStyle.ToolWindow, WindowStartupLocation = WindowStartupLocation.CenterScreen, Title = "Preview" };
+            window.Width = window.Height = SystemParameters.PrimaryScreenHeight - 40;
+            var imageControl = new System.Windows.Controls.Image { Source = ConvertFromBitmapToBitmapSource((Bitmap)img), Stretch = Stretch.None };
+            window.Content = new System.Windows.Controls.ScrollViewer { Content = imageControl, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto };
+            window.ShowDialog();
         }
 
         private void CropFileCommandExecuted()
@@ -535,8 +551,9 @@ namespace PalmRecognizer
         {
             string description = "";
             DescriptionWindow dw = new DescriptionWindow();
-            if (dw.ShowDialog() == true)
-                description = dw.Description;
+            if (dw.ShowDialog() == false) return;
+
+            description = dw.Description;
             if (description == "")
                 if (MessageBox.Show("Add without description?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                     description = " ";
@@ -650,7 +667,7 @@ namespace PalmRecognizer
 
             var scale = bitmap.PixelWidth > 900 ? 900.0 / bitmap.PixelWidth : 900.0 / bitmap.PixelHeight;
             PalmLoadedImage = new TransformedBitmap(bitmap, new ScaleTransform(scale, scale));
-            
+
             _palmFilename = _palmFilename.Replace(_palmFilenameExtension, "RESIZED" + _palmFilenameExtension);
             ConvertFromBitmapSourceToBitmap(PalmLoadedImage as BitmapSource).Save(_palmFilename);
             MessageBox.Show("Resized image saved automatically .");
@@ -675,7 +692,7 @@ namespace PalmRecognizer
 
         private BitmapSource ConvertFromBitmapToBitmapSource(Bitmap bmp)
         {
-           return System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, System.Windows.Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+            return System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, System.Windows.Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
         }
 
         private Bitmap ConvertFromBitmapSourceToBitmap(BitmapSource bmp)
