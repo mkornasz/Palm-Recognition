@@ -2,7 +2,9 @@
 
 namespace PalmRecognizer
 {
-    /// <summary>
+	using PalmRecognizer.ViewModels;
+
+	/// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window

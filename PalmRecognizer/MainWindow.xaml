@@ -4,13 +4,21 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:PalmRecognizer"
+        xmlns:converters="clr-namespace:PalmRecognizer.Converters"
+        xmlns:model="clr-namespace:PalmRecognizer.Model"
+        xmlns:helpers="clr-namespace:PalmRecognizer.Helpers"
         mc:Ignorable="d"
         Title="Palm Recognizer" Height="800" Width="1300" WindowStartupLocation="CenterScreen">
+    <i:Interaction.Behaviors>
+        <helpers:EventToCommandBehavior Command="{Binding Path=MouseDownDefectCommand}" Event="MouseLeftButtonDown" PassArguments="True" />
+        <helpers:EventToCommandBehavior Command="{Binding Path=MouseUpDefectCommand}" Event="MouseLeftButtonUp" PassArguments="True" />
+        <helpers:EventToCommandBehavior Command="{Binding Path=MouseMoveDefectCommand}" Event="MouseMove" PassArguments="True" />
+    </i:Interaction.Behaviors>
     <Window.Resources>
-        <local:InverseValueConverter x:Key="InverseValueConverter" />
-        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-        <local:PalmImageConverter x:Key="PalmImageConverter"/>
+        <converters:InverseValueConverter x:Key="InverseValueConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:PalmImageConverter x:Key="PalmImageConverter"/>
+        <converters:PercentageToSizeConverter x:Key="PercentageToSizeConverter"/>
     </Window.Resources>
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
@@ -31,7 +39,8 @@
             <Button Margin="2" Width="100" Content="Save file" IsEnabled="{Binding IsFileLoaded}" Command="{Binding SaveFileCommand}"/>
             <Button Margin="2" Width="100" Content="Detect edges" IsEnabled="{Binding IsFileLoaded}" Command="{Binding RecognizePalmCommand}"/>
             <Button Margin="2" Width="100" Content="Measure palm" IsEnabled="{Binding IsEdgesDetected}" Command="{Binding MeasurePalmCommand}"/>
-            <Button Margin="2" Width="100" Content="Add palm to base" IsEnabled="{Binding IsFileLoaded}" Command="{Binding AddPalmToBaseCommand}"/>            <!-- POTEM ZMIENIC NA IsPalmMeasured-->
+            <Button Margin="2" Width="100" Content="Add palm to base" IsEnabled="{Binding IsFileLoaded}" Command="{Binding AddPalmToBaseCommand}"/>
+            <!-- POTEM ZMIENIC NA IsPalmMeasured-->
             <Button Margin="2" Width="100" Content="Search palm" IsEnabled="{Binding IsPalmMeasured}" Command="{Binding SearchPalmCommand}"/>
             <Label Margin="70,2,2,2" Content="PALM RECOGNIZER" VerticalContentAlignment="Center" FontWeight="Bold"/>
             <Image Source="Hand.ico"/>
@@ -140,7 +149,120 @@
                 <!--<TabItem Header="Search results" Visibility="{DODAC W VIEWMODEL Binding IsResultVisible}">
                 </TabItem>-->
                 <TabItem Header="Contour" Visibility="{Binding IsPalmMeasured, Converter={StaticResource BoolToVisibilityConverter}}" Selector.IsSelected="{Binding IsPalmMeasured, Mode=OneWay}">
-                    <Image Stretch="Uniform" Source="{Binding PalmContourImage}"/>
+                    <Grid>
+                        <Image Name="DefectsImage" Stretch="Uniform" Source="{Binding PalmContourImage}"
+							   helpers:SizeObserver.Observe="True"
+							   helpers:SizeObserver.ObservedWidth="{Binding Width, Mode=OneWayToSource}"
+							   helpers:SizeObserver.ObservedHeight="{Binding Height, Mode=OneWayToSource}"/>
+                        <ItemsControl ItemsSource="{Binding Defects}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <Canvas Width="{Binding ElementName=DefectsImage, Path=ActualWidth}" Height="{Binding ElementName=DefectsImage, Path=ActualWidth}"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="model:Defect">
+                                    <Canvas>
+                                        <Line Stroke="CadetBlue" StrokeThickness="2">
+                                            <Line.X1>
+                                                <MultiBinding Converter="{StaticResource PercentageToSizeConverter}">
+                                                    <Binding Path="Start.X"/>
+                                                    <Binding ElementName="DefectsImage" Path="ActualWidth"/>
+                                                </MultiBinding>
+                                            </Line.X1>
+                                            <Line.Y1>
+                                                <MultiBinding Converter="{StaticResource PercentageToSizeConverter}">
+                                                    <Binding Path="Start.Y"/>
+                                                    <Binding ElementName="DefectsImage" Path="ActualHeight"/>
+                                                </MultiBinding>
+                                            </Line.Y1>
+                                            <Line.X2>
+                                                <MultiBinding Converter="{StaticResource PercentageToSizeConverter}">
+                                                    <Binding Path="Far.X"/>
+                                                    <Binding ElementName="DefectsImage" Path="ActualWidth"/>
+                                                </MultiBinding>
+                                            </Line.X2>
+                                            <Line.Y2>
+                                                <MultiBinding Converter="{StaticResource PercentageToSizeConverter}">
+                                                    <Binding Path="Far.Y"/>
+                                                    <Binding ElementName="DefectsImage" Path="ActualHeight"/>
+                                                </MultiBinding>
+                                            </Line.Y2>
+                                        </Line>
+                                        <Line Stroke="CadetBlue" StrokeThickness="2">
+                                            <Line.X1>
+                                                <MultiBinding Converter="{StaticResource PercentageToSizeConverter}">
+                                                    <Binding Path="End.X"/>
+                                                    <Binding ElementName="DefectsImage" Path="ActualWidth"/>
+                                                </MultiBinding>
+                                            </Line.X1>
+                                            <Line.Y1>
+                                                <MultiBinding Converter="{StaticResource PercentageToSizeConverter}">
+                                                    <Binding Path="End.Y"/>
+                                                    <Binding ElementName="DefectsImage" Path="ActualHeight"/>
+                                                </MultiBinding>
+                                            </Line.Y1>
+                                            <Line.X2>
+                                                <MultiBinding Converter="{StaticResource PercentageToSizeConverter}">
+                                                    <Binding Path="Far.X"/>
+                                                    <Binding ElementName="DefectsImage" Path="ActualWidth"/>
+                                                </MultiBinding>
+                                            </Line.X2>
+                                            <Line.Y2>
+                                                <MultiBinding Converter="{StaticResource PercentageToSizeConverter}">
+                                                    <Binding Path="Far.Y"/>
+                                                    <Binding ElementName="DefectsImage" Path="ActualHeight"/>
+                                                </MultiBinding>
+                                            </Line.Y2>
+                                        </Line>
+
+                                        <Ellipse Width="6" Height="6" Fill="MediumVioletRed" Tag="{Binding Id}">
+                                            <Canvas.Top>
+                                                <MultiBinding Converter="{StaticResource PercentageToSizeConverter}" ConverterParameter="3">
+                                                    <Binding Path="Start.Y"/>
+                                                    <Binding ElementName="DefectsImage" Path="ActualHeight"/>
+                                                </MultiBinding>
+                                            </Canvas.Top>
+                                            <Canvas.Left>
+                                                <MultiBinding Converter="{StaticResource PercentageToSizeConverter}" ConverterParameter="3">
+                                                    <Binding Path="Start.X"/>
+                                                    <Binding ElementName="DefectsImage" Path="ActualWidth"/>
+                                                </MultiBinding>
+                                            </Canvas.Left>
+                                        </Ellipse>
+                                        <Ellipse Width="6" Height="6" Fill="CornflowerBlue" Tag="{Binding Id}">
+                                            <Canvas.Top>
+                                                <MultiBinding Converter="{StaticResource PercentageToSizeConverter}" ConverterParameter="3">
+                                                    <Binding Path="End.Y"/>
+                                                    <Binding ElementName="DefectsImage" Path="ActualHeight"/>
+                                                </MultiBinding>
+                                            </Canvas.Top>
+                                            <Canvas.Left>
+                                                <MultiBinding Converter="{StaticResource PercentageToSizeConverter}" ConverterParameter="3">
+                                                    <Binding Path="End.X"/>
+                                                    <Binding ElementName="DefectsImage" Path="ActualWidth"/>
+                                                </MultiBinding>
+                                            </Canvas.Left>
+                                        </Ellipse>
+                                        <Ellipse Width="6" Height="6" Fill="Chartreuse" Tag="{Binding Id}">
+                                            <Canvas.Top>
+                                                <MultiBinding Converter="{StaticResource PercentageToSizeConverter}" ConverterParameter="3">
+                                                    <Binding Path="Far.Y"/>
+                                                    <Binding ElementName="DefectsImage" Path="ActualHeight"/>
+                                                </MultiBinding>
+                                            </Canvas.Top>
+                                            <Canvas.Left>
+                                                <MultiBinding Converter="{StaticResource PercentageToSizeConverter}" ConverterParameter="3">
+                                                    <Binding Path="Far.X"/>
+                                                    <Binding ElementName="DefectsImage" Path="ActualWidth"/>
+                                                </MultiBinding>
+                                            </Canvas.Left>
+                                        </Ellipse>
+                                    </Canvas>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
                 </TabItem>
                 <TabItem Header="Edges" Visibility="{Binding IsEdgesDetected, Converter={StaticResource BoolToVisibilityConverter}}" Selector.IsSelected="{Binding IsEdgesDetectedToSelection, Mode=OneWay, Converter={StaticResource InverseValueConverter}}">
                     <Image Stretch="Uniform" Source="{Binding PalmEdgesImage}">

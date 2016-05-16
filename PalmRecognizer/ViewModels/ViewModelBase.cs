@@ -1,8 +1,8 @@
-﻿using System.ComponentModel;
-
-namespace PalmRecognizer
+﻿namespace PalmRecognizer.ViewModels
 {
-    public abstract class ViewModelBase : INotifyPropertyChanged
+	using System.ComponentModel;
+
+	public abstract class ViewModelBase : INotifyPropertyChanged
     {
         protected void OnPropertyChanged(string property)
         {

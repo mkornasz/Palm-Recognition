@@ -1,16 +1,20 @@
-﻿namespace PalmRecognizer
+﻿namespace PalmRecognizer.ViewModels
 {
+	using System;
+	using System.Collections.ObjectModel;
+	using System.Drawing;
+	using System.Windows;
+
 	using Emgu.CV;
 	using Emgu.CV.CvEnum;
 	using Emgu.CV.Structure;
 	using Emgu.CV.Util;
-	using System;
-	using System.Drawing;
-	using System.Windows;
+
+	using PalmRecognizer.Model;
 
 	using Point = System.Drawing.Point;
 
-	internal class MeasurementDetector
+	internal class MeasurementDetector : ViewModelBase
 	{
 		#region Private Members
 
@@ -18,7 +22,9 @@
 
 		private VectorOfPoint _fingerTips;
 
-		private MCvScalar[] _colors = new[]
+		private ObservableCollection<Defect> _defects;
+
+		private MCvScalar[] _colors =
 		{
 			new MCvScalar(255, 0, 0),
 			new MCvScalar(255, 255, 0),
@@ -38,13 +44,27 @@
 
 		#region Public Properties
 
+		public ObservableCollection<Defect> Defects
+		{
+			get
+			{
+				return this._defects;
+			}
+			set
+			{
+				this._defects = value;
+				this.OnPropertyChanged("Defects");
+			}
+		}
+
 		#endregion Public Properties
 
 		#region Constructors
 
 		public MeasurementDetector(Mat src)
 		{
-			_originalImg = src;
+			this._originalImg = src;
+			this.Defects = new ObservableCollection<Defect>();
 		}
 
 		#endregion Constructors
@@ -54,13 +74,13 @@
 		public Mat MeasureHand()
 		{
 			var zeroValue = new MCvScalar(0);
-			var m = new Mat(_originalImg.Size, DepthType.Cv8U, 3);
+			var m = new Mat(this._originalImg.Size, DepthType.Cv8U, 3);
 			m.SetTo(zeroValue);
 
 			using (VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint())
 			{
 				var defects = new VectorOfRect();
-				var isHand = GetImageDefects(m, contours, ref defects);
+				var isHand = this.GetImageDefects(m, contours, ref defects);
 			}
 
 			return m;
@@ -72,9 +92,9 @@
 
 		private bool GetImageDefects(Mat m, VectorOfVectorOfPoint contours, ref VectorOfRect defects)
 		{
-			CvInvoke.FindContours(_originalImg, contours, null, RetrType.Tree, ChainApproxMethod.ChainApproxSimple);
+			CvInvoke.FindContours(this._originalImg, contours, null, RetrType.Tree, ChainApproxMethod.ChainApproxSimple);
 
-			var maxContourIndex = FindBiggestContour(contours);
+			var maxContourIndex = this.FindBiggestContour(contours);
 			var maxContour = contours[maxContourIndex];
 
 			var convexHullP = new VectorOfPoint();
@@ -82,16 +102,17 @@
 
 			CvInvoke.ConvexHull(maxContour, convexHullP, false, false);
 			CvInvoke.ConvexHull(maxContour, convexHullI, false, false);
+			//CvInvoke.ApproxPolyDP(convexHullP, convexHullP, 18, true);
 
 			if (maxContour.Size > 3)
 			{
 				CvInvoke.ConvexityDefects(maxContour, convexHullI, defects);
-				defects = EleminateDefects(maxContour, defects);
-				DrawDefects(m, contours, maxContourIndex, maxContour, convexHullP, defects);
+				defects = this.EleminateDefects(maxContour, defects);
+				this.DrawDefects(m, contours, maxContourIndex, maxContour, convexHullP, defects);
 			}
 
 			var boundingBox = CvInvoke.BoundingRectangle(maxContour);
-			return DetectIfHand(defects, boundingBox);
+			return this.DetectIfHand(defects, boundingBox);
 		}
 
 		private int FindBiggestContour(VectorOfVectorOfPoint contours)
@@ -126,9 +147,9 @@
 				Point ptEnd = contour[defect.Y];
 				Point ptFar = contour[defect.Width];
 
-				var distFar = Distance(ptStart, ptFar);
-				var distEnd = Distance(ptFar, ptEnd);
-				var angle = Angle(ptStart, ptFar, ptEnd);
+				var distFar = this.Distance(ptStart, ptFar);
+				var distEnd = this.Distance(ptFar, ptEnd);
+				var angle = this.Angle(ptStart, ptFar, ptEnd);
 
 				if (distFar > minTolerance && distEnd > minTolerance &&
 					//distFar < maxTolerance && distEnd < maxTolerance && 
@@ -163,14 +184,14 @@
 
 					endidx2 = defects[j].Y;
 					Point ptEnd2 = contour[endidx2];
-					if (Distance(ptStart, ptEnd2) < tolerance)
+					if (this.Distance(ptStart, ptEnd2) < tolerance)
 					{
-						contour = Swap(contour, startidx, ptEnd2);
+						contour = this.Swap(contour, startidx, ptEnd2);
 						break;
 					}
-					if (Distance(ptEnd, ptStart2) < tolerance)
+					if (this.Distance(ptEnd, ptStart2) < tolerance)
 					{
-						contour = Swap(contour, startidx2, ptEnd);
+						contour = this.Swap(contour, startidx2, ptEnd);
 					}
 				}
 			}
@@ -200,8 +221,8 @@
 
 		private double Angle(Point s, Point f, Point e)
 		{
-			double l1 = Distance(f, s);
-			double l2 = Distance(f, e);
+			double l1 = this.Distance(f, s);
+			double l2 = this.Distance(f, e);
 			double dot = (s.X - f.X) * (e.X - f.X) + (s.Y - f.Y) * (e.Y - f.Y);
 			double angle = Math.Acos(dot / (l1 * l2));
 			angle = angle * 180 / Math.PI;
@@ -227,8 +248,10 @@
 
 		private void DrawDefects(Mat m, VectorOfVectorOfPoint contours, int maxContourIndex, VectorOfPoint maxContour, VectorOfPoint convexHullP, VectorOfRect defects)
 		{
+			var defectsList = new ObservableCollection<Defect>();
 			CvInvoke.DrawContours(m, contours, maxContourIndex, new MCvScalar(0, 255, 0));
 			CvInvoke.Polylines(m, convexHullP.ToArray(), true, new MCvScalar(0, 0, 255));
+
 
 			for (int i = 0; i < defects.Size; i++)
 			{
@@ -241,13 +264,17 @@
 				int farIdx = defects[i].Width;
 				Point ptFar = maxContour[farIdx];
 
-				CvInvoke.Circle(m, ptStart, 5, new MCvScalar(255, 0, 0), 2);
-				CvInvoke.Circle(m, ptEnd, 5, new MCvScalar(255, 255, 0), 2);
-				CvInvoke.Circle(m, ptFar, 5, new MCvScalar(0, 0, 255), 2);
+				//CvInvoke.Circle(m, ptStart, 5, new MCvScalar(255, 0, 0), 2);
+				//CvInvoke.Circle(m, ptEnd, 5, new MCvScalar(255, 255, 0), 2);
+				//CvInvoke.Circle(m, ptFar, 5, new MCvScalar(0, 0, 255), 2);
 
-				CvInvoke.Line(m, ptFar, ptStart, _colors[i]);
-				CvInvoke.Line(m, ptEnd, ptFar, _colors[i]);
+				//CvInvoke.Line(m, ptFar, ptStart, this._colors[i]);
+				//CvInvoke.Line(m, ptEnd, ptFar, this._colors[i]);
+
+				defectsList.Add(new Defect(ptStart, ptEnd, ptFar, m.Cols, m.Rows));
 			}
+
+			this.Defects = defectsList;
 		}
 
 		#endregion Private Methods

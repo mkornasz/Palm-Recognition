@@ -1,10 +1,11 @@
-﻿using Emgu.CV;
-using Emgu.CV.CvEnum;
-using System.Runtime.InteropServices;
-
-namespace PalmRecognizer
+﻿namespace PalmRecognizer.Helpers
 {
-    public static class MatExtension
+	using System.Runtime.InteropServices;
+
+	using Emgu.CV;
+	using Emgu.CV.CvEnum;
+
+	public static class MatExtension
     {
         public static dynamic GetValue(this Mat mat, int row, int col)
         {
