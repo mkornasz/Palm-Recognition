@@ -335,10 +335,15 @@
 		#endregion
 
 		#region Commands
-		private ICommand _mouseWheelCommand, _mouseDownCommand, _mouseDownBorderCommand, _mouseUpCommand, _mouseMoveCommand, _loadFileCommand, _saveFileCommand, _cropFileCommand, _measurePalmCommand,
+		private ICommand _mouseWheelCommand, _mouseDownCommand, _mouseDownBorderCommand, _mouseDownPreviewCommand, _mouseUpCommand, _mouseMoveCommand, _loadFileCommand, _saveFileCommand, _cropFileCommand, _measurePalmCommand,
 			_recognizePalmCommand, _searchPalmCommand, _addPalmToBaseCommand, _logInCommand, _logOutCommand, _addUserToBaseCommand, _closingCommand;
 
 		private ICommand _mouseDownDefectCommand, _mouseMoveDefectCommand, _mouseUpDefectCommand;
+
+		public ICommand MouseDownPreviewCommand
+		{
+			get { return _mouseDownPreviewCommand ?? (_mouseDownPreviewCommand = new DelegateCommand(MouseDownPreviewCommandExecuted)); }
+		}
 
 		public ICommand MouseWheelCommand
 		{
@@ -433,6 +438,21 @@
 		public ICommand MouseMoveCommand
 		{
 			get { return _mouseMoveCommand ?? (_mouseMoveCommand = new DelegateCommand(MouseMoveCommandExecuted)); }
+		}
+		private void MouseDownPreviewCommandExecuted(object o)
+		{
+			MemoryStream ms = new MemoryStream(SelectedPalmImage.Image);
+			var img = System.Drawing.Image.FromStream(ms);
+			Window window = new Window { WindowStyle = WindowStyle.ToolWindow, WindowStartupLocation = WindowStartupLocation.CenterScreen, Title = "Preview" };
+			window.Width = window.Height = SystemParameters.PrimaryScreenHeight - 40;
+			var imageControl = new System.Windows.Controls.Image { Source = ConvertFromBitmapToBitmapSource((Bitmap)img), Stretch = Stretch.None };
+			window.Content = new System.Windows.Controls.ScrollViewer
+			{
+				Content = imageControl,
+				VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+				HorizontalScrollBarVisibility = ScrollBarVisibility.Auto
+			};
+			window.ShowDialog();
 		}
 
 		private void MouseMoveCommandExecuted(object o)
@@ -613,8 +633,8 @@
 		{
 			string description = "";
 			DescriptionWindow dw = new DescriptionWindow();
-			if (dw.ShowDialog() == true)
-				description = dw.Description;
+			if (dw.ShowDialog() == false) return;
+			description = dw.Description;
 			if (description == "")
 				if (MessageBox.Show("Add without description?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
 					description = " ";
