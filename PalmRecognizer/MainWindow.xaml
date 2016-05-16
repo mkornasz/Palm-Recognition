@@ -118,7 +118,13 @@
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
                             <Label Grid.ColumnSpan="2" Grid.RowSpan="2" Grid.Row="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontWeight="Bold"  Content="Selected palm - details"/>
-                            <Image  Grid.ColumnSpan="2" Grid.Row="2" Stretch="Uniform" Source="{ Binding Path=SelectedPalmImage.Image, Converter={StaticResource PalmImageConverter} }"/>
+                            <Image  Grid.ColumnSpan="2" Grid.Row="2" Stretch="Uniform" Source="{ Binding Path=SelectedPalmImage.Image, Converter={StaticResource PalmImageConverter} }">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="MouseDown">
+                                        <i:InvokeCommandAction Command="{Binding MouseDownPreviewCommand}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Image>
                             <Label Grid.Column="0" Grid.Row="3" FontWeight="Bold"  Content="Date"/>
                             <Label Grid.Column="1" Grid.Row="3" Content="{Binding SelectedPalm}"/>
                             <Label Grid.Column="0" Grid.Row="4" FontWeight="Bold" Content="User"/>
