@@ -39,8 +39,8 @@
         private Point _startMousePoint, _startMousePointImage;
         private ImageSource _palmImage, _palmEdgesImage, _palmBlurImage, _palmGrayImage, _palmContourImage, _palmBwImage;
         private Bitmap _palmBitmap, _palmEdgesBitmap, _palmRotatedEdgesBitmap;
-        private DatabaseConnection.Model.Palm _selectedPalm;
-        private DatabaseConnection.Model.PalmImage _selectedPalmImage;
+        private DatabaseConnection.Model.Palm _selectedPalm, _wantedPalm;
+        private DatabaseConnection.Model.PalmImage _selectedPalmImage, _wantedPalmImage;
         private object _selectedTab;
 
         private ObservableCollection<Defect> _defects;
@@ -113,6 +113,33 @@
                 if (_selectedPalmImage != value)
                     _selectedPalmImage = value;
                 OnPropertyChanged("SelectedPalmImage");
+            }
+        }
+
+        public List<DatabaseConnection.Model.PalmImage> FoundPalmItems
+        {
+            get { return IsUserLogIn ? _connection.GetAllImages() : null; }
+        }
+
+        public DatabaseConnection.Model.Palm WantedPalm
+        {
+            get { return _wantedPalm; }
+            set
+            {
+                if (_wantedPalm != value)
+                    _wantedPalm = value;
+                OnPropertyChanged("WantedPalm");
+            }
+        }
+
+        public DatabaseConnection.Model.PalmImage WantedPalmImage
+        {
+            get { return _wantedPalmImage; }
+            set
+            {
+                if (_wantedPalmImage != value)
+                    _wantedPalmImage = value;
+                OnPropertyChanged("WantedPalmImage");
             }
         }
 

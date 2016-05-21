@@ -128,8 +128,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\BoolToHeightConverter.cs" />
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="Converters\PercentageToSizeConverter.cs" />
+    <Compile Include="DataBaseViewer.xaml.cs">
+      <DependentUpon>DataBaseViewer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Helpers\ActionCommand.cs" />
     <Compile Include="Helpers\DelegateCommand.cs" />
     <Compile Include="Helpers\EventToCommandBehaviour.cs" />
@@ -141,6 +145,9 @@
     <Compile Include="Converters\InverseValueConverter.cs" />
     <Compile Include="Helpers\LogWriter.cs" />
     <Compile Include="Helpers\MatExtension.cs" />
+    <Compile Include="PropertiesViewer.xaml.cs">
+      <DependentUpon>PropertiesViewer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ViewModels\MeasurementDetector.cs" />
     <Compile Include="NewUserWindow.xaml.cs">
       <DependentUpon>NewUserWindow.xaml</DependentUpon>
@@ -150,6 +157,10 @@
     <Compile Include="Model\Point2d.cs" />
     <Compile Include="ViewModels\ViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
+    <Page Include="DataBaseViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="DescriptionWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -169,6 +180,10 @@
     <Page Include="NewUserWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="PropertiesViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
