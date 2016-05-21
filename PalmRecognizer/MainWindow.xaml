@@ -39,8 +39,7 @@
             <Button Margin="2" Width="100" Content="Save file" IsEnabled="{Binding IsFileLoaded}" Command="{Binding SaveFileCommand}"/>
             <Button Margin="2" Width="100" Content="Detect edges" IsEnabled="{Binding IsFileLoaded}" Command="{Binding RecognizePalmCommand}"/>
             <Button Margin="2" Width="100" Content="Measure palm" IsEnabled="{Binding IsEdgesDetected}" Command="{Binding MeasurePalmCommand}"/>
-            <Button Margin="2" Width="100" Content="Add palm to base" IsEnabled="{Binding IsFileLoaded}" Command="{Binding AddPalmToBaseCommand}"/>
-            <!-- POTEM ZMIENIC NA IsPalmMeasured-->
+            <Button Margin="2" Width="100" Content="Add palm to base" IsEnabled="{Binding IsPalmMeasured}" Command="{Binding AddPalmToBaseCommand}"/>
             <Button Margin="2" Width="100" Content="Search palm" IsEnabled="{Binding IsPalmMeasured}" Command="{Binding SearchPalmCommand}"/>
             <Label Margin="70,2,2,2" Content="PALM RECOGNIZER" VerticalContentAlignment="Center" FontWeight="Bold"/>
             <Image Source="Hand.ico"/>
@@ -56,6 +55,8 @@
             <Label Margin="2" Content="Brightness:" VerticalContentAlignment="Center" />
             <Slider Minimum="-50" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="1" IsEnabled="{Binding IsFileLoaded}" Value="{Binding BrightnessValue, Mode=TwoWay}" VerticalAlignment="Center" Width="100"/>
             <ToggleButton Margin="2" Width="100"  Content="Crop image" IsEnabled="{Binding IsFileLoaded}" IsChecked="{Binding IsImageReadyForCrop, Mode=OneWay}" Command="{Binding CropFileCommand}"/>
+            <Button Margin="2" Width="140" Content="Histogram Equalization" IsEnabled="{Binding IsFileLoaded}" Command="{Binding HistogramEqualizationCommand}"/>
+            <Button Margin="2" Width="170" Content="Histogram Equalization UNDO" IsEnabled="{Binding IsFileLoaded}" Command="{Binding HistogramEqualizationUNDOCommand}"/>
         </StackPanel>
         <Border Grid.Row="2" BorderThickness="3" BorderBrush="DarkBlue">
             <TabControl x:Name="TabItems" IsEnabled="{Binding IsUserLogIn}" SelectedItem="{Binding SelectedTab}">
@@ -95,67 +96,109 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ListBox>
-                        <Grid Grid.Column="0" Background="LightBlue">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="10"/>
-                                <RowDefinition/>
-                                <RowDefinition Height="200"/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition Height="70"/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-                            <Label Grid.ColumnSpan="2" Grid.RowSpan="2" Grid.Row="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontWeight="Bold"  Content="Selected palm - details"/>
-                            <Image  Grid.ColumnSpan="2" Grid.Row="2" Stretch="Uniform" Source="{ Binding Path=SelectedPalmImage.Image, Converter={StaticResource PalmImageConverter} }">
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="MouseDown">
-                                        <i:InvokeCommandAction Command="{Binding MouseDownPreviewCommand}" />
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </Image>
-                            <Label Grid.Column="0" Grid.Row="3" FontWeight="Bold"  Content="Date"/>
-                            <Label Grid.Column="1" Grid.Row="3" Content="{Binding SelectedPalm}"/>
-                            <Label Grid.Column="0" Grid.Row="4" FontWeight="Bold" Content="User"/>
-                            <Label Grid.Column="1" Grid.Row="4" Content="{Binding SelectedPalm}"/>
-                            <Label Grid.Column="0" Grid.Row="5" FontWeight="Bold" Content="Description"/>
-                            <ScrollViewer  Margin="5" Grid.ColumnSpan="2" Grid.Row="6" HorizontalScrollBarVisibility="Disabled" >
-                                <TextBlock Text="{Binding SelectedPalm.Description}"/>
-                            </ScrollViewer>
-                            <Label Grid.Column="0" Grid.Row="7" FontWeight="Bold" Content="Index Finger Length"/>
-                            <Label Grid.Column="1" Grid.Row="7" Content="{Binding SelectedPalm.IndexFingerLength}"/>
-                            <Label Grid.Column="0" Grid.Row="8" FontWeight="Bold" Content="Index Finger Width"/>
-                            <Label Grid.Column="1" Grid.Row="8" Content="{Binding SelectedPalm.IndexFingerMid}"/>
-                            <Label Grid.Column="0" Grid.Row="9" FontWeight="Bold" Content="Middle Finger Length"/>
-                            <Label Grid.Column="1" Grid.Row="9" Content="{Binding SelectedPalm.MiddleFingerLength}"/>
-                            <Label Grid.Column="0" Grid.Row="10" FontWeight="Bold" Content="Middle Finger Width"/>
-                            <Label Grid.Column="1" Grid.Row="10" Content="{Binding SelectedPalm.MiddleFingerMid}"/>
-                            <Label Grid.Column="0" Grid.Row="11" FontWeight="Bold" Content="Ring Finger Length"/>
-                            <Label Grid.Column="1" Grid.Row="11" Content="{Binding SelectedPalm.RingFingerLength}"/>
-                            <Label Grid.Column="0" Grid.Row="12" FontWeight="Bold" Content="Ring Finger Width"/>
-                            <Label Grid.Column="1" Grid.Row="12" Content="{Binding SelectedPalm.RingFingerMid}"/>
-                            <Label Grid.Column="0" Grid.Row="13" FontWeight="Bold" Content="Pinky Finger Length"/>
-                            <Label Grid.Column="1" Grid.Row="13" Content="{Binding SelectedPalm.PinkyFingerLength}"/>
-                            <Label Grid.Column="0" Grid.Row="14" FontWeight="Bold" Content="Pinky Finger Width"/>
-                            <Label Grid.Column="1" Grid.Row="14" Content="{Binding SelectedPalm.PinkyFingerMid}"/>
-                        </Grid>
+                        <ScrollViewer>
+                            <Grid Grid.Column="0" Background="LightBlue">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="10"/>
+                                    <RowDefinition/>
+                                    <RowDefinition Height="200"/>
+                                    <RowDefinition Height="200"/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition Height="80"/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Label Grid.ColumnSpan="2" Grid.RowSpan="2" Grid.Row="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontWeight="Bold"  Content="Selected palm - details"/>
+                                <Image  Grid.ColumnSpan="2" Grid.Row="2" Stretch="Uniform" Source="{ Binding Path=SelectedPalmImage.Image, Converter={StaticResource PalmImageConverter} }">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="MouseDown">
+                                            <i:InvokeCommandAction Command="{Binding MouseDownPreviewCommand}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                    <Image.Style>
+                                        <Style TargetType="{x:Type Image}">
+                                            <Setter Property="Margin" Value="5"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Margin" Value="15"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
+                                <Image Grid.ColumnSpan="2" Grid.Row="3" Stretch="Uniform" Source="{ Binding Path=SelectedPalmImage.DefectsImage, Converter={StaticResource PalmImageConverter} }">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="MouseDown">
+                                            <i:InvokeCommandAction Command="{Binding MouseDownDefectsPreviewCommand}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                    <Image.Style>
+                                        <Style TargetType="{x:Type Image}">
+                                            <Setter Property="Margin" Value="5"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Margin" Value="15"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
+                                <Label Margin="0,5" Grid.Column="0" Grid.Row="4" FontWeight="Bold" Content="Date"/>
+                                <Label Margin="0,5" Grid.Column="1" Grid.Row="4" Content="{Binding SelectedPalm.Date}"/>
+                                <Label Margin="0,5" Grid.Column="0" Grid.Row="5" FontWeight="Bold" Content="User"/>
+                                <Label Margin="0,5" Grid.Column="1" Grid.Row="5" Content="{Binding SelectedPalm.User}"/>
+                                <Label Margin="0,5" Grid.Column="0" Grid.Row="6" FontWeight="Bold" Content="Description"/>
+                                <ScrollViewer  Margin="5" Grid.ColumnSpan="2" Grid.Row="7" HorizontalScrollBarVisibility="Disabled" >
+                                    <TextBlock Text="{Binding SelectedPalm.Description}"/>
+                                </ScrollViewer>
+                                <Label Margin="0,5" Grid.Column="0" Grid.Row="8" FontWeight="Bold" Content="Index Finger Length"/>
+                                <Label Margin="0,5" Grid.Column="1" Grid.Row="8" Content="{Binding SelectedPalm.IndexFingerLength}"/>
+                                <Label Margin="0,5" Grid.Column="0" Grid.Row="9" FontWeight="Bold" Content="Index Finger Width"/>
+                                <Label Margin="0,5" Grid.Column="1" Grid.Row="9" Content="{Binding SelectedPalm.IndexFingerMid}"/>
+                                <Label Margin="0,5" Grid.Column="0" Grid.Row="10" FontWeight="Bold" Content="Middle Finger Length"/>
+                                <Label Margin="0,5" Grid.Column="1" Grid.Row="10" Content="{Binding SelectedPalm.MiddleFingerLength}"/>
+                                <Label Margin="0,5" Grid.Column="0" Grid.Row="11" FontWeight="Bold" Content="Middle Finger Width"/>
+                                <Label Margin="0,5" Grid.Column="1" Grid.Row="11" Content="{Binding SelectedPalm.MiddleFingerMid}"/>
+                                <Label Margin="0,5" Grid.Column="0" Grid.Row="12" FontWeight="Bold" Content="Ring Finger Length"/>
+                                <Label Margin="0,5" Grid.Column="1" Grid.Row="12" Content="{Binding SelectedPalm.RingFingerLength}"/>
+                                <Label Margin="0,5" Grid.Column="0" Grid.Row="13" FontWeight="Bold" Content="Ring Finger Width"/>
+                                <Label Margin="0,5" Grid.Column="1" Grid.Row="13" Content="{Binding SelectedPalm.RingFingerMid}"/>
+                                <Label Margin="0,5" Grid.Column="0" Grid.Row="14" FontWeight="Bold" Content="Pinky Finger Length"/>
+                                <Label Margin="0,5" Grid.Column="1" Grid.Row="14" Content="{Binding SelectedPalm.PinkyFingerLength}"/>
+                                <Label Margin="0,5" Grid.Column="0" Grid.Row="15" FontWeight="Bold" Content="Pinky Finger Width"/>
+                                <Label Margin="0,5" Grid.Column="1" Grid.Row="15" Content="{Binding SelectedPalm.PinkyFingerMid}"/>
+                                <Label Margin="0,5" Grid.Column="0" Grid.Row="16" FontWeight="Bold" Content="Proportion1"/>
+                                <Label Margin="0,5" Grid.Column="1" Grid.Row="16" Content="{Binding }"/>
+                                <Label Margin="0,5" Grid.Column="0" Grid.Row="17" FontWeight="Bold" Content="Proportion2"/>
+                                <Label Margin="0,5" Grid.Column="1" Grid.Row="17" Content="{Binding }"/>
+                                <Label Margin="0,5" Grid.Column="0" Grid.Row="18" FontWeight="Bold" Content="Proportion3"/>
+                                <Label Margin="0,5" Grid.Column="1" Grid.Row="18" Content="{Binding }"/>
+                                <Label Margin="0,5" Grid.Column="0" Grid.Row="19" FontWeight="Bold" Content="Proportion4"/>
+                                <Label Margin="0,5" Grid.Column="1" Grid.Row="19" Content="{Binding }"/>
+                            </Grid>
+                        </ScrollViewer>
                     </Grid>
                 </TabItem>
                 <!--<TabItem Header="Search results" Visibility="{DODAC W VIEWMODEL Binding IsResultVisible}">
                 </TabItem>-->
                 <TabItem Header="Contour" Visibility="{Binding IsPalmMeasured, Converter={StaticResource BoolToVisibilityConverter}}" Selector.IsSelected="{Binding IsPalmMeasured, Mode=OneWay}">
-                    <Grid>
+                    <Grid Name="DefectsCanvas">
                         <Image Name="DefectsImage" Stretch="Uniform" Source="{Binding PalmContourImage}"
 							   helpers:SizeObserver.Observe="True"
 							   helpers:SizeObserver.ObservedWidth="{Binding Width, Mode=OneWayToSource}"
