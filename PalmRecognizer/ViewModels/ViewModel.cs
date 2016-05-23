@@ -338,7 +338,22 @@
 		private ICommand _mouseWheelCommand, _mouseDownCommand, _mouseDownBorderCommand, _mouseDownPreviewCommand, _mouseUpCommand, _mouseMoveCommand, _loadFileCommand, _saveFileCommand, _cropFileCommand, _measurePalmCommand,
 			_recognizePalmCommand, _searchPalmCommand, _addPalmToBaseCommand, _logInCommand, _logOutCommand, _addUserToBaseCommand, _closingCommand;
 
-		private ICommand _mouseDownDefectCommand, _mouseMoveDefectCommand, _mouseUpDefectCommand;
+		private ICommand _mouseDownDefectCommand, _mouseMoveDefectCommand, _mouseUpDefectCommand, _removeDefectCommand, _addDefectCommand, _calculateCommand;
+
+		public ICommand RemoveDefectCommand
+		{
+			get { return _removeDefectCommand ?? (_removeDefectCommand = new DelegateCommand(RemoveDefectCommandExecuted)); }
+		}
+
+		public ICommand AddDefectCommand
+		{
+			get { return _addDefectCommand ?? (_addDefectCommand = new DelegateCommand(AddDefectCommandExecuted)); }
+		}
+
+		public ICommand CalculateCommand
+		{
+			get { return _calculateCommand ?? (_calculateCommand = new DelegateCommand(CalculateCommandExecuted)); }
+		}
 
 		public ICommand MouseDownPreviewCommand
 		{
@@ -616,7 +631,7 @@
 		{
 			_isImageReadyForRotation = false;
 
-			_tool.GetMeasurements();
+			_tool.GetDefects();
 			PalmContourImage = ConvertFromBitmapToBitmapSource(_tool.GetContourPalmBitmap);
 			Defects = _tool.Defects;
 			IsPalmMeasured = true;
@@ -750,6 +765,21 @@
 		{
 			_isDefectMouseDown = false;
 			_currentEllipse = null;
+		}
+
+		private void RemoveDefectCommandExecuted(object obj)
+		{
+			throw new NotImplementedException();
+		}
+
+		private void AddDefectCommandExecuted(object obj)
+		{
+			throw new NotImplementedException();
+		}
+
+		private void CalculateCommandExecuted(object obj)
+		{
+			_tool.CalculateMeasurements(Defects);
 		}
 
 		#endregion

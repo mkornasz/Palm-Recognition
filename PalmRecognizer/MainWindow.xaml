@@ -156,6 +156,11 @@
                 </TabItem>-->
                 <TabItem Header="Contour" Visibility="{Binding IsPalmMeasured, Converter={StaticResource BoolToVisibilityConverter}}" Selector.IsSelected="{Binding IsPalmMeasured, Mode=OneWay}">
                     <Grid>
+                        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
+                            <Button Width="100" Height="50" Command="{Binding RemoveDefectCommand}" Content="Remove Defect"/>
+                            <Button Width="100" Height="50" Command="{Binding AddDefectCommand}" Content="Add Defect"/>
+                            <Button Width="100" Height="50" Command="{Binding CalculateCommand}" Content="Calculate"/>
+                        </StackPanel>
                         <Image Name="DefectsImage" Stretch="Uniform" Source="{Binding PalmContourImage}"
 							   helpers:SizeObserver.Observe="True"
 							   helpers:SizeObserver.ObservedWidth="{Binding Width, Mode=OneWayToSource}"

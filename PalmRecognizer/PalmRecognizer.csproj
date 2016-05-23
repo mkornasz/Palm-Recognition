@@ -141,6 +141,8 @@
     <Compile Include="Converters\InverseValueConverter.cs" />
     <Compile Include="Helpers\LogWriter.cs" />
     <Compile Include="Helpers\MatExtension.cs" />
+    <Compile Include="Model\Finger.cs" />
+    <Compile Include="Model\Hand.cs" />
     <Compile Include="ViewModels\MeasurementDetector.cs" />
     <Compile Include="NewUserWindow.xaml.cs">
       <DependentUpon>NewUserWindow.xaml</DependentUpon>

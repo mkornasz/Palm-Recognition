@@ -20,6 +20,8 @@
 		private Image<Bgr, Byte> _palmOriginalImage, _newImage;
 		private Mat _palmOriginal, _palmGray, _palmBlur, _palmEdges, _palmContour, _palmBw;
 
+		private MeasurementDetector _measurementDetector;
+
 		#region Properties
 
 		public Bitmap GetBlurPalmBitmap { get { return this._palmBlur.Bitmap; } }
@@ -77,11 +79,11 @@
 			this.OpenCvCannyDetector(this._palmBlur);
 		}
 
-		public void GetMeasurements()
+		public void GetDefects()
 		{
-			var measurementDetector = new MeasurementDetector(this._palmEdges);
-			this._palmContour = measurementDetector.MeasureHand();
-			this.Defects = measurementDetector.Defects;
+			_measurementDetector = new MeasurementDetector(this._palmEdges);
+			_palmContour = _measurementDetector.GetDefects();
+			Defects = _measurementDetector.Defects;
 		}
 
 		private void OpenCvCannyDetector(Mat matToFindEdges)
@@ -214,5 +216,10 @@
 			mat.SetDoubleValue(j, i, value);
 		}
 		#endregion
+
+		public void CalculateMeasurements(ObservableCollection<Defect> defects)
+		{
+			var hand = _measurementDetector.MeasureHand(defects);
+		}
 	}
 }
