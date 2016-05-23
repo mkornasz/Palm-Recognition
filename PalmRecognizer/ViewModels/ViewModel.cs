@@ -682,9 +682,9 @@
             PalmEdgesImage = ConvertFromBitmapToBitmapSource(_tool.GetEdgesPalmBitmap);
             PalmBwImage = ConvertFromBitmapToBitmapSource(_tool.GetBwPalmBitmap);
             _palmEdgesBitmap = ConvertFromBitmapSourceToBitmap(PalmEdgesImage as BitmapSource);
-            if (MessageBox.Show("Edges detected properly?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
-                if (MessageBox.Show("Image rotated properly?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
-                    _isImageReadyForRotation = true;
+			if (MessageBox.Show("Edges detected properly?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+				if (MessageBox.Show("Image rotated properly?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+					_isImageReadyForRotation = true;
         }
 
         private void MeasurePalmCommandExecuted(object o)
@@ -838,6 +838,7 @@
 		{
 			get { return _calculateCommand ?? (_calculateCommand = new DelegateCommand(CalculateCommandExecuted)); }
 		}
+
 		private void RemoveDefectCommandExecuted(object obj)
 		{
 			throw new NotImplementedException();
@@ -850,7 +851,7 @@
 
 		private void CalculateCommandExecuted(object obj)
 		{
-			_tool.CalculateMeasurements(Defects);
+			PalmContourImage = ConvertFromBitmapToBitmapSource(_tool.CalculateMeasurements(Defects).Bitmap);
 		}
 
 		#endregion
