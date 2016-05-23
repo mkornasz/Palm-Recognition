@@ -3,6 +3,7 @@
 	using System;
 	using System.Collections.ObjectModel;
 	using System.Drawing;
+	using System.Linq;
 	using System.Windows;
 
 	using Emgu.CV;
@@ -79,7 +80,7 @@
 				throw new Exception("It's not a hand.");
 			}
 
-			Hand =  new Hand(_m, defects);
+			Hand =  new Hand(_m, defects.ToList());
 			return _m;
 		}
 

@@ -70,7 +70,7 @@
 
 			var vector = new Vector(p4.X, p4.Y);
 			vector.Normalize();
-			vector *= 0.1;
+			vector *= 0.08;
 			var left = (middlePoint - new Point2d(vector.X * mat.Cols, vector.Y * mat.Rows)).Point;
 			var right = (middlePoint + new Point2d(vector.X * mat.Cols, vector.Y * mat.Rows)).Point;
 
@@ -78,7 +78,7 @@
 			var m = new Mat(mat.Size, mat.Depth, mat.NumberOfChannels);
 			m.SetTo(zeroValue);
 
-			CvInvoke.Line(m, left, right, new MCvScalar(255, 255, 255), 2);
+			CvInvoke.Line(m, left, right, new MCvScalar(255, 255, 255), 3);
 
 			var matrix = new Mat();
 			CvInvoke.BitwiseAnd(mat, m, matrix);

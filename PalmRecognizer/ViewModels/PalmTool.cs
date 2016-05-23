@@ -11,7 +11,7 @@
 	using PalmRecognizer.Helpers;
 	using PalmRecognizer.Model;
 
-	class PalmTool
+	class PalmTool : ViewModelBase
 	{
 		private Image<Bgr, Byte> _palmOriginalImage, _palmEqualizedHist, _newImage;
 		private Mat _palmOriginal, _palmGray, _palmBlur, _palmEdges, _palmContour, _palmBw;
@@ -238,9 +238,9 @@
 		}
 		#endregion
 
-		public void CalculateMeasurements(ObservableCollection<Defect> defects)
+		public Mat CalculateMeasurements(ObservableCollection<Defect> defects)
 		{
-			_palmContour = _measurementDetector.MeasureHand(defects);
+			return _measurementDetector.MeasureHand(defects);
 		}
 	}
 }

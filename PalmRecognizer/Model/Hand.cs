@@ -1,33 +1,25 @@
 ﻿namespace PalmRecognizer.Model
 {
-	using System;
 	using System.Collections.Generic;
-	using System.Collections.ObjectModel;
-	using System.Linq;
 
 	using Emgu.CV;
-	using Emgu.CV.Util;
 
 	internal class Hand
 	{
-		#region Private Members
+		#region Public Properties
 
-		private List<Finger> _fingers;
+		public List<Finger> Fingers { get; set; }
 
-		#endregion Private Members
+		#endregion Public Properties
 
-		public Hand(Mat m, ObservableCollection<Defect> defects)
+		public Hand(Mat m, List<Defect> defects)
 		{
-			_fingers = new List<Finger>();
+			Fingers = new List<Finger>();
 
-			foreach (var defect in defects)
-			{
-				var closeDefect = defects.FirstOrDefault(d => (defect.End - d.Start).Length < 0.01);
-				if (closeDefect != null)
-				{
-					_fingers.Add(new Finger(m, defect, closeDefect));
-				}
-			}
+			defects.Sort((x, y) => x.Far.X < y.Far.X ? -1 : (x.Far.X > y.Far.X ? 1 : 0));
+
+			Fingers.Add(new Finger(m, defects[0], defects[1]));
+			Fingers.Add(new Finger(m, defects[1], defects[2]));
 		}
 	}
 }
