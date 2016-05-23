@@ -26,22 +26,6 @@
 
 		private VectorOfPoint _contour;
 
-		private MCvScalar[] _colors =
-		{
-			new MCvScalar(255, 0, 0),
-			new MCvScalar(255, 255, 0),
-			new MCvScalar(0, 255, 0),
-			new MCvScalar(0, 0, 255),
-			new MCvScalar(255, 0, 255),
-			new MCvScalar(0, 255, 255),
-			new MCvScalar(255, 255, 255),
-			new MCvScalar(255, 100, 0),
-			new MCvScalar(255, 0, 100),
-			new MCvScalar(100, 100, 100),
-			new MCvScalar(100, 255, 0),
-			new MCvScalar(100, 0, 255),
-		};
-
 		private Mat _m;
 
 		#endregion Private Members
@@ -60,6 +44,8 @@
 				this.OnPropertyChanged("Defects");
 			}
 		}
+
+		public Hand Hand { get; set; }
 
 		#endregion Public Properties
 
@@ -86,14 +72,15 @@
 			return _m;
 		}
 
-		public void MeasureHand(ObservableCollection<Defect> defects)
+		public Mat MeasureHand(ObservableCollection<Defect> defects)
 		{
 			if (defects.Count < 3)
 			{
-				throw new Exception("It's not a hand :(");
+				throw new Exception("It's not a hand.");
 			}
 
-			var hand = new Hand(_m, defects);
+			Hand =  new Hand(_m, defects);
+			return _m;
 		}
 
 		#endregion Public Methods
@@ -116,7 +103,6 @@
 
 				CvInvoke.ConvexHull(_contour, convexHullP, false, false);
 				CvInvoke.ConvexHull(_contour, convexHullI, false, false);
-				//CvInvoke.ApproxPolyDP(convexHullP, convexHullP, 18, true);
 
 				if (_contour.Size > 3)
 				{
@@ -177,56 +163,6 @@
 
 			return newDefects;
 			//return RemoveRedundantEndPoints(contour, newDefects, boundingBox.Width);
-		}
-
-		private VectorOfPoint RemoveRedundantEndPoints(VectorOfPoint contour, VectorOfRect defects, double width)
-		{
-			double tolerance = width / 6;
-			int startidx, endidx;
-			int startidx2, endidx2;
-			for (int i = 0; i < defects.Size; i++)
-			{
-				for (int j = i; j < defects.Size; j++)
-				{
-					startidx = defects[i].X;
-					Point ptStart = contour[startidx];
-
-					endidx = defects[i].Y;
-					Point ptEnd = contour[endidx];
-
-					startidx2 = defects[j].X;
-					Point ptStart2 = contour[startidx2];
-
-					endidx2 = defects[j].Y;
-					Point ptEnd2 = contour[endidx2];
-					if (this.Distance(ptStart, ptEnd2) < tolerance)
-					{
-						contour = this.Swap(contour, startidx, ptEnd2);
-						break;
-					}
-					if (this.Distance(ptEnd, ptStart2) < tolerance)
-					{
-						contour = this.Swap(contour, startidx2, ptEnd);
-					}
-				}
-			}
-
-			return contour;
-		}
-
-		private VectorOfPoint Swap(VectorOfPoint contour, int startidx, Point ptEnd2)
-		{
-			var newContour = new VectorOfPoint();
-
-			for (int i = 0; i < contour.Size; i++)
-			{
-				if (i != startidx)
-					newContour.Push(new[] { contour[i] });
-				else
-					newContour.Push(new[] { ptEnd2 });
-			}
-
-			return newContour;
 		}
 
 		private double Distance(Point p, Point v)

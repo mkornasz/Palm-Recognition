@@ -13,16 +13,20 @@
 
 	class PalmTool
 	{
-		public int CannyParamLow { get; set; }
-		public int CannyParamHigh { get; set; }
-		public int BrightnessParam { get; set; }
-		public double ContrastParam { get; set; }
-		private Image<Bgr, Byte> _palmOriginalImage, _newImage;
+		private Image<Bgr, Byte> _palmOriginalImage, _palmEqualizedHist, _newImage;
 		private Mat _palmOriginal, _palmGray, _palmBlur, _palmEdges, _palmContour, _palmBw;
 
 		private MeasurementDetector _measurementDetector;
 
 		#region Properties
+
+		public int CannyParamLow { get; set; }
+
+		public int CannyParamHigh { get; set; }
+
+		public int BrightnessParam { get; set; }
+
+		public double ContrastParam { get; set; }
 
 		public Bitmap GetBlurPalmBitmap { get { return this._palmBlur.Bitmap; } }
 
@@ -84,6 +88,23 @@
 			_measurementDetector = new MeasurementDetector(this._palmEdges);
 			_palmContour = _measurementDetector.GetDefects();
 			Defects = _measurementDetector.Defects;
+		}
+
+		public Bitmap EqualizeHistogram()
+		{
+			Mat imageGray = new Mat();
+			Mat imageEqualizeHist = new Mat();
+			CvInvoke.CvtColor(_newImage.Mat, imageGray, Emgu.CV.CvEnum.ColorConversion.Bgr2Gray);
+			CvInvoke.EqualizeHist(imageGray, imageEqualizeHist);
+			_palmEqualizedHist = imageEqualizeHist.ToImage<Bgr, Byte>();
+			return this._palmEqualizedHist.Mat.Bitmap;
+		}
+
+		public Bitmap UNDOHistogramEqualization()
+		{
+			this._palmEqualizedHist = this._palmOriginalImage;
+			this.ChangeContrastBrightness();
+			return this._newImage.Mat.Bitmap;
 		}
 
 		private void OpenCvCannyDetector(Mat matToFindEdges)
@@ -219,7 +240,7 @@
 
 		public void CalculateMeasurements(ObservableCollection<Defect> defects)
 		{
-			var hand = _measurementDetector.MeasureHand(defects);
+			_palmContour = _measurementDetector.MeasureHand(defects);
 		}
 	}
 }

@@ -1,4 +1,5 @@
-﻿<Window x:Class="PalmRecognizer.MainWindow"
+﻿<Window Name="MyMainWindow" 
+        x:Class="PalmRecognizer.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,6 +8,7 @@
         xmlns:converters="clr-namespace:PalmRecognizer.Converters"
         xmlns:model="clr-namespace:PalmRecognizer.Model"
         xmlns:helpers="clr-namespace:PalmRecognizer.Helpers"
+        xmlns:local="clr-namespace:PalmRecognizer"
         mc:Ignorable="d"
         Title="Palm Recognizer" Height="800" Width="1300" WindowStartupLocation="CenterScreen">
     <i:Interaction.Behaviors>
@@ -17,7 +19,6 @@
     <Window.Resources>
         <converters:InverseValueConverter x:Key="InverseValueConverter" />
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-        <converters:PalmImageConverter x:Key="PalmImageConverter"/>
         <converters:PercentageToSizeConverter x:Key="PercentageToSizeConverter"/>
     </Window.Resources>
     <i:Interaction.Triggers>
@@ -39,8 +40,7 @@
             <Button Margin="2" Width="100" Content="Save file" IsEnabled="{Binding IsFileLoaded}" Command="{Binding SaveFileCommand}"/>
             <Button Margin="2" Width="100" Content="Detect edges" IsEnabled="{Binding IsFileLoaded}" Command="{Binding RecognizePalmCommand}"/>
             <Button Margin="2" Width="100" Content="Measure palm" IsEnabled="{Binding IsEdgesDetected}" Command="{Binding MeasurePalmCommand}"/>
-            <Button Margin="2" Width="100" Content="Add palm to base" IsEnabled="{Binding IsFileLoaded}" Command="{Binding AddPalmToBaseCommand}"/>
-            <!-- POTEM ZMIENIC NA IsPalmMeasured-->
+            <Button Margin="2" Width="100" Content="Add palm to base" IsEnabled="{Binding IsPalmMeasured}" Command="{Binding AddPalmToBaseCommand}"/>
             <Button Margin="2" Width="100" Content="Search palm" IsEnabled="{Binding IsPalmMeasured}" Command="{Binding SearchPalmCommand}"/>
             <Label Margin="70,2,2,2" Content="PALM RECOGNIZER" VerticalContentAlignment="Center" FontWeight="Bold"/>
             <Image Source="Hand.ico"/>
@@ -56,6 +56,8 @@
             <Label Margin="2" Content="Brightness:" VerticalContentAlignment="Center" />
             <Slider Minimum="-50" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="1" IsEnabled="{Binding IsFileLoaded}" Value="{Binding BrightnessValue, Mode=TwoWay}" VerticalAlignment="Center" Width="100"/>
             <ToggleButton Margin="2" Width="100"  Content="Crop image" IsEnabled="{Binding IsFileLoaded}" IsChecked="{Binding IsImageReadyForCrop, Mode=OneWay}" Command="{Binding CropFileCommand}"/>
+            <Button Margin="2" Width="140" Content="Histogram Equalization" IsEnabled="{Binding IsFileLoaded}" Command="{Binding HistogramEqualizationCommand}"/>
+            <Button Margin="2" Width="170" Content="Histogram Equalization UNDO" IsEnabled="{Binding IsFileLoaded}" Command="{Binding HistogramEqualizationUNDOCommand}"/>
         </StackPanel>
         <Border Grid.Row="2" BorderThickness="3" BorderBrush="DarkBlue">
             <TabControl x:Name="TabItems" IsEnabled="{Binding IsUserLogIn}" SelectedItem="{Binding SelectedTab}">
@@ -65,97 +67,24 @@
                             <ColumnDefinition Width="1*"/>
                             <ColumnDefinition Width="4*"/>
                         </Grid.ColumnDefinitions>
-                        <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" Grid.Column="1" ItemsSource="{Binding PalmItems}">
-                            <ListBox.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <UniformGrid Columns="4">
-                                    </UniformGrid>
-                                </ItemsPanelTemplate>
-                            </ListBox.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Height="250" >
-                                        <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="MouseLeftButtonDown" >
-                                                <i:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource AncestorType=Window, Mode=FindAncestor}, Path=DataContext.MouseDownBorderCommand }" CommandParameter="{Binding}"/>
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                        <Border.Style>
-                                            <Style>
-                                                <Style.Triggers>
-                                                    <Trigger Property="Border.IsMouseOver" Value="True">
-                                                        <Setter Property="Border.BorderThickness" Value="10"/>
-                                                        <Setter Property="Border.BorderBrush" Value="White" />
-                                                    </Trigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Border.Style>
-                                        <Image Stretch="Fill" Source="{ Binding Path=Image, Converter={StaticResource PalmImageConverter} }"/>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ListBox>
-                        <Grid Grid.Column="0" Background="LightBlue">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="10"/>
-                                <RowDefinition/>
-                                <RowDefinition Height="200"/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition Height="70"/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-                            <Label Grid.ColumnSpan="2" Grid.RowSpan="2" Grid.Row="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontWeight="Bold"  Content="Selected palm - details"/>
-                            <Image  Grid.ColumnSpan="2" Grid.Row="2" Stretch="Uniform" Source="{ Binding Path=SelectedPalmImage.Image, Converter={StaticResource PalmImageConverter} }">
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="MouseDown">
-                                        <i:InvokeCommandAction Command="{Binding MouseDownPreviewCommand}" />
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </Image>
-                            <Label Grid.Column="0" Grid.Row="3" FontWeight="Bold"  Content="Date"/>
-                            <Label Grid.Column="1" Grid.Row="3" Content="{Binding SelectedPalm}"/>
-                            <Label Grid.Column="0" Grid.Row="4" FontWeight="Bold" Content="User"/>
-                            <Label Grid.Column="1" Grid.Row="4" Content="{Binding SelectedPalm}"/>
-                            <Label Grid.Column="0" Grid.Row="5" FontWeight="Bold" Content="Description"/>
-                            <ScrollViewer  Margin="5" Grid.ColumnSpan="2" Grid.Row="6" HorizontalScrollBarVisibility="Disabled" >
-                                <TextBlock Text="{Binding SelectedPalm.Description}"/>
-                            </ScrollViewer>
-                            <Label Grid.Column="0" Grid.Row="7" FontWeight="Bold" Content="Index Finger Length"/>
-                            <Label Grid.Column="1" Grid.Row="7" Content="{Binding SelectedPalm.IndexFingerLength}"/>
-                            <Label Grid.Column="0" Grid.Row="8" FontWeight="Bold" Content="Index Finger Width"/>
-                            <Label Grid.Column="1" Grid.Row="8" Content="{Binding SelectedPalm.IndexFingerMid}"/>
-                            <Label Grid.Column="0" Grid.Row="9" FontWeight="Bold" Content="Middle Finger Length"/>
-                            <Label Grid.Column="1" Grid.Row="9" Content="{Binding SelectedPalm.MiddleFingerLength}"/>
-                            <Label Grid.Column="0" Grid.Row="10" FontWeight="Bold" Content="Middle Finger Width"/>
-                            <Label Grid.Column="1" Grid.Row="10" Content="{Binding SelectedPalm.MiddleFingerMid}"/>
-                            <Label Grid.Column="0" Grid.Row="11" FontWeight="Bold" Content="Ring Finger Length"/>
-                            <Label Grid.Column="1" Grid.Row="11" Content="{Binding SelectedPalm.RingFingerLength}"/>
-                            <Label Grid.Column="0" Grid.Row="12" FontWeight="Bold" Content="Ring Finger Width"/>
-                            <Label Grid.Column="1" Grid.Row="12" Content="{Binding SelectedPalm.RingFingerMid}"/>
-                            <Label Grid.Column="0" Grid.Row="13" FontWeight="Bold" Content="Pinky Finger Length"/>
-                            <Label Grid.Column="1" Grid.Row="13" Content="{Binding SelectedPalm.PinkyFingerLength}"/>
-                            <Label Grid.Column="0" Grid.Row="14" FontWeight="Bold" Content="Pinky Finger Width"/>
-                            <Label Grid.Column="1" Grid.Row="14" Content="{Binding SelectedPalm.PinkyFingerMid}"/>
-                        </Grid>
+                        <local:PropertiesViewer DisplayedPalm="{Binding SelectedPalm}" DisplayedPalmImages="{Binding SelectedPalmImage}" LabelPalm="CHOSEN DETAILS:" Grid.Column="0"/>
+                        <local:DataBaseViewer ImageCollection="{Binding PalmItems}" ShowSimilarity="False" Grid.Column="1"/>
                     </Grid>
                 </TabItem>
-                <!--<TabItem Header="Search results" Visibility="{DODAC W VIEWMODEL Binding IsResultVisible}">
-                </TabItem>-->
-                <TabItem Header="Contour" Visibility="{Binding IsPalmMeasured, Converter={StaticResource BoolToVisibilityConverter}}" Selector.IsSelected="{Binding IsPalmMeasured, Mode=OneWay}">
+                <TabItem Header="Searching Results Browser">
                     <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <local:PropertiesViewer DisplayedPalm="{Binding SelectedPalm}" DisplayedPalmImages="{Binding SelectedPalmImage}" LabelPalm="CHOSEN DETAILS:" Grid.Column="0"/>
+                        <local:DataBaseViewer ImageCollection="{Binding FoundPalmItems}" Grid.Column="1" ShowSimilarity="True"/>
+                        <local:PropertiesViewer DisplayedPalm="{Binding WantedPalm}" DisplayedPalmImages="{Binding WantedPalmImage}" LabelPalm="WANTED DETAILS:" Grid.Column="2"/>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Contour" Visibility="{Binding IsPalmMeasured, Converter={StaticResource BoolToVisibilityConverter}}" Selector.IsSelected="{Binding IsPalmMeasured, Mode=OneWay}">
+                    <Grid Name="DefectsCanvas">
                         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
                             <Button Width="100" Height="50" Command="{Binding RemoveDefectCommand}" Content="Remove Defect"/>
                             <Button Width="100" Height="50" Command="{Binding AddDefectCommand}" Content="Add Defect"/>
