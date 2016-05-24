@@ -208,11 +208,9 @@
                 </TabItem>
                 <TabItem Header="Edges" Visibility="{Binding IsEdgesDetected, Converter={StaticResource BoolToVisibilityConverter}}" Selector.IsSelected="{Binding IsEdgesDetectedToSelection, Mode=OneWay, Converter={StaticResource InverseValueConverter}}">
                     <Image Stretch="Uniform" Source="{Binding PalmEdgesImage}">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="MouseWheel">
-                                <i:InvokeCommandAction Command="{Binding MouseWheelCommand}" />
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
+                        <i:Interaction.Behaviors>
+                            <helpers:EventToCommandBehavior Command="{Binding Path=MouseWheelCommand}" Event="MouseWheel" PassArguments="True" />
+                        </i:Interaction.Behaviors>
                     </Image>
                 </TabItem>
                 <TabItem Header="Blured" Visibility="{Binding IsEdgesDetected, Converter={StaticResource BoolToVisibilityConverter}}" >

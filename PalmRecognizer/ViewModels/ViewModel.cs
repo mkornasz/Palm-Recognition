@@ -367,9 +367,9 @@
         private ICommand _recognizePalmCommand, _searchPalmCommand, _addPalmToBaseCommand, _loadFileCommand, _saveFileCommand, _cropFileCommand, _measurePalmCommand,
             _histogramEqualizationCommand, _histogramEqualizationUNDOCommand, _logInCommand, _logOutCommand, _addUserToBaseCommand, _closingCommand;
 
-		private ICommand _mouseDownDefectCommand, _mouseMoveDefectCommand, _mouseUpDefectCommand, _removeDefectCommand, _addDefectCommand, _calculateCommand;
+        private ICommand _mouseDownDefectCommand, _mouseMoveDefectCommand, _mouseUpDefectCommand, _removeDefectCommand, _addDefectCommand, _calculateCommand;
 
-		public ICommand MouseDownPreviewCommand
+        public ICommand MouseDownPreviewCommand
         {
             get { return _mouseDownPreviewCommand ?? (_mouseDownPreviewCommand = new DelegateCommand(MouseDownPreviewCommandExecuted)); }
         }
@@ -381,7 +381,7 @@
 
         public ICommand MouseWheelCommand
         {
-            get { return _mouseWheelCommand ?? (_mouseWheelCommand = new DelegateCommand(MouseWheelCommandExecuted)); }
+            get { return _mouseWheelCommand ?? (_mouseWheelCommand = new ActionCommand<MouseWheelEventArgs>(MouseWheelCommandExecuted)); }
         }
 
         public ICommand MouseDownDefectCommand
@@ -577,13 +577,10 @@
             SelectedPalm = palmList.Find(p => p.PalmId == SelectedPalmImage.PalmId);
         }
 
-        private void MouseWheelCommandExecuted(object o)
+        private void MouseWheelCommandExecuted(MouseWheelEventArgs args)
         {
             if (_isImageReadyForRotation == false) return;
-
-            int a = Mouse.MouseWheelDeltaForOneLine / 5;
-            float numSteps = Mouse.RightButton == MouseButtonState.Pressed ? -a / 15 : a / 15;
-            _angle += numSteps;
+            _angle += args.Delta > 0 ? -1.5 : 1.5;
             _palmRotatedEdgesBitmap = RotateImage(new Bitmap(_palmEdgesBitmap), (float)_angle);
             PalmEdgesImage = ConvertFromBitmapToBitmapSource(_palmRotatedEdgesBitmap);
             _logWriter.AddRotationInfo(_actualUser);
@@ -682,15 +679,15 @@
             PalmEdgesImage = ConvertFromBitmapToBitmapSource(_tool.GetEdgesPalmBitmap);
             PalmBwImage = ConvertFromBitmapToBitmapSource(_tool.GetBwPalmBitmap);
             _palmEdgesBitmap = ConvertFromBitmapSourceToBitmap(PalmEdgesImage as BitmapSource);
-			if (MessageBox.Show("Edges detected properly?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
-				if (MessageBox.Show("Image rotated properly?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
-					_isImageReadyForRotation = true;
+            if (MessageBox.Show("Edges detected properly?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                if (MessageBox.Show("Image rotated properly?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+                    _isImageReadyForRotation = true;
         }
 
         private void MeasurePalmCommandExecuted(object o)
         {
             _isImageReadyForRotation = false;
-
+            if (_palmRotatedEdgesBitmap != null) _tool.SaveRotatedBitmap(_palmRotatedEdgesBitmap);
             _tool.GetDefects();
             PalmContourImage = ConvertFromBitmapToBitmapSource(_tool.GetContourPalmBitmap);
             Defects = _tool.Defects;
@@ -822,41 +819,41 @@
         {
             _isDefectMouseDown = false;
             _currentEllipse = null;
-		}
+        }
 
-		public ICommand RemoveDefectCommand
-		{
-			get { return _removeDefectCommand ?? (_removeDefectCommand = new DelegateCommand(RemoveDefectCommandExecuted)); }
-		}
+        public ICommand RemoveDefectCommand
+        {
+            get { return _removeDefectCommand ?? (_removeDefectCommand = new DelegateCommand(RemoveDefectCommandExecuted)); }
+        }
 
-		public ICommand AddDefectCommand
-		{
-			get { return _addDefectCommand ?? (_addDefectCommand = new DelegateCommand(AddDefectCommandExecuted)); }
-		}
+        public ICommand AddDefectCommand
+        {
+            get { return _addDefectCommand ?? (_addDefectCommand = new DelegateCommand(AddDefectCommandExecuted)); }
+        }
 
-		public ICommand CalculateCommand
-		{
-			get { return _calculateCommand ?? (_calculateCommand = new DelegateCommand(CalculateCommandExecuted)); }
-		}
+        public ICommand CalculateCommand
+        {
+            get { return _calculateCommand ?? (_calculateCommand = new DelegateCommand(CalculateCommandExecuted)); }
+        }
 
-		private void RemoveDefectCommandExecuted(object obj)
-		{
-			throw new NotImplementedException();
-		}
+        private void RemoveDefectCommandExecuted(object obj)
+        {
+            throw new NotImplementedException();
+        }
 
-		private void AddDefectCommandExecuted(object obj)
-		{
-			throw new NotImplementedException();
-		}
+        private void AddDefectCommandExecuted(object obj)
+        {
+            throw new NotImplementedException();
+        }
 
-		private void CalculateCommandExecuted(object obj)
-		{
-			PalmContourImage = ConvertFromBitmapToBitmapSource(_tool.CalculateMeasurements(Defects).Bitmap);
-		}
+        private void CalculateCommandExecuted(object obj)
+        {
+            PalmContourImage = ConvertFromBitmapToBitmapSource(_tool.CalculateMeasurements(Defects).Bitmap);
+        }
 
-		#endregion
+        #endregion
 
-		public ViewModel()
+        public ViewModel()
         {
             _logWriter = new LogWriter();
             _connection = Database.Instance;
