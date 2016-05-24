@@ -87,7 +87,7 @@
 			for (int i = 0; i < matrix.Cols; i++)
 				for (int j = 0; j < matrix.Rows; j++)
 				{
-					if (matrix.Bitmap.GetPixel(i, j).ToArgb() != Color.Black.ToArgb() && !points.Any(p => p.X - i < 3 && p.Y - j < 3))
+					if (matrix.Bitmap.GetPixel(i, j).ToArgb() != Color.Black.ToArgb() && !points.Any(p => Math.Abs(p.X - i) < 4 && Math.Abs(p.Y - j) < 4))
 						points.Add(new Point2d(i, j));
 				}
 
