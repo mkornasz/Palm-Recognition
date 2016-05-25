@@ -41,6 +41,15 @@
 			CalculateMeasurements(mat);
 		}
 
+		public Finger(Mat mat, Defect first, Point second, Point2d common)
+		{
+			var s = new Defect(common, common, second, mat.Cols, mat.Rows);
+			FirstDefect = first;
+			SecondDefect = s;
+
+			CalculateMeasurements(mat);
+		}
+
 		#endregion Constructors
 
 		#region Private Methods
@@ -87,7 +96,7 @@
 			for (int i = 0; i < matrix.Cols; i++)
 				for (int j = 0; j < matrix.Rows; j++)
 				{
-					if (matrix.Bitmap.GetPixel(i, j).ToArgb() != Color.Black.ToArgb() && !points.Any(p => Math.Abs(p.X - i) < 4 && Math.Abs(p.Y - j) < 4))
+					if (matrix.Bitmap.GetPixel(i, j).ToArgb() != Color.Black.ToArgb() && !points.Any(p => Math.Abs(p.X - i) < 10 && Math.Abs(p.Y - j) < 10))
 						points.Add(new Point2d(i, j));
 				}
 

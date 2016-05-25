@@ -202,7 +202,7 @@
 		{
 			var defectsList = new ObservableCollection<Defect>();
 			CvInvoke.DrawContours(m, contours, maxContourIndex, new MCvScalar(0, 255, 0));
-			CvInvoke.Polylines(m, convexHullP.ToArray(), true, new MCvScalar(0, 0, 255));
+			//CvInvoke.Polylines(m, convexHullP.ToArray(), true, new MCvScalar(0, 0, 255));
 
 
 			for (int i = 0; i < defects.Size; i++)
@@ -226,7 +226,7 @@
 				defectsList.Add(new Defect(ptStart, ptEnd, ptFar, m.Cols, m.Rows));
 			}
 
-			this.Defects = defectsList;
+			Defects = defectsList;
 		}
 
 		#endregion Private Methods
