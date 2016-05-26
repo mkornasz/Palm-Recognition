@@ -79,7 +79,7 @@
 
 			var vector = new Vector(p4.X, p4.Y);
 			vector.Normalize();
-			vector *= 0.08;
+			vector *= 0.1;
 			var left = (middlePoint - new Point2d(vector.X * mat.Cols, vector.Y * mat.Rows)).Point;
 			var right = (middlePoint + new Point2d(vector.X * mat.Cols, vector.Y * mat.Rows)).Point;
 
@@ -93,10 +93,12 @@
 			CvInvoke.BitwiseAnd(mat, m, matrix);
 
 			var points = new List<Point2d>();
+			var bitmap = matrix.Bitmap;
+
 			for (int i = 0; i < matrix.Cols; i++)
 				for (int j = 0; j < matrix.Rows; j++)
 				{
-					if (matrix.Bitmap.GetPixel(i, j).ToArgb() != Color.Black.ToArgb() && !points.Any(p => Math.Abs(p.X - i) < 10 && Math.Abs(p.Y - j) < 10))
+					if (bitmap.GetPixel(i, j).ToArgb() != Color.Black.ToArgb() && !points.Any(p => Math.Abs(p.X - i) < 10 && Math.Abs(p.Y - j) < 10))
 						points.Add(new Point2d(i, j));
 				}
 

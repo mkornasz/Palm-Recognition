@@ -54,12 +54,14 @@
 			CvInvoke.BitwiseAnd(mat, m, matrix);
 
 			var points = new List<Point2d>();
+			var bitmap = matrix.Bitmap;
+
 			for (int i = 0; i < matrix.Cols; i++)
 				for (int j = 0; j < matrix.Rows; j++)
 				{
-					if (matrix.Bitmap.GetPixel(i, j).ToArgb() != Color.Black.ToArgb() &&
+					if (bitmap.GetPixel(i, j).ToArgb() != Color.Black.ToArgb() &&
 						!points.Any(p => Math.Abs(p.X - i) < 10 && Math.Abs(p.Y - j) < 10) &&
-						Math.Abs(i - far0.X * mat.Cols) > 10 && Math.Abs(j - far0.Y * mat.Rows) > 10)
+						(Math.Abs(i - far0.X * mat.Cols) > 15 || Math.Abs(j - far0.Y * mat.Rows) > 15))
 						points.Add(new Point2d(i, j));
 				}
 
