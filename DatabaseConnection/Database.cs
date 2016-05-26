@@ -38,11 +38,14 @@ namespace DatabaseConnection
             }
         }
 
-        public void AddNewData(Image palmImage, string description, PalmParameters parameters)
+        public void AddNewData(string user, DateTime dateTime, Image palmImage, string description, PalmParameters parameters)
         {
+            int userId = -1;
             using (var db = new PalmContext())
             {
-                Palm palm = new Palm() { Description = description };
+                userId = db.Users.Where(u => u.Login == user).First().UserId;
+
+                Palm palm = new Palm() { Description = description, UserId = userId, Date = dateTime };
                 palm.IndexFingerBot = parameters.IndexFingerBot;
                 palm.IndexFingerMid = parameters.IndexFingerMid;
                 palm.IndexFingerTop = parameters.IndexFingerTop;
@@ -61,6 +64,40 @@ namespace DatabaseConnection
                 db.SaveChanges();
 
                 PalmImage image = new PalmImage() { PalmId = palm.PalmId, Image = ImageToByteArray(palmImage) };
+                db.PalmImages.Add(image);
+                db.SaveChanges();
+
+                palm.Image = image;
+                db.SaveChanges();
+            }
+        }
+
+        public void AddNewData(string user, DateTime dateTime, Image palmImage, string description, PalmParameters parameters, byte[] defectsImage)
+        {
+            int userId = -1;
+            using (var db = new PalmContext())
+            {
+                userId = db.Users.Where(u => u.Login == user).First().UserId;
+
+                Palm palm = new Palm() { Description = description, UserId = userId, Date = dateTime };
+                palm.IndexFingerBot = parameters.IndexFingerBot;
+                palm.IndexFingerMid = parameters.IndexFingerMid;
+                palm.IndexFingerTop = parameters.IndexFingerTop;
+                palm.MiddleFingerBot = parameters.MiddleFingerBot;
+                palm.MiddleFingerMid = parameters.MiddleFingerMid;
+                palm.MiddleFingerTop = parameters.MiddleFingerTop;
+                palm.PinkyFingerBot = parameters.PinkyFingerBot;
+                palm.PinkyFingerMid = parameters.PinkyFingerMid;
+                palm.PinkyFingerTop = parameters.PinkyFingerTop;
+                palm.RingFingerBot = parameters.RingFingerBot;
+                palm.RingFingerMid = parameters.RingFingerMid;
+                palm.RingFingerTop = parameters.RingFingerTop;
+                palm.PalmRadius = parameters.PalmRadius;
+
+                db.Palms.Add(palm);
+                db.SaveChanges();
+
+                PalmImage image = new PalmImage() { PalmId = palm.PalmId, Image = ImageToByteArray(palmImage), DefectsImage = defectsImage };
                 db.PalmImages.Add(image);
                 db.SaveChanges();
 
@@ -90,7 +127,7 @@ namespace DatabaseConnection
 
         public bool AddNewUser(string login, string password) // zmienić, żeby login był unikalny
         {
-            using (var db = new UserContext())
+            using (var db = new PalmContext())
             {
                 var userLogin = db.Users.FirstOrDefault(u => u.Login == login);
                 if (userLogin != null)
@@ -107,7 +144,7 @@ namespace DatabaseConnection
 
         public bool Login(string login, string password)
         {
-            using (var db = new UserContext())
+            using (var db = new PalmContext())
             {
                 var user = db.Users.FirstOrDefault(u => u.Login == login);
                 if (user != null) // zgodność loginu

@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 
 namespace DatabaseConnection.Model
@@ -26,11 +28,16 @@ namespace DatabaseConnection.Model
         public double PinkyFingerMid { get; set; }
         public double PinkyFingerBot { get; set; }
         public PalmImage Image { get; set; }
+        public DateTime Date { get; set; }
+        [ForeignKey("User")]
+        public int UserId { get; set; }
+        public virtual User User { get; set; }
     }
 
     public class PalmContext : DbContext
     {
         public DbSet<Palm> Palms { get; set; }
         public DbSet<PalmImage> PalmImages { get; set; }
+        public DbSet<User> Users { get; set; }
     }
 }
