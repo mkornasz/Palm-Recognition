@@ -10,5 +10,6 @@ namespace DatabaseConnection.Model
         public int PalmId { get; set; }
         public byte[] Image { get; set; }
         public Palm Palm { get; set; }
+        public byte[] DefectsImage { get; set; }
     }
 }
