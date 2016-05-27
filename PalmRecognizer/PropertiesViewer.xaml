@@ -11,6 +11,7 @@
              d:DesignWidth="300" d:DesignHeight="559.756">
     <UserControl.Resources>
         <converters:PalmImageConverter x:Key="PalmImageConverter"/>
+        <converters:UserToStringConverter x:Key="UserToStringConverter"/>
     </UserControl.Resources>
     <ScrollViewer>
         <Grid Background="LightBlue">
@@ -78,7 +79,7 @@
             <Label Margin="0,5" Grid.Column="0" Grid.Row="4" FontWeight="Bold" Content="Date"/>
             <Label Margin="0,5" Grid.Column="1" Grid.Row="4" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.Date}"/>
             <Label Margin="0,5" Grid.Column="0" Grid.Row="5" FontWeight="Bold" Content="User"/>
-            <Label Margin="0,5" Grid.Column="1" Grid.Row="5" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.User}"/>
+            <Label Margin="0,5" Grid.Column="1" Grid.Row="5" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.UserId, Converter={StaticResource UserToStringConverter} }"/>
             <Label Margin="0,5" Grid.Column="0" Grid.Row="6" FontWeight="Bold" Content="Description"/>
             <ScrollViewer  Margin="5" Grid.ColumnSpan="2" Grid.Row="7" HorizontalScrollBarVisibility="Disabled" >
                 <TextBlock Text="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.Description}"/>

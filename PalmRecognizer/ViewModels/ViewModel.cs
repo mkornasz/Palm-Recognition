@@ -33,7 +33,7 @@
         private PalmTool _tool;
         private int _cannyParamLow, _cannyParamHigh, _brightnessParam;
         private double _angle = 0.0, _contrastParam;
-        private bool _isFileLoaded, _isPalmMeasured, _isEdgesDetected, _isUserLogIn, _isMouseDown, _isImageReadyForRotation, _isImageReadyForCrop;
+        private bool _isFileLoaded, _isPalmMeasured, _isEdgesDetected, _isResultsVisible, _isUserLogIn, _isMouseDown, _isImageReadyForRotation, _isImageReadyForCrop;
         private string _palmFilename, _palmFilenameExtension, _actualUser;
         private System.Windows.Shapes.Rectangle _imageCroppedArea;
         private Point _startMousePoint, _startMousePointImage;
@@ -237,6 +237,16 @@
             get
             {
                 return IsEdgesDetected ? false : true;
+            }
+        }
+        public bool IsResultsVisible
+        {
+            get { return _isResultsVisible; }
+            set
+            {
+                if (_isResultsVisible != value)
+                    _isResultsVisible = value;
+                OnPropertyChanged("IsResultsVisible");
             }
         }
 
@@ -488,34 +498,38 @@
         #region Commands Executions
         private void MouseDownPreviewCommandExecuted(object o)
         {
-            MemoryStream ms = new MemoryStream(SelectedPalmImage.Image);
-            var img = System.Drawing.Image.FromStream(ms);
-            Window window = new Window { WindowStyle = WindowStyle.ToolWindow, WindowStartupLocation = WindowStartupLocation.CenterScreen, Title = "Preview" };
-            window.Width = window.Height = SystemParameters.PrimaryScreenHeight - 40;
-            var imageControl = new System.Windows.Controls.Image { Source = ConvertFromBitmapToBitmapSource((Bitmap)img), Stretch = Stretch.None };
-            window.Content = new System.Windows.Controls.ScrollViewer
+            using (MemoryStream ms = new MemoryStream(SelectedPalmImage.Image))
             {
-                Content = imageControl,
-                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto
-            };
-            window.ShowDialog();
+                var img = System.Drawing.Image.FromStream(ms);
+                Window window = new Window { WindowStyle = WindowStyle.ToolWindow, WindowStartupLocation = WindowStartupLocation.CenterScreen, Title = "Preview" };
+                window.Width = window.Height = SystemParameters.PrimaryScreenHeight - 40;
+                var imageControl = new System.Windows.Controls.Image { Source = ConvertFromBitmapToBitmapSource((Bitmap)img), Stretch = Stretch.None };
+                window.Content = new System.Windows.Controls.ScrollViewer
+                {
+                    Content = imageControl,
+                    VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                    HorizontalScrollBarVisibility = ScrollBarVisibility.Auto
+                };
+                window.ShowDialog();
+            }
         }
 
         private void MouseDownDefectsPreviewCommandExecuted(object obj)
         {
-            //MemoryStream ms = new MemoryStream(SelectedPalmImage.DefectsImage);
-            //var img = System.Drawing.Image.FromStream(ms);
-            //Window window = new Window { WindowStyle = WindowStyle.ToolWindow, WindowStartupLocation = WindowStartupLocation.CenterScreen, Title = "Preview" };
-            //window.Width = window.Height = SystemParameters.PrimaryScreenHeight - 40;
-            //var imageControl = new System.Windows.Controls.Image { Source = ConvertFromBitmapToBitmapSource((Bitmap)img), Stretch = Stretch.None };
-            //window.Content = new System.Windows.Controls.ScrollViewer
-            //{
-            //    Content = imageControl,
-            //    VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-            //    HorizontalScrollBarVisibility = ScrollBarVisibility.Auto
-            //};
-            //window.ShowDialog();
+            using (MemoryStream ms = new MemoryStream(SelectedPalmImage.DefectsImage))
+            {
+                var img = System.Drawing.Image.FromStream(ms);
+                Window window = new Window { WindowStyle = WindowStyle.ToolWindow, WindowStartupLocation = WindowStartupLocation.CenterScreen, Title = "Preview" };
+                window.Width = window.Height = SystemParameters.PrimaryScreenHeight - 40;
+                var imageControl = new System.Windows.Controls.Image { Source = ConvertFromBitmapToBitmapSource((Bitmap)img), Stretch = Stretch.None };
+                window.Content = new System.Windows.Controls.ScrollViewer
+                {
+                    Content = imageControl,
+                    VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                    HorizontalScrollBarVisibility = ScrollBarVisibility.Auto
+                };
+                window.ShowDialog();
+            }
         }
 
         private void HistogramEqualizationCommandExecuted(object obj)
@@ -698,6 +712,7 @@
         {
             //wywolanie metod przeszukujacych baze danych dajacych liste kandydatow
             //wyswietlenie listy kandydatow
+            IsResultsVisible = true;
             throw new NotImplementedException();
         }
 
@@ -715,7 +730,7 @@
 
             System.Drawing.Image img = ConvertFromBitmapSourceToBitmap(PalmLoadedImage as BitmapSource);
             System.Drawing.Image imgDefects = BitmapFromDefectsImage();
-            _connection.AddNewData(img, /*, imgDefects*/ description, new PalmParameters()); //_tool.MeasuredParameters);
+            _connection.AddNewData(_actualUser, DateTime.Now, img, /*, imgDefects*/ description, new PalmParameters(), imgDefects);
             MessageBox.Show("Palm added to base.");
             OnPropertyChanged("PalmItems");
         }
@@ -862,6 +877,7 @@
             _isFileLoaded = false;
             _isPalmMeasured = false;
             _isUserLogIn = true;
+            _isResultsVisible = false;
             _cannyParamHigh = 100;
             _cannyParamLow = 100;
             _contrastParam = 1;

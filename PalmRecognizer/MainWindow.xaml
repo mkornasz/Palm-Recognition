@@ -71,7 +71,7 @@
                         <local:DataBaseViewer ImageCollection="{Binding PalmItems}" ShowSimilarity="False" Grid.Column="1"/>
                     </Grid>
                 </TabItem>
-                <TabItem Header="Searching Results Browser">
+                <TabItem Header="Searching Results Browser" Visibility="{Binding IsResultsVisible, Converter={StaticResource BoolToVisibilityConverter}}" >
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1*"/>

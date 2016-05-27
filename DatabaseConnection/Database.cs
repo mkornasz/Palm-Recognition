@@ -72,7 +72,7 @@ namespace DatabaseConnection
             }
         }
 
-        public void AddNewData(string user, DateTime dateTime, Image palmImage, string description, PalmParameters parameters, byte[] defectsImage)
+        public void AddNewData(string user, DateTime dateTime, Image palmImage, string description, PalmParameters parameters, Image defectsImage)
         {
             int userId = -1;
             using (var db = new PalmContext())
@@ -97,7 +97,7 @@ namespace DatabaseConnection
                 db.Palms.Add(palm);
                 db.SaveChanges();
 
-                PalmImage image = new PalmImage() { PalmId = palm.PalmId, Image = ImageToByteArray(palmImage), DefectsImage = defectsImage };
+                PalmImage image = new PalmImage() { PalmId = palm.PalmId, Image = ImageToByteArray(palmImage), DefectsImage = ImageToByteArray(defectsImage) };
                 db.PalmImages.Add(image);
                 db.SaveChanges();
 

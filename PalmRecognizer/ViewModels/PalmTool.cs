@@ -56,6 +56,7 @@
             this._palmOriginal = new Mat(palmFilename, Emgu.CV.CvEnum.LoadImageType.Color);
             this._newImage = this._palmOriginal.ToImage<Bgr, Byte>();
             this._palmOriginalImage = this._palmOriginal.ToImage<Bgr, Byte>();
+            this._palmEqualizedHist = this._palmOriginal.ToImage<Bgr, Byte>();
             this._palmBw = new Mat();
             this._palmContour = new Mat();
             this._palmGray = new Mat();
@@ -68,7 +69,7 @@
         #region Methods
         public Bitmap ChangeContrastBrightness()
         {
-            this._newImage = this._palmOriginalImage.Convert(b => this.SaturateCast(this.ContrastParam * b + this.BrightnessParam));
+            this._newImage = this._palmEqualizedHist.Convert(b => this.SaturateCast(this.ContrastParam * b + this.BrightnessParam));
             return this._newImage.Mat.Bitmap;
         }
 
