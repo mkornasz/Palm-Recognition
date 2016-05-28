@@ -7,9 +7,6 @@
 	using System.Windows;
 
 	using Emgu.CV;
-	using Emgu.CV.CvEnum;
-	using Emgu.CV.Util;
-	using System.Runtime.InteropServices;
 
 	using Emgu.CV.Structure;
 
@@ -27,7 +24,11 @@
 
 		public double Height { get; private set; }
 
-		public double Diameter { get; private set; }
+		public double DiameterOneThird { get; private set; }
+
+		public double DiameterHalf { get; private set; }
+
+		public double DiameterTwoThirds { get; private set; }
 
 		#endregion Public Properties
 
@@ -54,6 +55,14 @@
 
 		#region Private Methods
 
+		private static Mat SetMatValue(Mat mat)
+		{
+			var zeroValue = new MCvScalar(0);
+			var m = new Mat(mat.Size, mat.Depth, mat.NumberOfChannels);
+			m.SetTo(zeroValue);
+			return m;
+		}
+
 		private void CalculateMeasurements(Mat mat)
 		{
 			var bottom = SecondDefect.Far + ((FirstDefect.Far - SecondDefect.Far) / 2.0);
@@ -65,15 +74,17 @@
 			var perpendicular = commonPointPt - bottomPoint;
 			Height = perpendicular.Length;
 
-			Diameter = CalculateDiameter(mat, commonPointPt.Point, bottomPoint.Point);
+			DiameterOneThird = CalculateDiameter(mat, commonPointPt.Point, bottomPoint.Point, 1 / 3.0);
+			DiameterHalf = CalculateDiameter(mat, commonPointPt.Point, bottomPoint.Point, 1 / 2.0);
+			DiameterTwoThirds = CalculateDiameter(mat, commonPointPt.Point, bottomPoint.Point, 2 / 3.0);
 
 			CvInvoke.Line(mat, commonPointPt.Point, bottomPoint.Point, new MCvScalar(255, 255, 255));
 		}
 
-		private double CalculateDiameter(Mat mat, Point top, Point bottom)
+		private double CalculateDiameter(Mat mat, Point top, Point bottom, double fractal)
 		{
 			var direction = new Point2d(bottom.X - top.X, bottom.Y - top.Y);
-			var middlePoint = new Point2d(top.X + (direction.X / 2.0), top.Y + (direction.Y / 2.0));
+			var middlePoint = new Point2d(top.X + (direction.X * fractal), top.Y + (direction.Y * fractal));
 
 			var p4 = new Point2d(-direction.Y, direction.X);
 
@@ -83,9 +94,7 @@
 			var left = (middlePoint - new Point2d(vector.X * mat.Cols, vector.Y * mat.Rows)).Point;
 			var right = (middlePoint + new Point2d(vector.X * mat.Cols, vector.Y * mat.Rows)).Point;
 
-			var zeroValue = new MCvScalar(0);
-			var m = new Mat(mat.Size, mat.Depth, mat.NumberOfChannels);
-			m.SetTo(zeroValue);
+			var m = SetMatValue(mat);
 
 			CvInvoke.Line(m, left, right, new MCvScalar(255, 255, 255), 3);
 
@@ -103,6 +112,7 @@
 				}
 
 			points.Sort((x, y) => (x - middlePoint).Length < (y - middlePoint).Length ? -1 : ((x - middlePoint).Length > (y - middlePoint).Length) ? 1 : 0);
+			if (points.Count < 2) return 0;
 
 			CvInvoke.Line(mat, points[0].Point, points[1].Point, new MCvScalar(255, 255, 255));
 
