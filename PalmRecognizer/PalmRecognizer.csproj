@@ -138,6 +138,7 @@
     <Compile Include="Helpers\ActionCommand.cs" />
     <Compile Include="Helpers\DelegateCommand.cs" />
     <Compile Include="Helpers\EventToCommandBehaviour.cs" />
+    <Compile Include="Helpers\Metrics.cs" />
     <Compile Include="Helpers\SizeObserver.cs" />
     <Compile Include="Model\Defect.cs" />
     <Compile Include="DescriptionWindow.xaml.cs">
