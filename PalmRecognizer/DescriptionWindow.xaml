@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PalmRecognizer"
         mc:Ignorable="d"
-        Title="Description" Height="400" Width="500" WindowStyle="ToolWindow" Background="LightBlue"  WindowStartupLocation="CenterScreen" Closing="Window_Closing">
+        Title="Description" Height="400" Width="500" Background="LightBlue"
+        ShowInTaskbar="False" Topmost="True" WindowStyle="ToolWindow" WindowStartupLocation="CenterScreen" Closing="Window_Closing">
     <Grid>
         <StackPanel VerticalAlignment="Top" Orientation="Horizontal" Margin="80,5,0,0" Height="40">
             <Label Margin="80,2,2,2" Content="PALM RECOGNIZER" VerticalContentAlignment="Center" FontWeight="Bold"/>

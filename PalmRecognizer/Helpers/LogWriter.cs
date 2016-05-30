@@ -1,9 +1,9 @@
 ﻿namespace PalmRecognizer.Helpers
 {
-	using System;
-	using System.IO;
+    using System;
+    using System.IO;
 
-	class LogWriter
+    class LogWriter
     {
         public string LogContent { get; private set; }
 
@@ -52,15 +52,19 @@
             this.LogContent += Environment.NewLine + DateTime.Now.ToString() + " Program resized file automatically, new name " + fileName + Environment.NewLine;
         }
 
-        public void AddEdgesDetectionInfo()
+        public void AddPreprocessingInfo(string user, double contrast, double brightness)
         {
-            //stosowane parametry
-            //czy automatyczne wystarczylo, czy byla ingerencja ze str eksperta
+            this.LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " changes contrast/brightness of palm image. New value of contrast parameter: " + contrast.ToString() + ", brightness parameter: " + brightness.ToString() + Environment.NewLine;
         }
 
-        public void AddPalmMetricsInfo()
+        public void AddEdgesDetectionInfo(string user, int lowParam, int highParam)
         {
-            //wykryte dlugosci i szerokosci palcow
+            this.LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " detected edges on palm image. Canny low parameter:  " + lowParam.ToString() + " , high parameter: " + highParam.ToString() + Environment.NewLine;
+        }
+
+        public void AddPalmMetricsInfo(string user)
+        {
+            this.LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " Measured palm from image. Detected parameters:   " + Environment.NewLine;
         }
 
         public void AddSearchingInfo()
@@ -68,12 +72,6 @@
             //stosowana metoda porownywania
             //wyniki metody
             //kilka pozycji ustawionych wg % podobienstwa
-        }
-
-        public void AddPreprocessingInfo()
-        {
-            //czy zmianiono kontrast/jasnosc
-            //moze nowe wartosci kontrastu/jasnosci
         }
 
         public void SaveLogFile()

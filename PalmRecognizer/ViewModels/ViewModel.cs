@@ -441,7 +441,7 @@
 
         public ICommand RecognizePalmCommand
         {
-            get { return _recognizePalmCommand ?? (_recognizePalmCommand = new DelegateCommand(RecognizePalmCommandExecuted)); }
+            get { return _recognizePalmCommand ?? (_recognizePalmCommand = new DelegateCommand(DetectPalmEdgesCommandExecuted)); }
         }
 
         public ICommand SearchPalmCommand
@@ -619,13 +619,18 @@
             fileDialog.Filter = "Image files (*.png;*.jpg;*.bmp;*.gif)|*.png;*.jpg;*.bmp;*.gif";
             if (fileDialog.ShowDialog() != true) return;
 
+            PalmEdgesImage = PalmContourImage = PalmGrayImage = PalmBwImage = null;
             IsEdgesDetected = false;
+            IsPalmMeasured = false;
+            IsResultsVisible = false;
             IsFileLoaded = true;
+            _palmRotatedEdgesBitmap = null;
             _palmFilename = fileDialog.FileName;
             _palmFilenameExtension = System.IO.Path.GetExtension(_palmFilename);
             PalmLoadedImage = new BitmapImage(new Uri(_palmFilename));
             _palmBitmap = ConvertFromBitmapSourceToBitmap(_palmImage as BitmapSource);
             _tool = new PalmTool(_palmFilename, _cannyParamHigh, _cannyParamLow, _contrastParam, _brightnessParam);
+
             _logWriter.AddLoadInfo(_actualUser, _palmFilename);
             OnPropertyChanged("LogContent");
 
@@ -682,8 +687,9 @@
             OnPropertyChanged("LogContent");
         }
 
-        private void RecognizePalmCommandExecuted(object o)
+        private void DetectPalmEdgesCommandExecuted(object o)
         {
+            _logWriter.AddPreprocessingInfo(_actualUser, ContrastValue, BrightnessValue);
             //_tool = new PalmTool(_palmFilename, _cannyParamHigh, _cannyParamLow, _contrastParam, _brightnessParam);
             _tool.DetectEdges();
 
@@ -694,8 +700,12 @@
             PalmBwImage = ConvertFromBitmapToBitmapSource(_tool.GetBwPalmBitmap);
             _palmEdgesBitmap = ConvertFromBitmapSourceToBitmap(PalmEdgesImage as BitmapSource);
             if (MessageBox.Show("Edges detected properly?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+                _logWriter.AddEdgesDetectionInfo(_actualUser, _cannyParamLow, _cannyParamHigh);
                 if (MessageBox.Show("Image rotated properly?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
                     _isImageReadyForRotation = true;
+            }
+
         }
 
         private void MeasurePalmCommandExecuted(object o)
@@ -706,6 +716,7 @@
             PalmContourImage = ConvertFromBitmapToBitmapSource(_tool.GetContourPalmBitmap);
             Defects = _tool.Defects;
             IsPalmMeasured = true;
+            _logWriter.AddPalmMetricsInfo(_actualUser);
         }
 
         private void SearchPalmCommandExecuted(object o)
@@ -876,7 +887,7 @@
             _isImageReadyForCrop = false;
             _isFileLoaded = false;
             _isPalmMeasured = false;
-            _isUserLogIn = true;
+            _isUserLogIn = false;
             _isResultsVisible = false;
             _cannyParamHigh = 100;
             _cannyParamLow = 100;
