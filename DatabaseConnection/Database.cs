@@ -134,12 +134,8 @@ namespace DatabaseConnection
             using (var db = new PalmContext())
             {
                 var palms = (from p in db.Palms
-                            select new
-                            {
-                                p,
-                                score = Metrics.EuclideanDistance(PalmParametersToArray(parameters), PalmToArray(p))
-                            }).OrderBy(x => x.score).Take(5).Select(x => x.p).ToList();
-                result = palms;
+                            select p).AsEnumerable().Select(p => new {p, score = Metrics.EuclideanDistance(PalmParametersToArray(parameters), PalmToArray(p))}).OrderBy(x => x.score).Take(5).Select(x => x.p);
+                result = palms.ToList();
             }
 
             return result;
