@@ -374,8 +374,8 @@
         #region Commands
         private ICommand _mouseWheelCommand, _mouseDownCommand, _mouseDownBorderCommand, _mouseDownPreviewCommand, _mouseDownDefectsPreviewCommand, _mouseUpCommand, _mouseMoveCommand;
 
-        private ICommand _recognizePalmCommand, _searchPalmCommand, _addPalmToBaseCommand, _loadFileCommand, _saveFileCommand, _cropFileCommand, _measurePalmCommand,
-            _histogramEqualizationCommand, _histogramEqualizationUNDOCommand, _logInCommand, _logOutCommand, _addUserToBaseCommand, _closingCommand;
+        private ICommand _recognizePalmCommand, _searchPalmCommand, _addPalmToBaseCommand, _removePalmFromBaseCommand, _loadFileCommand, _saveFileCommand, _cropFileCommand,
+            _measurePalmCommand, _histogramEqualizationCommand, _histogramEqualizationUNDOCommand, _logInCommand, _logOutCommand, _addUserToBaseCommand, _closingCommand;
 
         private ICommand _mouseDownDefectCommand, _mouseMoveDefectCommand, _mouseUpDefectCommand, _removeDefectCommand, _addDefectCommand, _calculateCommand;
 
@@ -447,6 +447,11 @@
         public ICommand SearchPalmCommand
         {
             get { return _searchPalmCommand ?? (_searchPalmCommand = new DelegateCommand(SearchPalmCommandExecuted)); }
+        }
+
+        public ICommand RemovePalmFromBaseCommand
+        {
+            get { return _removePalmFromBaseCommand ?? (_removePalmFromBaseCommand = new DelegateCommand(RemovePalmFromBaseCommandExecuted)); }
         }
 
         public ICommand AddPalmToBaseCommand
@@ -744,6 +749,20 @@
             _connection.AddNewData(_actualUser, DateTime.Now, img, /*, imgDefects*/ description, new PalmParameters(), imgDefects);
             MessageBox.Show("Palm added to base.");
             OnPropertyChanged("PalmItems");
+        }
+
+
+
+        private void RemovePalmFromBaseCommandExecuted(object obj)
+        {
+            if (_selectedPalm == null) return;
+            if (MessageBox.Show("Are you sure?!", "Remove from base", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+                return;
+
+            _connection.RemoveData(_selectedPalm.PalmId);
+            OnPropertyChanged("PalmItems");
+            SelectedPalm = null;
+            SelectedPalmImage = null;
         }
 
         private void AddUserToBaseCommandExecuted(object o)
