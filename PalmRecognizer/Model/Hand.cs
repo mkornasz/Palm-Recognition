@@ -135,5 +135,13 @@
 		}
 
 		#endregion Private Methods
+
+        public enum FingersEnum
+        {
+            Pinky = 0,
+            Ring = 1,
+            Middle = 2,
+            Index = 3,
+        }
 	}
 }

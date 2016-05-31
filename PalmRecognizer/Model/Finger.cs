@@ -18,9 +18,9 @@
 	{
 		#region Public Properties
 
-		public Defect FirstDefect { get; }
+        public Defect FirstDefect { get; set; }
 
-		public Defect SecondDefect { get; }
+        public Defect SecondDefect { get; set; }
 
 		public double Height { get; private set; }
 

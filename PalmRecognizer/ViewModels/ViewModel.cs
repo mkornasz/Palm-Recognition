@@ -743,10 +743,10 @@
                     description = " ";
                 else
                     return;
-
+            PalmParameters parameters = _tool.MeasuredParameters;
             System.Drawing.Image img = ConvertFromBitmapSourceToBitmap(PalmLoadedImage as BitmapSource);
             System.Drawing.Image imgDefects = BitmapFromDefectsImage();
-            _connection.AddNewData(_actualUser, DateTime.Now, img, /*, imgDefects*/ description, new PalmParameters(), imgDefects);
+            _connection.AddNewData(_actualUser, DateTime.Now, img, /*, imgDefects*/ description, _tool.MeasuredParameters, imgDefects);
             MessageBox.Show("Palm added to base.");
             OnPropertyChanged("PalmItems");
         }
