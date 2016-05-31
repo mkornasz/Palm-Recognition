@@ -130,6 +130,7 @@
     </ApplicationDefinition>
     <Compile Include="Converters\BoolToHeightConverter.cs" />
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
+    <Compile Include="Converters\PalmDefectLenghtConverter.cs" />
     <Compile Include="Converters\PercentageToSizeConverter.cs" />
     <Compile Include="Converters\UserToStringConverter.cs" />
     <Compile Include="DataBaseViewer.xaml.cs">
