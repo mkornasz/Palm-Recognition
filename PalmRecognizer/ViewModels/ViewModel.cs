@@ -729,7 +729,7 @@
             //wywolanie metod przeszukujacych baze danych dajacych liste kandydatow
             //wyswietlenie listy kandydatow
             IsResultsVisible = true;
-            throw new NotImplementedException();
+            _connection.Identify(_tool.MeasuredParameters);
         }
 
         private void AddPalmToBaseCommandExecuted(object o)
