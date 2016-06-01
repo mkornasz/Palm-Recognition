@@ -141,7 +141,7 @@ namespace DatabaseConnection
             return result;
         }
 
-        public bool AddNewUser(string login, string password) // zmienić, żeby login był unikalny
+        public bool AddNewUser(string login, string password) 
         {
             using (var db = new PalmContext())
             {
@@ -217,18 +217,30 @@ namespace DatabaseConnection
 
         private double[] PalmParametersToArray(PalmParameters palmParameters)
         {
-            return new double[] { palmParameters.PalmRadius, palmParameters.IndexFingerBot, palmParameters.IndexFingerMid, palmParameters.IndexFingerTop, palmParameters.IndexFingerLength, 
+            //pytanie czy zostawiamy tą 1 z dzielenia, zrobiłem tak żeby łatwiej było podstawiać różne proporcje
+            double denominator = palmParameters.IndexFingerMid;
+            double[] scaledArray = new double[] { palmParameters.PalmRadius, palmParameters.IndexFingerBot, palmParameters.IndexFingerMid, palmParameters.IndexFingerTop, palmParameters.IndexFingerLength,
                 palmParameters.MiddleFingerBot, palmParameters.MiddleFingerMid, palmParameters.MiddleFingerTop, palmParameters.MiddleFingerLength,
                 palmParameters.RingFingerBot, palmParameters.RingFingerMid, palmParameters.RingFingerTop, palmParameters.RingFingerLength,
                 palmParameters.PinkyFingerBot, palmParameters.PinkyFingerMid, palmParameters.PinkyFingerTop, palmParameters.PinkyFingerLength};
+
+            for (int i = 0; i < scaledArray.Length; i++)
+                scaledArray[i] = scaledArray[i] / denominator;
+            return scaledArray;
         }
+
+
 
         private double[] PalmToArray(Palm palm)
         {
-            return new double[] { palm.PalmRadius, palm.IndexFingerBot, palm.IndexFingerMid, palm.IndexFingerTop, palm.IndexFingerLength, 
+            double denominator = palm.IndexFingerMid;
+            double[] scaledArray = new double[] { palm.PalmRadius, palm.IndexFingerBot, palm.IndexFingerMid, palm.IndexFingerTop, palm.IndexFingerLength,
                 palm.MiddleFingerBot, palm.MiddleFingerMid, palm.MiddleFingerTop, palm.MiddleFingerLength,
                 palm.RingFingerBot, palm.RingFingerMid, palm.RingFingerTop, palm.RingFingerLength,
                 palm.PinkyFingerBot, palm.PinkyFingerMid, palm.PinkyFingerTop, palm.PinkyFingerLength};
+            for (int i = 0; i < scaledArray.Length; i++)
+                scaledArray[i] = scaledArray[i] / denominator;
+            return scaledArray;
         }
         #endregion
     }

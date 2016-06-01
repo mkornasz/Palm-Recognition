@@ -15,8 +15,8 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{19669760-3ABE-4511-B886-5B11B16AEED9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{19669760-3ABE-4511-B886-5B11B16AEED9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19669760-3ABE-4511-B886-5B11B16AEED9}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{19669760-3ABE-4511-B886-5B11B16AEED9}.Debug|Any CPU.Build.0 = Debug|x64
 		{19669760-3ABE-4511-B886-5B11B16AEED9}.Debug|x64.ActiveCfg = Debug|x64
 		{19669760-3ABE-4511-B886-5B11B16AEED9}.Debug|x64.Build.0 = Debug|x64
 		{19669760-3ABE-4511-B886-5B11B16AEED9}.Release|Any CPU.ActiveCfg = Release|Any CPU
