@@ -17,8 +17,8 @@
     <ScrollViewer>
         <Grid Background="LightBlue">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="2*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="10"/>
@@ -38,8 +38,9 @@
                 <RowDefinition/>
                 <RowDefinition/>
                 <RowDefinition/>
+                <RowDefinition/>
             </Grid.RowDefinitions>
-            <Label Grid.ColumnSpan="2" Grid.RowSpan="2" Grid.Row="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontWeight="Bold"  Content="{Binding ElementName=PalmPropertiesControl, Path=LabelPalm}"/>
+            <Label Grid.ColumnSpan="2" Grid.RowSpan="2" Grid.Row="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontWeight="Bold"  Content="CHOSEN DETAILS:"/>
             <Image  Grid.ColumnSpan="2" Grid.Row="2" Stretch="Uniform" Source="{ Binding ElementName=PalmPropertiesControl, Path=DisplayedPalmImages.Image, Converter={StaticResource PalmImageConverter}  }">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="MouseDown">
@@ -99,6 +100,8 @@
             <Label Margin="0,5" Grid.Column="1" Grid.Row="15" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.PinkyFingerLength, Converter={StaticResource PalmDefectLenghtConverter}}"/>
             <Label Margin="0,5" Grid.Column="0" Grid.Row="16" FontWeight="Bold" Content="Pinky Finger Width"/>
             <Label Margin="0,5" Grid.Column="1" Grid.Row="16" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.PinkyFingerMid, Converter={StaticResource PalmDefectLenghtConverter}}"/>
+            <Label Margin="0,5" Grid.Column="0" Grid.Row="17" FontWeight="Bold" Content="Palm Width"/>
+            <Label Margin="0,5" Grid.Column="1" Grid.Row="17" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.PalmRadius, Converter={StaticResource PalmDefectLenghtConverter}}"/>
         </Grid>
     </ScrollViewer>
 </UserControl>

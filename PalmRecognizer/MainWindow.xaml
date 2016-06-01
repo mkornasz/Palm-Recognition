@@ -40,8 +40,8 @@
             <Button Margin="2" Width="100" Content="Save file" IsEnabled="{Binding IsFileLoaded}" Command="{Binding SaveFileCommand}"/>
             <Button Margin="2" Width="100" Content="Detect edges" IsEnabled="{Binding IsFileLoaded}" Command="{Binding RecognizePalmCommand}"/>
             <Button Margin="2" Width="100" Content="Measure palm" IsEnabled="{Binding IsEdgesDetected}" Command="{Binding MeasurePalmCommand}"/>
-            <Button Margin="2" Width="100" Content="Add palm to base" IsEnabled="{Binding IsPalmMeasured}" Command="{Binding AddPalmToBaseCommand}"/>
-            <Button Margin="2" Width="100" Content="Search palm" IsEnabled="{Binding IsPalmMeasured}" Command="{Binding SearchPalmCommand}"/>
+            <Button Margin="2" Width="100" Content="Add palm to base" IsEnabled="{Binding IsPalmDefectsCalculated}" Command="{Binding AddPalmToBaseCommand}"/>
+            <Button Margin="2" Width="100" Content="Search palm" IsEnabled="{Binding IsPalmDefectsCalculated}" Command="{Binding SearchPalmCommand}"/>
             <Label Margin="70,2,2,2" Content="PALM RECOGNIZER" VerticalContentAlignment="Center" FontWeight="Bold"/>
             <Image Source="Hand.ico"/>
         </StackPanel>
@@ -67,7 +67,7 @@
                             <ColumnDefinition Width="1*"/>
                             <ColumnDefinition Width="4*"/>
                         </Grid.ColumnDefinitions>
-                        <local:PropertiesViewer DisplayedPalm="{Binding SelectedPalm}" DisplayedPalmImages="{Binding SelectedPalmImage}" LabelPalm="CHOSEN DETAILS:" Grid.Column="0"/>
+                        <local:PropertiesViewer DisplayedPalm="{Binding SelectedPalm}" DisplayedPalmImages="{Binding SelectedPalmImage}" Grid.Column="0"/>
                         <local:DataBaseViewer ImageCollection="{Binding PalmItems}" ShowSimilarity="False" Grid.Column="1"/>
                     </Grid>
                 </TabItem>
@@ -78,17 +78,17 @@
                             <ColumnDefinition Width="3*"/>
                             <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
-                        <local:PropertiesViewer DisplayedPalm="{Binding SelectedPalm}" DisplayedPalmImages="{Binding SelectedPalmImage}" LabelPalm="CHOSEN DETAILS:" Grid.Column="0"/>
+                        <local:PropertiesViewer DisplayedPalm="{Binding SelectedPalm}" DisplayedPalmImages="{Binding SelectedPalmImage}" Grid.Column="0"/>
                         <local:DataBaseViewer ImageCollection="{Binding FoundPalmItems}" Grid.Column="1" ShowSimilarity="True"/>
-                        <local:PropertiesViewer DisplayedPalm="{Binding WantedPalm}" DisplayedPalmImages="{Binding WantedPalmImage}" LabelPalm="WANTED DETAILS:" Grid.Column="2"/>
+                        <local:WantedPropertiesViewer WantedPalmParameters="{Binding WantedPalmParameters}" WantedPalmImageSource="{Binding WantedPalmImage}" WantedPalmDefectsImageSource="{Binding WantedPalmDefectsImage}" Grid.Column="2"/>
                     </Grid>
                 </TabItem>
                 <TabItem Header="Contour" Visibility="{Binding IsPalmMeasured, Converter={StaticResource BoolToVisibilityConverter}}" Selector.IsSelected="{Binding IsPalmMeasured, Mode=OneWay}">
                     <Grid >
                         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
-                            <Button Width="100" Height="50" Command="{Binding RemoveDefectCommand}" Content="Remove Defect"/>
-                            <Button Width="100" Height="50" Command="{Binding AddDefectCommand}" Content="Add Defect"/>
-                            <Button Width="100" Height="50" Command="{Binding CalculateCommand}" Content="Calculate"/>
+                            <!--<Button Width="100" Height="50" Command="{Binding RemoveDefectCommand}" Content="Remove Defect"/>
+                            <Button Width="100" Height="50" Command="{Binding AddDefectCommand}" Content="Add Defect"/>-->
+                            <Button Width="100" Height="50" Command="{Binding CalculateCommand}" Content="Calculate Defects"/>
                         </StackPanel>
                         <Grid Name="DefectsCanvas">
                             <Image Name="DefectsImage" Stretch="Uniform" Source="{Binding PalmContourImage}"

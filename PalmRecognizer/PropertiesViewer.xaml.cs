@@ -27,15 +27,6 @@ namespace PalmRecognizer
             set { SetValue(PalmProperty, value); }
         }
 
-        // <summary>
-        /// Gets or sets label
-        /// </summary>
-        public string LabelPalm
-        {
-            get { return (string)GetValue(LabelPalmProperty); }
-            set { SetValue(LabelPalmProperty, value); }
-        }
-
         /// <summary>
         /// Identified the Images dependency property
         /// </summary>
@@ -47,12 +38,6 @@ namespace PalmRecognizer
         /// </summary>
         public static DependencyProperty PalmProperty =
             DependencyProperty.Register("DisplayedPalm", typeof(Palm), typeof(PropertiesViewer));
-
-        /// <summary>
-        /// Identified the Label dependency property
-        /// </summary>
-        public static DependencyProperty LabelPalmProperty =
-            DependencyProperty.Register("LabelPalm", typeof(string), typeof(PropertiesViewer));
 
         public PropertiesViewer()
         {

@@ -33,14 +33,14 @@
         private PalmTool _tool;
         private int _cannyParamLow, _cannyParamHigh, _brightnessParam;
         private double _angle = 0.0, _contrastParam;
-        private bool _isFileLoaded, _isPalmMeasured, _isEdgesDetected, _isResultsVisible, _isUserLogIn, _isMouseDown, _isImageReadyForRotation, _isImageReadyForCrop;
+        private bool _isFileLoaded, _isPalmMeasured, _isPalmDefectsCalculated, _isEdgesDetected, _isResultsVisible, _isUserLogIn, _isMouseDown, _isImageReadyForRotation, _isImageReadyForCrop;
         private string _palmFilename, _palmFilenameExtension, _actualUser;
         private System.Windows.Shapes.Rectangle _imageCroppedArea;
         private Point _startMousePoint, _startMousePointImage;
         private ImageSource _palmImage, _palmEdgesImage, _palmBlurImage, _palmGrayImage, _palmContourImage, _palmBwImage;
         private Bitmap _palmBitmap, _palmEdgesBitmap, _palmRotatedEdgesBitmap;
-        private DatabaseConnection.Model.Palm _selectedPalm, _wantedPalm;
-        private DatabaseConnection.Model.PalmImage _selectedPalmImage, _wantedPalmImage;
+        private DatabaseConnection.Model.Palm _selectedPalm;
+        private DatabaseConnection.Model.PalmImage _selectedPalmImage;
         private object _selectedTab;
 
         private ObservableCollection<Defect> _defects;
@@ -118,29 +118,22 @@
 
         public List<DatabaseConnection.Model.PalmImage> FoundPalmItems
         {
-            get { return IsUserLogIn ? _connection.GetAllImages() : null; }
+            get; set;
         }
 
-        public DatabaseConnection.Model.Palm WantedPalm
+        public PalmParameters WantedPalmParameters
         {
-            get { return _wantedPalm; }
-            set
-            {
-                if (_wantedPalm != value)
-                    _wantedPalm = value;
-                OnPropertyChanged("WantedPalm");
-            }
+            get;private set;
         }
 
-        public DatabaseConnection.Model.PalmImage WantedPalmImage
+        public ImageSource WantedPalmImage
         {
-            get { return _wantedPalmImage; }
-            set
-            {
-                if (_wantedPalmImage != value)
-                    _wantedPalmImage = value;
-                OnPropertyChanged("WantedPalmImage");
-            }
+            get;private set;
+        }
+
+        public ImageSource WantedPalmDefectsImage
+        {
+            get; private set;
         }
 
         public ImageSource PalmLoadedImage
@@ -239,6 +232,7 @@
                 return IsEdgesDetected ? false : true;
             }
         }
+
         public bool IsResultsVisible
         {
             get { return _isResultsVisible; }
@@ -291,6 +285,17 @@
                 if (_isPalmMeasured != value)
                     _isPalmMeasured = value;
                 OnPropertyChanged("IsPalmMeasured");
+            }
+        }
+
+        public bool IsPalmDefectsCalculated
+        {
+            get { return _isPalmDefectsCalculated; }
+            set
+            {
+                if (_isPalmDefectsCalculated != value)
+                    _isPalmDefectsCalculated = value;
+                OnPropertyChanged("IsPalmDefectsCalculated");
             }
         }
 
@@ -498,6 +503,22 @@
         {
             get { return _mouseMoveCommand ?? (_mouseMoveCommand = new DelegateCommand(MouseMoveCommandExecuted)); }
         }
+
+        public ICommand RemoveDefectCommand
+        {
+            get { return _removeDefectCommand ?? (_removeDefectCommand = new DelegateCommand(RemoveDefectCommandExecuted)); }
+        }
+
+        public ICommand AddDefectCommand
+        {
+            get { return _addDefectCommand ?? (_addDefectCommand = new DelegateCommand(AddDefectCommandExecuted)); }
+        }
+
+        public ICommand CalculateCommand
+        {
+            get { return _calculateCommand ?? (_calculateCommand = new DelegateCommand(CalculateCommandExecuted)); }
+        }
+
         #endregion
 
         #region Commands Executions
@@ -627,6 +648,7 @@
             PalmEdgesImage = PalmContourImage = PalmGrayImage = PalmBwImage = null;
             IsEdgesDetected = false;
             IsPalmMeasured = false;
+            IsPalmDefectsCalculated = false;
             IsResultsVisible = false;
             IsFileLoaded = true;
             _palmRotatedEdgesBitmap = null;
@@ -694,6 +716,7 @@
 
         private void DetectPalmEdgesCommandExecuted(object o)
         {
+            _angle = 0;
             _logWriter.AddPreprocessingInfo(_actualUser, ContrastValue, BrightnessValue);
             //_tool = new PalmTool(_palmFilename, _cannyParamHigh, _cannyParamLow, _contrastParam, _brightnessParam);
             _tool.DetectEdges();
@@ -728,6 +751,7 @@
         {
             //wywolanie metod przeszukujacych baze danych dajacych liste kandydatow
             //wyswietlenie listy kandydatow
+            SetWantedPalm();
             IsResultsVisible = true;
             _connection.Identify(_tool.MeasuredParameters);
         }
@@ -750,8 +774,6 @@
             MessageBox.Show("Palm added to base.");
             OnPropertyChanged("PalmItems");
         }
-
-
 
         private void RemovePalmFromBaseCommandExecuted(object obj)
         {
@@ -866,21 +888,6 @@
             _currentEllipse = null;
         }
 
-        public ICommand RemoveDefectCommand
-        {
-            get { return _removeDefectCommand ?? (_removeDefectCommand = new DelegateCommand(RemoveDefectCommandExecuted)); }
-        }
-
-        public ICommand AddDefectCommand
-        {
-            get { return _addDefectCommand ?? (_addDefectCommand = new DelegateCommand(AddDefectCommandExecuted)); }
-        }
-
-        public ICommand CalculateCommand
-        {
-            get { return _calculateCommand ?? (_calculateCommand = new DelegateCommand(CalculateCommandExecuted)); }
-        }
-
         private void RemoveDefectCommandExecuted(object obj)
         {
             throw new NotImplementedException();
@@ -894,6 +901,7 @@
         private void CalculateCommandExecuted(object obj)
         {
             PalmContourImage = ConvertFromBitmapToBitmapSource(_tool.CalculateMeasurements(Defects).Bitmap);
+            IsPalmDefectsCalculated = true;
         }
 
         #endregion
@@ -906,6 +914,7 @@
             _isImageReadyForCrop = false;
             _isFileLoaded = false;
             _isPalmMeasured = false;
+            _isPalmDefectsCalculated = false;
             _isUserLogIn = false;
             _isResultsVisible = false;
             _cannyParamHigh = 100;
@@ -927,6 +936,16 @@
             }
             rtb.Render(drawingVisual);
             return ConvertFromBitmapSourceToBitmap(rtb);
+        }
+
+        private void SetWantedPalm()
+        {
+            WantedPalmDefectsImage = ConvertFromBitmapToBitmapSource(BitmapFromDefectsImage());
+            OnPropertyChanged("WantedPalmDefectsImage");
+            WantedPalmImage = PalmLoadedImage;
+            OnPropertyChanged("WantedPalmImage");
+            WantedPalmParameters = _tool.MeasuredParameters;
+            OnPropertyChanged("WantedPalmParameters");
         }
 
         private void CropImage()
