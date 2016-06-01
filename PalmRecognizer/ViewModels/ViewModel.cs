@@ -818,13 +818,16 @@
 
         private void LogOutCommandExecuted(object o)
         {
-            IsUserLogIn = false;
-            IsFileLoaded = false;
-            IsPalmMeasured = false;
-            IsEdgesDetected = false;
-            (Application.Current.MainWindow as MainWindow).ImageArea.Source = null;
-            _logWriter.AddLogOutInfo(_actualUser);
-            OnPropertyChanged("LogContent");
+            if (MessageBox.Show("Are you sure you want to log out?\nUnsaved data will be lost.\n", "Confirm logging out", MessageBoxButton.YesNoCancel, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                IsUserLogIn = false;
+                IsFileLoaded = false;
+                IsPalmMeasured = false;
+                IsEdgesDetected = false;
+                (Application.Current.MainWindow as MainWindow).ImageArea.Source = null;
+                _logWriter.AddLogOutInfo(_actualUser);
+                OnPropertyChanged("LogContent");
+            }
         }
 
         private void ClosingCommandExecuted(object o)
