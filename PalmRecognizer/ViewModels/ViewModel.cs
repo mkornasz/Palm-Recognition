@@ -129,7 +129,8 @@
 
         public List<DatabaseConnection.Model.PalmImage> FoundPalmItems
         {
-            get; set;
+            get;
+            set;
         }
 
         public PalmParameters WantedPalmParameters
@@ -796,7 +797,10 @@
             //wyswietlenie listy kandydatow
             SetWantedPalm();
             IsResultsVisible = true;
-            _connection.Identify(_tool.MeasuredParameters);
+#warning ZMIEŃCIE SOBIE TĄ LICZBĘ!!!!!!!!!!!!!!!
+            var results = _connection.Identify(_tool.MeasuredParameters, 3);
+            FoundPalmItems = results.Item1;
+            OnPropertyChanged("FoundPalmItems");
         }
 
         private void AddPalmToBaseCommandExecuted(object o)
@@ -854,7 +858,7 @@
                 }
                 else
                     MessageBox.Show("Can't log in user");
-            WindowTitle += "    USER: " + _actualUser + "     LOGGED: " + DateTime.Now.ToString();
+            WindowTitle = "Palm Recognizer     USER: " + _actualUser + "     LOGGED: " + DateTime.Now.ToString();
             _logWriter.AddLogInInfo(_actualUser);
             OnPropertyChanged("LogContent");
         }

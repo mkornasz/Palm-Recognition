@@ -128,14 +128,22 @@ namespace DatabaseConnection
             }
         }
 
-        public List<Model.Palm> Identify(PalmParameters parameters)
+        public Tuple<List<PalmImage>, List<double>> Identify(PalmParameters parameters, int maxResults)
         {
-            List<Model.Palm> result = new List<Palm>();
+            Tuple<List<PalmImage>, List<double>> result = new Tuple<List<PalmImage>, List<double>>(new List<PalmImage>(), new List<double>());
             using (var db = new PalmContext())
             {
                 var palms = (from p in db.Palms
-                            select p).AsEnumerable().Select(p => new {p, score = Metrics.EuclideanDistance(PalmParametersToArray(parameters), PalmToArray(p))}).OrderBy(x => x.score).Take(5).Select(x => x.p);
-                result = palms.ToList();
+                            select p).AsEnumerable().Select(p => new {p, score = Metrics.EuclideanDistance(PalmParametersToArray(parameters), PalmToArray(p))}).OrderBy(x => x.score).Take(maxResults);
+                
+                foreach (var elem in palms)
+                {
+                    var palmImage = (from pi in db.PalmImages
+                                     where pi.PalmId == elem.p.PalmId
+                                     select pi).FirstOrDefault();
+                    result.Item1.Add(palmImage);
+                    result.Item2.Add(elem.score);
+                }
             }
 
             return result;
@@ -219,6 +227,8 @@ namespace DatabaseConnection
         {
             //pytanie czy zostawiamy tą 1 z dzielenia, zrobiłem tak żeby łatwiej było podstawiać różne proporcje
             double denominator = palmParameters.IndexFingerMid;
+            if (denominator == 0)
+                denominator = double.Epsilon;
             double[] scaledArray = new double[] { palmParameters.PalmRadius, palmParameters.IndexFingerBot, palmParameters.IndexFingerMid, palmParameters.IndexFingerTop, palmParameters.IndexFingerLength,
                 palmParameters.MiddleFingerBot, palmParameters.MiddleFingerMid, palmParameters.MiddleFingerTop, palmParameters.MiddleFingerLength,
                 palmParameters.RingFingerBot, palmParameters.RingFingerMid, palmParameters.RingFingerTop, palmParameters.RingFingerLength,
@@ -234,6 +244,8 @@ namespace DatabaseConnection
         private double[] PalmToArray(Palm palm)
         {
             double denominator = palm.IndexFingerMid;
+            if (denominator == 0)
+                denominator = double.Epsilon;
             double[] scaledArray = new double[] { palm.PalmRadius, palm.IndexFingerBot, palm.IndexFingerMid, palm.IndexFingerTop, palm.IndexFingerLength,
                 palm.MiddleFingerBot, palm.MiddleFingerMid, palm.MiddleFingerTop, palm.MiddleFingerLength,
                 palm.RingFingerBot, palm.RingFingerMid, palm.RingFingerTop, palm.RingFingerLength,
