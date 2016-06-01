@@ -127,7 +127,7 @@
             }
         }
 
-        public List<DatabaseConnection.Model.PalmImage> FoundPalmItems
+        public List<Tuple<DatabaseConnection.Model.PalmImage, double>> FoundPalmItems
         {
             get;
             set;
@@ -798,8 +798,7 @@
             SetWantedPalm();
             IsResultsVisible = true;
 #warning ZMIEŃCIE SOBIE TĄ LICZBĘ!!!!!!!!!!!!!!!
-            var results = _connection.Identify(_tool.MeasuredParameters, 3);
-            FoundPalmItems = results.Item1;
+            FoundPalmItems = _connection.Identify(_tool.MeasuredParameters, 3);
             OnPropertyChanged("FoundPalmItems");
         }
 

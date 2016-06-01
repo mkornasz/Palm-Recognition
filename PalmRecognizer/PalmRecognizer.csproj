@@ -128,7 +128,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Converters\BoolToHeightConverter.cs" />
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="Converters\PalmDefectLenghtConverter.cs" />
     <Compile Include="Converters\PercentageToSizeConverter.cs" />
@@ -152,6 +151,9 @@
     </Compile>
     <Compile Include="Model\Finger.cs" />
     <Compile Include="Model\Hand.cs" />
+    <Compile Include="ResultsViewer.xaml.cs">
+      <DependentUpon>ResultsViewer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ViewModels\MeasurementDetector.cs" />
     <Compile Include="NewUserWindow.xaml.cs">
       <DependentUpon>NewUserWindow.xaml</DependentUpon>
@@ -189,6 +191,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="PropertiesViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ResultsViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

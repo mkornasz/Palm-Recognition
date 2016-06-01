@@ -128,9 +128,10 @@ namespace DatabaseConnection
             }
         }
 
-        public Tuple<List<PalmImage>, List<double>> Identify(PalmParameters parameters, int maxResults)
+        public List<Tuple<PalmImage, double>> Identify(PalmParameters parameters, int maxResults)
         {
-            Tuple<List<PalmImage>, List<double>> result = new Tuple<List<PalmImage>, List<double>>(new List<PalmImage>(), new List<double>());
+            //    Tuple<List<PalmImage>, List<double>> result = new Tuple<List<PalmImage>, List<double>>(new List<PalmImage>(), new List<double>());
+            List<Tuple<PalmImage, double>> result = new List<Tuple<PalmImage, double>>();
             using (var db = new PalmContext())
             {
                 var palms = (from p in db.Palms
@@ -141,11 +142,9 @@ namespace DatabaseConnection
                     var palmImage = (from pi in db.PalmImages
                                      where pi.PalmId == elem.p.PalmId
                                      select pi).FirstOrDefault();
-                    result.Item1.Add(palmImage);
-                    result.Item2.Add(elem.score);
+                    result.Add(new Tuple<PalmImage, double>(palmImage, elem.score));
                 }
             }
-
             return result;
         }
 

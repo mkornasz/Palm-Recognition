@@ -69,7 +69,7 @@
                             <ColumnDefinition Width="4*"/>
                         </Grid.ColumnDefinitions>
                         <local:PropertiesViewer DisplayedPalm="{Binding SelectedPalm}" DisplayedPalmImages="{Binding SelectedPalmImage}" Grid.Column="0"/>
-                        <local:DataBaseViewer ImageCollection="{Binding PalmItems}" ShowSimilarity="False" Grid.Column="1"/>
+                        <local:DataBaseViewer ImageCollection="{Binding PalmItems}" Grid.Column="1"/>
                     </Grid>
                 </TabItem>
                 <TabItem Header="Searching Results Browser" Visibility="{Binding IsResultsVisible, Converter={StaticResource BoolToVisibilityConverter}}" >
@@ -80,7 +80,7 @@
                             <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
                         <local:PropertiesViewer DisplayedPalm="{Binding SelectedPalm}" DisplayedPalmImages="{Binding SelectedPalmImage}" Grid.Column="0"/>
-                        <local:DataBaseViewer ImageCollection="{Binding FoundPalmItems}" Grid.Column="1" ShowSimilarity="True"/>
+                        <local:ResultsViewer ImageCollection="{Binding FoundPalmItems}" Grid.Column="1"/>
                         <local:WantedPropertiesViewer WantedPalmParameters="{Binding WantedPalmParameters}" WantedPalmImageSource="{Binding WantedPalmImage}" WantedPalmDefectsImageSource="{Binding WantedPalmDefectsImage}" Grid.Column="2"/>
                     </Grid>
                 </TabItem>
