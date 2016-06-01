@@ -37,6 +37,11 @@
             this.LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " saved file of type " + type + " to location " + fileName + Environment.NewLine;
         }
 
+        public void AddResetInfo(string user)
+        {
+            this.LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " reseted program." + Environment.NewLine + Environment.NewLine + Environment.NewLine;
+        }
+
         public void AddRotationInfo(string user)
         {
             this.LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " rotated file by 1 degree" + Environment.NewLine;

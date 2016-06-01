@@ -10,7 +10,7 @@
         xmlns:helpers="clr-namespace:PalmRecognizer.Helpers"
         xmlns:local="clr-namespace:PalmRecognizer"
         mc:Ignorable="d"
-        Title="Palm Recognizer" Height="800" Width="1300" WindowStartupLocation="CenterScreen">
+        Title="{Binding WindowTitle}" Height="800" Width="1300" WindowStartupLocation="CenterScreen">
     <i:Interaction.Behaviors>
         <helpers:EventToCommandBehavior Command="{Binding Path=MouseDownDefectCommand}" Event="MouseLeftButtonDown" PassArguments="True" />
         <helpers:EventToCommandBehavior Command="{Binding Path=MouseUpDefectCommand}" Event="MouseLeftButtonUp" PassArguments="True" />
@@ -42,6 +42,7 @@
             <Button Margin="2" Width="100" Content="Measure palm" IsEnabled="{Binding IsEdgesDetected}" Command="{Binding MeasurePalmCommand}"/>
             <Button Margin="2" Width="100" Content="Add palm to base" IsEnabled="{Binding IsPalmDefectsCalculated}" Command="{Binding AddPalmToBaseCommand}"/>
             <Button Margin="2" Width="100" Content="Search palm" IsEnabled="{Binding IsPalmDefectsCalculated}" Command="{Binding SearchPalmCommand}"/>
+            <Button Margin="2" Width="100" Content="RESET" IsEnabled="{Binding IsFileLoaded}" Command="{Binding ResetCommand}"/>
             <Label Margin="70,2,2,2" Content="PALM RECOGNIZER" VerticalContentAlignment="Center" FontWeight="Bold"/>
             <Image Source="Hand.ico"/>
         </StackPanel>

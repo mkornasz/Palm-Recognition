@@ -34,7 +34,7 @@
         private int _cannyParamLow, _cannyParamHigh, _brightnessParam;
         private double _angle = 0.0, _contrastParam;
         private bool _isFileLoaded, _isPalmMeasured, _isPalmDefectsCalculated, _isEdgesDetected, _isResultsVisible, _isUserLogIn, _isMouseDown, _isImageReadyForRotation, _isImageReadyForCrop;
-        private string _palmFilename, _palmFilenameExtension, _actualUser;
+        private string _palmFilename, _palmFilenameExtension, _actualUser, _windowTitle;
         private System.Windows.Shapes.Rectangle _imageCroppedArea;
         private Point _startMousePoint, _startMousePointImage;
         private ImageSource _palmImage, _palmEdgesImage, _palmBlurImage, _palmGrayImage, _palmContourImage, _palmBwImage;
@@ -84,6 +84,17 @@
                 OnPropertyChanged("Height");
             }
         }
+
+        public string WindowTitle
+        {
+            get { return _windowTitle; }
+            set
+            {
+                if (_windowTitle != value)
+                    _windowTitle = value;
+                OnPropertyChanged("WindowTitle");
+            }
+        }
         public string LogContent
         {
             get { return _logWriter.LogContent; }
@@ -123,12 +134,12 @@
 
         public PalmParameters WantedPalmParameters
         {
-            get;private set;
+            get; private set;
         }
 
         public ImageSource WantedPalmImage
         {
-            get;private set;
+            get; private set;
         }
 
         public ImageSource WantedPalmDefectsImage
@@ -379,7 +390,7 @@
         #region Commands
         private ICommand _mouseWheelCommand, _mouseDownCommand, _mouseDownBorderCommand, _mouseDownPreviewCommand, _mouseDownDefectsPreviewCommand, _mouseUpCommand, _mouseMoveCommand;
 
-        private ICommand _recognizePalmCommand, _searchPalmCommand, _addPalmToBaseCommand, _removePalmFromBaseCommand, _loadFileCommand, _saveFileCommand, _cropFileCommand,
+        private ICommand _recognizePalmCommand, _searchPalmCommand, _addPalmToBaseCommand, _removePalmFromBaseCommand, _loadFileCommand, _saveFileCommand, _resetCommand, _cropFileCommand,
             _measurePalmCommand, _histogramEqualizationCommand, _histogramEqualizationUNDOCommand, _logInCommand, _logOutCommand, _addUserToBaseCommand, _closingCommand;
 
         private ICommand _mouseDownDefectCommand, _mouseMoveDefectCommand, _mouseUpDefectCommand, _removeDefectCommand, _addDefectCommand, _calculateCommand;
@@ -412,6 +423,11 @@
         public ICommand MouseUpDefectCommand
         {
             get { return _mouseUpDefectCommand ?? (_mouseUpDefectCommand = new ActionCommand<MouseButtonEventArgs>(MouseUpDefectCommandExecuted)); }
+        }
+
+        public ICommand ResetCommand
+        {
+            get { return _resetCommand ?? (_resetCommand = new DelegateCommand(ResetCommandExecuted)); }
         }
 
         public ICommand LoadFileCommand
@@ -669,6 +685,30 @@
             ResizeImage();
         }
 
+        private void ResetCommandExecuted(object o)
+        {
+            if (_palmFilename == "") return;
+            if (MessageBox.Show("Are you sure?!", "Reset", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+                return;
+
+            _logWriter.AddResetInfo(_actualUser);
+            OnPropertyChanged("LogContent");
+
+            IsEdgesDetected = false;
+            IsImageReadyForCrop = false;
+            IsFileLoaded = false;
+            IsPalmMeasured = false;
+            IsPalmDefectsCalculated = false;
+            IsResultsVisible = false;
+            CannyParamHigh = "250";
+            CannyParamLow = "100";
+            ContrastValue = 1.0;
+            BrightnessValue = 0;
+            _palmRotatedEdgesBitmap = null;
+            _palmFilename = "";
+            PalmLoadedImage = PalmEdgesImage = PalmBlurImage = PalmBwImage = PalmGrayImage = PalmContourImage = null;
+        }
+
         private void SaveFileCommandExecuted(object o)
         {
             if ((SelectedTab as TabItem).Header.ToString().Contains("Browser")) return;
@@ -718,6 +758,7 @@
         {
             _angle = 0;
             _logWriter.AddPreprocessingInfo(_actualUser, ContrastValue, BrightnessValue);
+            OnPropertyChanged("LogContent");
             //_tool = new PalmTool(_palmFilename, _cannyParamHigh, _cannyParamLow, _contrastParam, _brightnessParam);
             _tool.DetectEdges();
 
@@ -730,6 +771,7 @@
             if (MessageBox.Show("Edges detected properly?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
             {
                 _logWriter.AddEdgesDetectionInfo(_actualUser, _cannyParamLow, _cannyParamHigh);
+                OnPropertyChanged("LogContent");
                 if (MessageBox.Show("Image rotated properly?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
                     _isImageReadyForRotation = true;
             }
@@ -745,6 +787,7 @@
             Defects = _tool.Defects;
             IsPalmMeasured = true;
             _logWriter.AddPalmMetricsInfo(_actualUser);
+            OnPropertyChanged("LogContent");
         }
 
         private void SearchPalmCommandExecuted(object o)
@@ -811,7 +854,7 @@
                 }
                 else
                     MessageBox.Show("Can't log in user");
-
+            WindowTitle += "    USER: " + _actualUser + "     LOGGED: " + DateTime.Now.ToString();
             _logWriter.AddLogInInfo(_actualUser);
             OnPropertyChanged("LogContent");
         }
@@ -825,6 +868,7 @@
             (Application.Current.MainWindow as MainWindow).ImageArea.Source = null;
             _logWriter.AddLogOutInfo(_actualUser);
             OnPropertyChanged("LogContent");
+            WindowTitle = "Palm Recognizer";
         }
 
         private void ClosingCommandExecuted(object o)
@@ -908,6 +952,7 @@
 
         public ViewModel()
         {
+            _windowTitle = "Palm Recognizer";
             _logWriter = new LogWriter();
             _connection = Database.Instance;
             _isEdgesDetected = false;
@@ -917,7 +962,7 @@
             _isPalmDefectsCalculated = false;
             _isUserLogIn = false;
             _isResultsVisible = false;
-            _cannyParamHigh = 100;
+            _cannyParamHigh = 250;
             _cannyParamLow = 100;
             _contrastParam = 1;
             _brightnessParam = 0;
