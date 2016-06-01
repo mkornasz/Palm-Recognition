@@ -161,6 +161,9 @@
     <Compile Include="Model\Point2d.cs" />
     <Compile Include="ViewModels\ViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
+    <Compile Include="WantedPropertiesViewer.xaml.cs">
+      <DependentUpon>WantedPropertiesViewer.xaml</DependentUpon>
+    </Compile>
     <Page Include="DataBaseViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -186,6 +189,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="PropertiesViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WantedPropertiesViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
