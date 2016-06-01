@@ -16,6 +16,6 @@
         <Label Content="User" Margin="24,50,170.6,0" Height="25" VerticalAlignment="Top"/>
         <PasswordBox Name="UserPass" Margin="123,85,14.6,0" Height="25" VerticalContentAlignment="Center" VerticalAlignment="Top"/>
         <Label Content="Password" Margin="24,85,174.6,0" Height="29" VerticalAlignment="Top"/>
-        <Button Margin="14,127,13.6,0" Click="Button_Click" Height="20" VerticalAlignment="Top">OK</Button>
+        <Button Margin="14,127,13.6,0" Click="Button_Click" IsDefault="True" Height="20" VerticalAlignment="Top">OK</Button>
     </Grid>
 </Window>

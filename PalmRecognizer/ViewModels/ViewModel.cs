@@ -861,6 +861,9 @@
 
         private void LogOutCommandExecuted(object o)
         {
+            if (MessageBox.Show("Are you sure you want to log out?\nUnsaved data will be lost.\n", "Confirm logging out", MessageBoxButton.YesNoCancel, MessageBoxImage.Question) == MessageBoxResult.No)
+				return;
+			
             IsUserLogIn = false;
             IsFileLoaded = false;
             IsPalmMeasured = false;
