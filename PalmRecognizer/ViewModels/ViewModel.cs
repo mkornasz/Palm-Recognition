@@ -24,7 +24,7 @@
     using System.Windows.Shapes;
 
     using Color = System.Drawing.Color;
-
+    using System.Windows.Data;
     class ViewModel : ViewModelBase
     {
         #region Variables
@@ -42,6 +42,9 @@
         private DatabaseConnection.Model.Palm _selectedPalm;
         private DatabaseConnection.Model.PalmImage _selectedPalmImage;
         private object _selectedTab;
+
+        private int _metricTypeIndex = 0;
+        private readonly CollectionView _metricTypes;
 
         private ObservableCollection<Defect> _defects;
 
@@ -68,6 +71,22 @@
                 _imageWidth = value;
                 OnPropertyChanged("Width");
             }
+        }
+
+        public int MetricTypeIndex
+        {
+            get { return _metricTypeIndex; }
+            set
+            {
+                _metricTypeIndex = value;
+                OnPropertyChanged("MetricTypeIndex");
+            }
+        }
+
+
+        public CollectionView MetricTypes
+        {
+            get { return _metricTypes; }
         }
 
         /// <summary>
@@ -794,14 +813,15 @@
             OnPropertyChanged("LogContent");
         }
 
+
+
+        private const int NROFRESULTSTOSHOW = 5;
+
         private void SearchPalmCommandExecuted(object o)
         {
-            //wywolanie metod przeszukujacych baze danych dajacych liste kandydatow
-            //wyswietlenie listy kandydatow
             SetWantedPalm();
             IsResultsVisible = true;
-#warning ZMIEŃCIE SOBIE TĄ LICZBĘ!!!!!!!!!!!!!!!
-            FoundPalmItems = _connection.Identify(_tool.MeasuredParameters, 3);
+            FoundPalmItems = _connection.Identify(_tool.MeasuredParameters, NROFRESULTSTOSHOW, (MetricType)MetricTypeIndex);
             OnPropertyChanged("FoundPalmItems");
         }
 
@@ -994,6 +1014,11 @@
             _cannyParamLow = 100;
             _contrastParam = 1;
             _brightnessParam = 0;
+
+            IList<string> metricNamesList = new List<string>();
+            foreach (string metricName in Enum.GetNames(typeof(MetricType)))
+                metricNamesList.Add(metricName + " distance");
+            _metricTypes = new CollectionView(metricNamesList);
         }
 
         private bool CheckDefectsPositions()
