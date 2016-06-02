@@ -695,7 +695,7 @@
 
             _logWriter.AddResetInfo(_actualUser);
             OnPropertyChanged("LogContent");
-            if(IsFileLoaded)
+            if (IsFileLoaded)
             {
                 CannyParamHigh = "250";
                 CannyParamLow = "100";
@@ -851,24 +851,25 @@
         private void LogInCommandExecuted(object o)
         {
             NewUserWindow nw = new NewUserWindow();
-            if (nw.ShowDialog() == true)
-                if (_connection.Login(nw.newUserName, nw.newUserPassword))
-                {
-                    IsUserLogIn = true;
-                    _actualUser = nw.newUserName;
-                    OnPropertyChanged("PalmItems");
-                }
-                else
-                    MessageBox.Show("Can't log in user");
-            WindowTitle = "Palm Recognizer     USER: " + _actualUser + "     LOGGED: " + DateTime.Now.ToString();
-            _logWriter.AddLogInInfo(_actualUser);
-            OnPropertyChanged("LogContent");
+            if (nw.ShowDialog() == false) return;
+
+            if (_connection.Login(nw.newUserName, nw.newUserPassword))
+            {
+                IsUserLogIn = true;
+                _actualUser = nw.newUserName;
+                OnPropertyChanged("PalmItems");
+                WindowTitle = "Palm Recognizer     USER: " + _actualUser + "     LOGGED: " + DateTime.Now.ToString();
+                _logWriter.AddLogInInfo(_actualUser);
+                OnPropertyChanged("LogContent");
+            }
+            else
+                MessageBox.Show("Can't log in user");
         }
 
         private void LogOutCommandExecuted(object o)
         {
             if (MessageBox.Show("Are you sure you want to log out?\nUnsaved data will be lost.\n", "Confirm logging out", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
-				return;
+                return;
 
             IsUserLogIn = false;
             if (IsFileLoaded)
@@ -966,6 +967,11 @@
 
         private void CalculateCommandExecuted(object obj)
         {
+            if (CheckDefectsPositions() == false)
+            {
+                MessageBox.Show("Please correct the entry points.");
+                return;
+            }
             PalmContourImage = ConvertFromBitmapToBitmapSource(_tool.CalculateMeasurements(Defects).Bitmap);
             IsPalmDefectsCalculated = true;
         }
@@ -988,6 +994,18 @@
             _cannyParamLow = 100;
             _contrastParam = 1;
             _brightnessParam = 0;
+        }
+
+        private bool CheckDefectsPositions()
+        {
+            foreach (var d in Defects)
+            {
+                if (Math.Round(d.Start.X) == 1 || Math.Round(d.Start.Y) == 1
+                    || Math.Round(d.End.X) == 1 || Math.Round(d.End.Y) == 1
+                    || Math.Round(d.Far.X) == 1 || Math.Round(d.Far.Y) == 1)
+                    return false;
+            }
+            return true;
         }
 
         private Bitmap BitmapFromDefectsImage()
