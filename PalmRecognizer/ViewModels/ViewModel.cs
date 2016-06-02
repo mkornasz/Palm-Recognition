@@ -814,7 +814,7 @@
         }
 
 
-
+        // pozmieniać to chyba wypada
         private const int NROFRESULTSTOSHOW = 5;
 
         private void SearchPalmCommandExecuted(object o)
