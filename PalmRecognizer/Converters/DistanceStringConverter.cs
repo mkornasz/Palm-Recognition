@@ -4,12 +4,12 @@ using System.Windows.Data;
 
 namespace PalmRecognizer.Converters
 {
-    class SimilarityStringConverter : IValueConverter
+    class DistanceStringConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             double valueDouble = (double)value;
-            return "Similarity: " + valueDouble.ToString() + "%";
+            return "Distance: " + valueDouble.ToString();
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

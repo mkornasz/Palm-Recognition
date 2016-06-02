@@ -14,9 +14,9 @@ namespace PalmRecognizer
         // <summary>
         /// Gets or sets the list
         /// </summary>
-        public List<Tuple<PalmImage, double>> ImageCollection
+        public List<Tuple<PalmImage, double, double>> ImageCollection
         {
-            get { return (List<Tuple<PalmImage, double>>)GetValue(ImageCollectionProperty); }
+            get { return (List<Tuple<PalmImage, double, double>>)GetValue(ImageCollectionProperty); }
             set { SetValue(ImageCollectionProperty, value); }
         }
 
@@ -24,7 +24,7 @@ namespace PalmRecognizer
         /// Identified the ImageCollection dependency property
         /// </summary>
         public static DependencyProperty ImageCollectionProperty =
-            DependencyProperty.Register("ImageCollection", typeof(List<Tuple<PalmImage, double>>), typeof(ResultsViewer));
+            DependencyProperty.Register("ImageCollection", typeof(List<Tuple<PalmImage, double, double>>), typeof(ResultsViewer));
         public ResultsViewer()
         {
             InitializeComponent();

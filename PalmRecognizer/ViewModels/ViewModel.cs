@@ -149,7 +149,7 @@
             }
         }
 
-        public List<Tuple<DatabaseConnection.Model.PalmImage, double>> FoundPalmItems
+        public List<Tuple<DatabaseConnection.Model.PalmImage, double, double>> FoundPalmItems
         {
             get;
             set;
