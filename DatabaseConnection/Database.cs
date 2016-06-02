@@ -128,14 +128,14 @@ namespace DatabaseConnection
             }
         }
 
-        public List<Tuple<PalmImage, double>> Identify(PalmParameters parameters, int maxResults)
+        public List<Tuple<PalmImage, double>> Identify(PalmParameters parameters, int maxResults, MetricType metricType)
         {
             //    Tuple<List<PalmImage>, List<double>> result = new Tuple<List<PalmImage>, List<double>>(new List<PalmImage>(), new List<double>());
             List<Tuple<PalmImage, double>> result = new List<Tuple<PalmImage, double>>();
             using (var db = new PalmContext())
             {
                 var palms = (from p in db.Palms
-                            select p).AsEnumerable().Select(p => new {p, score = Metrics.EuclideanDistance(PalmParametersToArray(parameters), PalmToArray(p))}).OrderBy(x => x.score).Take(maxResults);
+                            select p).AsEnumerable().Select(p => new {p, score = Metrics.EvaluateDistance(PalmParametersToArray(parameters), PalmToArray(p), metricType)}).OrderBy(x => x.score).Take(maxResults);
                 
                 foreach (var elem in palms)
                 {

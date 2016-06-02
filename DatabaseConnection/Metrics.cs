@@ -6,8 +6,34 @@ using System.Threading.Tasks;
 
 namespace DatabaseConnection
 {
+    public enum MetricType
+    {
+        Euclidean,
+        Manhattan,
+        Canberra,
+        Hamming
+    }
+
+
     public static class Metrics
     {
+        public static double EvaluateDistance(double[] x, double[] y, MetricType metricType, double hamingDistancePresicion = 0)
+        {
+            switch(metricType)
+            {
+                case MetricType.Euclidean:
+                    return EuclideanDistance(x, y);
+                case MetricType.Manhattan:
+                    return ManhattanDistance(x, y);
+                case MetricType.Canberra:
+                    return CanberraDistance(x, y);
+                case MetricType.Hamming:
+                    return HammingDistance(x, y, hamingDistancePresicion);
+            }
+            return -1;
+        }
+
+
         /// <summary>
         /// Euclidean distance
         /// </summary>

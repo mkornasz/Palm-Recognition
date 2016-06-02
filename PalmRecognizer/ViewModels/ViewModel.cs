@@ -800,8 +800,8 @@
             //wyswietlenie listy kandydatow
             SetWantedPalm();
             IsResultsVisible = true;
-#warning ZMIEŃCIE SOBIE TĄ LICZBĘ!!!!!!!!!!!!!!!
-            FoundPalmItems = _connection.Identify(_tool.MeasuredParameters, 3);
+#warning ZMIEŃCIE SOBIE TĄ LICZBĘ!!!!!!!!!!!!!!! i te Metryki też można
+            FoundPalmItems = _connection.Identify(_tool.MeasuredParameters, 3, MetricType.Euclidean);
             OnPropertyChanged("FoundPalmItems");
         }
 
