@@ -11,6 +11,7 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
         <converters:PalmImageConverter x:Key="PalmImageConverter"/>
+        <converters:SimilarityStringConverter x:Key="SimilarityStringConverter"/>
     </UserControl.Resources>
     <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" Grid.Column="1" ItemsSource="{Binding ElementName=ResultsViewerControl, Path=ImageCollection}">
         <ListBox.ItemsPanel>
@@ -45,8 +46,7 @@
                         <Image Stretch="Fill" Grid.Row="0" Source="{ Binding Path=Item1.Image, Converter={StaticResource PalmImageConverter} }"/>
                         <StackPanel VerticalAlignment="Center" Grid.Row="1">
                             <Label Content="Similarity:  "/>
-                            <Label Content="{Binding Path=Item2}"/>
-                            <Label Content=" %"/>
+                            <Label Content="{Binding Path=Item2, Converter={StaticResource SimilarityStringConverter}}"/>
                         </StackPanel>
                     </Grid>
                 </Border>

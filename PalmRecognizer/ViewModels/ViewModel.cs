@@ -27,6 +27,8 @@
     using System.Windows.Data;
     class ViewModel : ViewModelBase
     {
+        private const int NROFRESULTSTOSHOW = 5;
+
         #region Variables
         private IDatabaseConnection _connection;
         private LogWriter _logWriter;
@@ -714,7 +716,7 @@
 
             _logWriter.AddResetInfo(_actualUser);
             OnPropertyChanged("LogContent");
-            if(IsFileLoaded)
+            if (IsFileLoaded)
             {
                 CannyParamHigh = "250";
                 CannyParamLow = "100";
@@ -813,16 +815,14 @@
             OnPropertyChanged("LogContent");
         }
 
-
-        // pozmieniać to chyba wypada
-        private const int NROFRESULTSTOSHOW = 5;
-
         private void SearchPalmCommandExecuted(object o)
         {
             SetWantedPalm();
             IsResultsVisible = true;
             FoundPalmItems = _connection.Identify(_tool.MeasuredParameters, NROFRESULTSTOSHOW, (MetricType)MetricTypeIndex);
             OnPropertyChanged("FoundPalmItems");
+            _logWriter.AddSearchingInfo(_actualUser);
+            OnPropertyChanged("LogContent");
         }
 
         private void AddPalmToBaseCommandExecuted(object o)
@@ -842,6 +842,8 @@
             _connection.AddNewData(_actualUser, DateTime.Now, img, /*, imgDefects*/ description, _tool.MeasuredParameters, imgDefects);
             MessageBox.Show("Palm added to base.");
             OnPropertyChanged("PalmItems");
+            _logWriter.AddPalmToBaseInfo(_actualUser);
+            OnPropertyChanged("LogContent");
         }
 
         private void RemovePalmFromBaseCommandExecuted(object obj)
@@ -852,6 +854,8 @@
 
             _connection.RemoveData(_selectedPalm.PalmId);
             OnPropertyChanged("PalmItems");
+            _logWriter.RemovePalmFromBaseInfo(_actualUser, _selectedPalm.PalmId);
+            OnPropertyChanged("LogContent");
             SelectedPalm = null;
             SelectedPalmImage = null;
         }
@@ -871,24 +875,25 @@
         private void LogInCommandExecuted(object o)
         {
             NewUserWindow nw = new NewUserWindow();
-            if (nw.ShowDialog() == true)
-                if (_connection.Login(nw.newUserName, nw.newUserPassword))
-                {
-                    IsUserLogIn = true;
-                    _actualUser = nw.newUserName;
-                    OnPropertyChanged("PalmItems");
-                }
-                else
-                    MessageBox.Show("Can't log in user");
-            WindowTitle = "Palm Recognizer     USER: " + _actualUser + "     LOGGED: " + DateTime.Now.ToString();
-            _logWriter.AddLogInInfo(_actualUser);
-            OnPropertyChanged("LogContent");
+            if (nw.ShowDialog() == false) return;
+
+            if (_connection.Login(nw.newUserName, nw.newUserPassword))
+            {
+                IsUserLogIn = true;
+                _actualUser = nw.newUserName;
+                OnPropertyChanged("PalmItems");
+                WindowTitle = "Palm Recognizer     USER: " + _actualUser + "     LOGGED: " + DateTime.Now.ToString();
+                _logWriter.AddLogInInfo(_actualUser);
+                OnPropertyChanged("LogContent");
+            }
+            else
+                MessageBox.Show("Can't log in user");
         }
 
         private void LogOutCommandExecuted(object o)
         {
             if (MessageBox.Show("Are you sure you want to log out?\nUnsaved data will be lost.\n", "Confirm logging out", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
-				return;
+                return;
 
             IsUserLogIn = false;
             if (IsFileLoaded)
@@ -915,11 +920,9 @@
 
         private void ClosingCommandExecuted(object o)
         {
-            if (IsUserLogIn)
-            {
-                MessageBox.Show("User will be automatically log out.\nUnsaved data will be lost.\n\nLog file will be automatically saved.");
-                LogOutCommandExecuted(null);
-            }
+            if (IsUserLogIn == false) return;
+            MessageBox.Show("User will be automatically log out.\nUnsaved data will be lost.\n\nLog file will be automatically saved.");
+            _logWriter.AddLogOutInfo(_actualUser);
             _logWriter.AddCloseInfo();
             OnPropertyChanged("LogContent");
             _logWriter.SaveLogFile();
@@ -986,6 +989,11 @@
 
         private void CalculateCommandExecuted(object obj)
         {
+            if (CheckDefectsPositions() == false)
+            {
+                MessageBox.Show("Please correct the entry points.");
+                return;
+            }
             PalmContourImage = ConvertFromBitmapToBitmapSource(_tool.CalculateMeasurements(Defects).Bitmap);
             IsPalmDefectsCalculated = true;
         }
@@ -1013,6 +1021,19 @@
             foreach (string metricName in Enum.GetNames(typeof(MetricType)))
                 metricNamesList.Add(metricName + " distance");
             _metricTypes = new CollectionView(metricNamesList);
+        }
+
+        private bool CheckDefectsPositions()
+        {
+            double epsilon = 0.05;
+            foreach (var d in Defects)
+            {
+                if (1 - d.Start.X < epsilon || 1 - d.Start.Y < epsilon
+                    || 1 - d.End.X < epsilon || 1 - d.End.Y < epsilon
+                     || 1 - d.Far.X < epsilon || 1 - d.Far.Y < epsilon)
+                    return false;
+            }
+            return true;
         }
 
         private Bitmap BitmapFromDefectsImage()

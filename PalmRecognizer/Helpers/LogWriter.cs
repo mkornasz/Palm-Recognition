@@ -67,16 +67,25 @@
             this.LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " detected edges on palm image. Canny low parameter:  " + lowParam.ToString() + " , high parameter: " + highParam.ToString() + Environment.NewLine;
         }
 
+        public void AddPalmToBaseInfo(string user)
+        {
+            this.LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " add new palm to database." + Environment.NewLine;
+        }
+
+        public void RemovePalmFromBaseInfo(string user, int palmId)
+        {
+            this.LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " remove palm with id: " + palmId.ToString() + " from database." + Environment.NewLine;
+        }
+
         public void AddPalmMetricsInfo(string user)
         {
             this.LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " Measured palm from image. Detected parameters:   " + Environment.NewLine;
+            //dodac wszystkie wymiary????
         }
-
-        public void AddSearchingInfo()
+        public void AddSearchingInfo(string user)
         {
-            //stosowana metoda porownywania
-            //wyniki metody
-            //kilka pozycji ustawionych wg % podobienstwa
+            this.LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " looked for palm in database." + Environment.NewLine;
+            //dodac kilka pozycji ustawionych wg % podobienstwa????
         }
 
         public void SaveLogFile()

@@ -27,7 +27,7 @@
 
 		private VectorOfPoint _contour;
 
-		private Mat _m;
+		private Mat _m, _mContour;
 
 		#endregion Private Members
 
@@ -67,9 +67,10 @@
 			var zeroValue = new MCvScalar(0);
 			_m = new Mat(_originalImg.Size, DepthType.Cv8U, 3);
 			_m.SetTo(zeroValue);
+            _mContour = new Mat(_originalImg.Size, DepthType.Cv8U, 3);
+            _mContour.SetTo(zeroValue);
 
-			var isHand = GetImageDefects(_m);
-
+            var isHand = GetImageDefects(_m);
 			return _m;
 		}
 
@@ -79,7 +80,7 @@
 			{
 				throw new Exception("It's not a hand.");
 			}
-
+            _m = _mContour.Clone();
 			Hand =  new Hand(_m, defects.ToList());
 			return _m;
 		}
@@ -109,8 +110,9 @@
 				{
 					CvInvoke.ConvexityDefects(_contour, convexHullI, defects);
 					defects = EleminateDefects(defects);
-					DrawDefects(m, contours, maxContourIndex, convexHullP, defects);
-				}
+                    CvInvoke.DrawContours(_mContour, contours, maxContourIndex, new MCvScalar(0, 255, 0));
+                    DrawDefects(m, contours, maxContourIndex, convexHullP, defects);
+                }
 			}
 
 			var boundingBox = CvInvoke.BoundingRectangle(_contour);
