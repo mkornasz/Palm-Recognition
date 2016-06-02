@@ -26,6 +26,15 @@ namespace PalmRecognizer
             get { return (Palm)GetValue(PalmProperty); }
             set { SetValue(PalmProperty, value); }
         }
+        
+        public bool ActiveRemoving
+        {
+            get { return (bool)GetValue(ActiveRemoveProperty); }
+            set { SetValue(ActiveRemoveProperty, value); }
+        }
+        
+        public static DependencyProperty ActiveRemoveProperty =
+            DependencyProperty.Register("ActiveRemoving", typeof(bool), typeof(PropertiesViewer));
 
         /// <summary>
         /// Identified the Images dependency property
