@@ -135,14 +135,17 @@ namespace DatabaseConnection
             using (var db = new PalmContext())
             {
                 var palms = (from p in db.Palms
-                            select p).AsEnumerable().Select(p => new {p, score = Metrics.EvaluateDistance(PalmParametersToArray(parameters), PalmToArray(p), metricType)}).OrderBy(x => x.score).Take(maxResults);
-                
-                foreach (var elem in palms)
+                            select p).AsEnumerable().Select(p => new {p, score = Metrics.EvaluateDistance(PalmParametersToArray(parameters), PalmToArray(p), metricType)}).OrderBy(x => x.score);
+                double maxScore = palms.Last().score;
+                var palmsList = palms.Take(maxResults);
+
+                foreach (var elem in palmsList)
                 {
                     var palmImage = (from pi in db.PalmImages
                                      where pi.PalmId == elem.p.PalmId
                                      select pi).FirstOrDefault();
-                    result.Add(new Tuple<PalmImage, double>(palmImage, elem.score));
+                    double score = Math.Round(100 * (1 - elem.score / maxScore), 2);
+                    result.Add(new Tuple<PalmImage, double>(palmImage, score));
                 }
             }
             return result;
