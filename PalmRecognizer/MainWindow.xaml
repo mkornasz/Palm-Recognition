@@ -48,9 +48,9 @@
         </StackPanel>
         <StackPanel Grid.Row="1" Orientation="Horizontal" Background="LightBlue">
             <Label Margin="2" Content="Canny's threshold low:" VerticalContentAlignment="Center" />
-            <TextBox Margin="2" Width="50" Text="{Binding CannyParamLow}" VerticalContentAlignment="Center" />
+            <TextBox Margin="2" Width="50" Text="{Binding CannyParamLow}" IsEnabled="{Binding IsFileLoaded}" VerticalContentAlignment="Center" />
             <Label Margin="2" Content="Canny's threshold high:" VerticalContentAlignment="Center" />
-            <TextBox Margin="2" Width="50" Text="{Binding CannyParamHigh}" VerticalContentAlignment="Center" />
+            <TextBox Margin="2" Width="50" Text="{Binding CannyParamHigh}" IsEnabled="{Binding IsFileLoaded}" VerticalContentAlignment="Center" />
             <Label Margin="2" FontWeight="Bold" Content="Preprocessing:" VerticalContentAlignment="Center" />
             <Label Margin="2" Content="Contrast:" VerticalContentAlignment="Center" />
             <Slider Minimum="0" Maximum="3"  IsSnapToTickEnabled="True" TickFrequency="0.1" IsEnabled="{Binding IsFileLoaded}" Value="{Binding ContrastValue, Mode=TwoWay}" VerticalAlignment="Center" Width="100"/>

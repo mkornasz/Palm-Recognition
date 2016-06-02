@@ -95,6 +95,7 @@
                 OnPropertyChanged("WindowTitle");
             }
         }
+
         public string LogContent
         {
             get { return _logWriter.LogContent; }
@@ -694,17 +695,19 @@
 
             _logWriter.AddResetInfo(_actualUser);
             OnPropertyChanged("LogContent");
-
+            if(IsFileLoaded)
+            {
+                CannyParamHigh = "250";
+                CannyParamLow = "100";
+                ContrastValue = 1.0;
+                BrightnessValue = 0;
+            }
             IsEdgesDetected = false;
             IsImageReadyForCrop = false;
             IsFileLoaded = false;
             IsPalmMeasured = false;
             IsPalmDefectsCalculated = false;
             IsResultsVisible = false;
-            CannyParamHigh = "250";
-            CannyParamLow = "100";
-            ContrastValue = 1.0;
-            BrightnessValue = 0;
             _palmRotatedEdgesBitmap = null;
             _palmFilename = "";
             PalmLoadedImage = PalmEdgesImage = PalmBlurImage = PalmBwImage = PalmGrayImage = PalmContourImage = null;
@@ -866,12 +869,25 @@
         {
             if (MessageBox.Show("Are you sure you want to log out?\nUnsaved data will be lost.\n", "Confirm logging out", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
 				return;
-			
+
             IsUserLogIn = false;
+            if (IsFileLoaded)
+            {
+                CannyParamHigh = "250";
+                CannyParamLow = "100";
+                ContrastValue = 1.0;
+                BrightnessValue = 0;
+            }
+            IsEdgesDetected = false;
+            IsImageReadyForCrop = false;
             IsFileLoaded = false;
             IsPalmMeasured = false;
-            IsEdgesDetected = false;
-            (Application.Current.MainWindow as MainWindow).ImageArea.Source = null;
+            IsPalmDefectsCalculated = false;
+            IsResultsVisible = false;
+            _palmRotatedEdgesBitmap = null;
+            _palmFilename = "";
+            PalmLoadedImage = PalmEdgesImage = PalmBlurImage = PalmBwImage = PalmGrayImage = PalmContourImage = null;
+            ResetCommandExecuted(o);
             _logWriter.AddLogOutInfo(_actualUser);
             OnPropertyChanged("LogContent");
             WindowTitle = "Palm Recognizer";
