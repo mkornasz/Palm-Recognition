@@ -27,6 +27,8 @@
     using System.Windows.Data;
     class ViewModel : ViewModelBase
     {
+        private const int NROFRESULTSTOSHOW = 5;
+
         #region Variables
         private IDatabaseConnection _connection;
         private LogWriter _logWriter;
@@ -813,16 +815,14 @@
             OnPropertyChanged("LogContent");
         }
 
-
-
-        private const int NROFRESULTSTOSHOW = 5;
-
         private void SearchPalmCommandExecuted(object o)
         {
             SetWantedPalm();
             IsResultsVisible = true;
             FoundPalmItems = _connection.Identify(_tool.MeasuredParameters, NROFRESULTSTOSHOW, (MetricType)MetricTypeIndex);
             OnPropertyChanged("FoundPalmItems");
+            _logWriter.AddSearchingInfo(_actualUser);
+            OnPropertyChanged("LogContent");
         }
 
         private void AddPalmToBaseCommandExecuted(object o)
@@ -842,6 +842,8 @@
             _connection.AddNewData(_actualUser, DateTime.Now, img, /*, imgDefects*/ description, _tool.MeasuredParameters, imgDefects);
             MessageBox.Show("Palm added to base.");
             OnPropertyChanged("PalmItems");
+            _logWriter.AddPalmToBaseInfo(_actualUser);
+            OnPropertyChanged("LogContent");
         }
 
         private void RemovePalmFromBaseCommandExecuted(object obj)
@@ -852,6 +854,8 @@
 
             _connection.RemoveData(_selectedPalm.PalmId);
             OnPropertyChanged("PalmItems");
+            _logWriter.RemovePalmFromBaseInfo(_actualUser, _selectedPalm.PalmId);
+            OnPropertyChanged("LogContent");
             SelectedPalm = null;
             SelectedPalmImage = null;
         }
