@@ -916,11 +916,9 @@
 
         private void ClosingCommandExecuted(object o)
         {
-            if (IsUserLogIn)
-            {
-                MessageBox.Show("User will be automatically log out.\nUnsaved data will be lost.\n\nLog file will be automatically saved.");
-                LogOutCommandExecuted(null);
-            }
+            if (IsUserLogIn == false) return;
+            MessageBox.Show("User will be automatically log out.\nUnsaved data will be lost.\n\nLog file will be automatically saved.");
+            _logWriter.AddLogOutInfo(_actualUser);
             _logWriter.AddCloseInfo();
             OnPropertyChanged("LogContent");
             _logWriter.SaveLogFile();
@@ -1023,11 +1021,12 @@
 
         private bool CheckDefectsPositions()
         {
+            double epsilon = 0.05;
             foreach (var d in Defects)
             {
-                if (Math.Round(d.Start.X) == 1 || Math.Round(d.Start.Y) == 1
-                    || Math.Round(d.End.X) == 1 || Math.Round(d.End.Y) == 1
-                    || Math.Round(d.Far.X) == 1 || Math.Round(d.Far.Y) == 1)
+                if (1 - d.Start.X < epsilon || 1 - d.Start.Y < epsilon
+                    || 1 - d.End.X < epsilon || 1 - d.End.Y < epsilon
+                     || 1 - d.Far.X < epsilon || 1 - d.Far.Y < epsilon)
                     return false;
             }
             return true;

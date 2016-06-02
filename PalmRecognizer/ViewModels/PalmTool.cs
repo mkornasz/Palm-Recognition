@@ -124,24 +124,35 @@
             var result = _measurementDetector.MeasureHand(defects);
 
             MeasuredParameters = new DatabaseConnection.PalmParameters();
-            MeasuredParameters.IndexFingerBot = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Index].DiameterOneThird;
-            MeasuredParameters.IndexFingerMid = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Index].DiameterHalf;
-            MeasuredParameters.IndexFingerTop = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Index].DiameterTwoThirds;
-            MeasuredParameters.IndexFingerLength = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Index].Height;
-            MeasuredParameters.MiddleFingerBot = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Middle].DiameterOneThird;
-            MeasuredParameters.MiddleFingerMid = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Middle].DiameterHalf;
-            MeasuredParameters.MiddleFingerTop = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Middle].DiameterTwoThirds;
-            MeasuredParameters.MiddleFingerLength = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Middle].Height;
-            MeasuredParameters.PinkyFingerBot = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Pinky].DiameterOneThird;
-            MeasuredParameters.PinkyFingerMid = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Pinky].DiameterHalf;
-            MeasuredParameters.PinkyFingerTop = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Pinky].DiameterTwoThirds;
-            MeasuredParameters.PinkyFingerLength = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Pinky].Height;
-            MeasuredParameters.RingFingerBot = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Ring].DiameterOneThird;
-            MeasuredParameters.RingFingerMid = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Ring].DiameterHalf;
-            MeasuredParameters.RingFingerTop = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Ring].DiameterTwoThirds;
-            MeasuredParameters.RingFingerLength = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Ring].Height;
+            if(_measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Index]!=null)
+            {
+                MeasuredParameters.IndexFingerBot = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Index].DiameterOneThird;
+                MeasuredParameters.IndexFingerMid = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Index].DiameterHalf;
+                MeasuredParameters.IndexFingerTop = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Index].DiameterTwoThirds;
+                MeasuredParameters.IndexFingerLength = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Index].Height;
+            }
+            if (_measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Middle] != null)
+            {
+                MeasuredParameters.MiddleFingerBot = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Middle].DiameterOneThird;
+                MeasuredParameters.MiddleFingerMid = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Middle].DiameterHalf;
+                MeasuredParameters.MiddleFingerTop = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Middle].DiameterTwoThirds;
+                MeasuredParameters.MiddleFingerLength = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Middle].Height;
+            }
+            if (_measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Pinky] != null)
+            {
+                MeasuredParameters.PinkyFingerBot = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Pinky].DiameterOneThird;
+                MeasuredParameters.PinkyFingerMid = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Pinky].DiameterHalf;
+                MeasuredParameters.PinkyFingerTop = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Pinky].DiameterTwoThirds;
+                MeasuredParameters.PinkyFingerLength = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Pinky].Height;
+            }
+            if (_measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Ring] != null)
+            {
+                MeasuredParameters.RingFingerBot = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Ring].DiameterOneThird;
+                MeasuredParameters.RingFingerMid = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Ring].DiameterHalf;
+                MeasuredParameters.RingFingerTop = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Ring].DiameterTwoThirds;
+                MeasuredParameters.RingFingerLength = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Ring].Height;
+            }
             MeasuredParameters.PalmRadius = _measurementDetector.Hand.Diameter;
-
             return result;
         }
 
