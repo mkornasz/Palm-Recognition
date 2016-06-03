@@ -128,27 +128,29 @@ namespace DatabaseConnection
             }
         }
 
-        public List<Tuple<PalmImage, double>> Identify(PalmParameters parameters, int maxResults, MetricType metricType)
+        public List<Tuple<PalmImage, double, double>> Identify(PalmParameters parameters, int maxResults, MetricType metricType)
         {
-            //    Tuple<List<PalmImage>, List<double>> result = new Tuple<List<PalmImage>, List<double>>(new List<PalmImage>(), new List<double>());
-            List<Tuple<PalmImage, double>> result = new List<Tuple<PalmImage, double>>();
+            List<Tuple<PalmImage, double, double>> result = new List<Tuple<PalmImage, double, double>>();
             using (var db = new PalmContext())
             {
                 var palms = (from p in db.Palms
-                            select p).AsEnumerable().Select(p => new {p, score = Metrics.EvaluateDistance(PalmParametersToArray(parameters), PalmToArray(p), metricType)}).OrderBy(x => x.score).Take(maxResults);
-                
-                foreach (var elem in palms)
+                             select p).AsEnumerable().Select(p => new { p, score = Metrics.EvaluateDistance(PalmParametersToArray(parameters), PalmToArray(p), metricType) }).OrderBy(x => x.score);
+                double maxScore = palms.Last().score;
+                var palmsList = palms.Take(maxResults);
+
+                foreach (var elem in palmsList)
                 {
                     var palmImage = (from pi in db.PalmImages
                                      where pi.PalmId == elem.p.PalmId
                                      select pi).FirstOrDefault();
-                    result.Add(new Tuple<PalmImage, double>(palmImage, elem.score));
+                    double score = Math.Round(100 * (1 - elem.score / maxScore), 2);
+                    result.Add(new Tuple<PalmImage, double, double>(palmImage, score, Math.Round(elem.score, 4)));
                 }
             }
             return result;
         }
 
-        public bool AddNewUser(string login, string password) 
+        public bool AddNewUser(string login, string password)
         {
             using (var db = new PalmContext())
             {

@@ -9,7 +9,7 @@ namespace PalmRecognizer.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             double valueDouble = (double)value;
-            return valueDouble.ToString() + " %";
+            return "Similarity: " + valueDouble.ToString() + "%";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

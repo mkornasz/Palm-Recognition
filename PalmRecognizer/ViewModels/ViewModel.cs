@@ -149,7 +149,7 @@
             }
         }
 
-        public List<Tuple<DatabaseConnection.Model.PalmImage, double>> FoundPalmItems
+        public List<Tuple<DatabaseConnection.Model.PalmImage, double, double>> FoundPalmItems
         {
             get;
             set;
@@ -566,16 +566,17 @@
             using (MemoryStream ms = new MemoryStream(SelectedPalmImage.Image))
             {
                 var img = System.Drawing.Image.FromStream(ms);
-                Window window = new Window { WindowStyle = WindowStyle.ToolWindow, WindowStartupLocation = WindowStartupLocation.CenterScreen, Title = "Preview" };
+                Window window = new Window { WindowStyle = WindowStyle.ToolWindow, Owner = Application.Current.MainWindow, WindowStartupLocation = WindowStartupLocation.CenterScreen, Title = "Preview" };
                 window.Width = window.Height = SystemParameters.PrimaryScreenHeight - 40;
                 var imageControl = new System.Windows.Controls.Image { Source = ConvertFromBitmapToBitmapSource((Bitmap)img), Stretch = Stretch.None };
-                window.Content = new System.Windows.Controls.ScrollViewer
+                window.Content = new ScrollViewer
                 {
                     Content = imageControl,
                     VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
                     HorizontalScrollBarVisibility = ScrollBarVisibility.Auto
                 };
-                window.ShowDialog();
+                window.Show();
+                window.Activate();
             }
         }
 
@@ -584,16 +585,17 @@
             using (MemoryStream ms = new MemoryStream(SelectedPalmImage.DefectsImage))
             {
                 var img = System.Drawing.Image.FromStream(ms);
-                Window window = new Window { WindowStyle = WindowStyle.ToolWindow, WindowStartupLocation = WindowStartupLocation.CenterScreen, Title = "Preview" };
+                Window window = new Window { WindowStyle = WindowStyle.ToolWindow, Owner = Application.Current.MainWindow, WindowStartupLocation = WindowStartupLocation.CenterScreen, Title = "Preview" };
                 window.Width = window.Height = SystemParameters.PrimaryScreenHeight - 40;
                 var imageControl = new System.Windows.Controls.Image { Source = ConvertFromBitmapToBitmapSource((Bitmap)img), Stretch = Stretch.None };
-                window.Content = new System.Windows.Controls.ScrollViewer
+                window.Content = new ScrollViewer
                 {
                     Content = imageControl,
                     VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
                     HorizontalScrollBarVisibility = ScrollBarVisibility.Auto
                 };
-                window.ShowDialog();
+                window.Show();
+                window.Activate();
             }
         }
 
@@ -1028,9 +1030,7 @@
             double epsilon = 0.05;
             foreach (var d in Defects)
             {
-                if (1 - d.Start.X < epsilon || 1 - d.Start.Y < epsilon
-                    || 1 - d.End.X < epsilon || 1 - d.End.Y < epsilon
-                     || 1 - d.Far.X < epsilon || 1 - d.Far.Y < epsilon)
+                if (1 - d.Start.Y < epsilon || 1 - d.End.Y < epsilon || 1 - d.Far.Y < epsilon)
                     return false;
             }
             return true;

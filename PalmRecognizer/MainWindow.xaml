@@ -69,18 +69,18 @@
                             <ColumnDefinition Width="1*"/>
                             <ColumnDefinition Width="4*"/>
                         </Grid.ColumnDefinitions>
-                        <local:PropertiesViewer DisplayedPalm="{Binding SelectedPalm}" DisplayedPalmImages="{Binding SelectedPalmImage}" Grid.Column="0"/>
+                        <local:PropertiesViewer ActiveRemoving="True" DisplayedPalm="{Binding SelectedPalm}" DisplayedPalmImages="{Binding SelectedPalmImage}" Grid.Column="0"/>
                         <local:DataBaseViewer ImageCollection="{Binding PalmItems}" Grid.Column="1"/>
                     </Grid>
                 </TabItem>
-                <TabItem Header="Searching Results Browser" Visibility="{Binding IsResultsVisible, Converter={StaticResource BoolToVisibilityConverter}}" >
+                <TabItem Header="Results Browser" Visibility="{Binding IsResultsVisible, Converter={StaticResource BoolToVisibilityConverter}}" Selector.IsSelected="{Binding IsResultsVisible, Mode=OneWay}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1*"/>
                             <ColumnDefinition Width="3*"/>
                             <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
-                        <local:PropertiesViewer DisplayedPalm="{Binding SelectedPalm}" DisplayedPalmImages="{Binding SelectedPalmImage}" Grid.Column="0"/>
+                        <local:PropertiesViewer ActiveRemoving="False" DisplayedPalm="{Binding SelectedPalm}" DisplayedPalmImages="{Binding SelectedPalmImage}" Grid.Column="0"/>
                         <local:ResultsViewer ImageCollection="{Binding FoundPalmItems}" Grid.Column="1"/>
                         <local:WantedPropertiesViewer WantedPalmParameters="{Binding WantedPalmParameters}" WantedPalmImageSource="{Binding WantedPalmImage}" WantedPalmDefectsImageSource="{Binding WantedPalmDefectsImage}" Grid.Column="2"/>
                     </Grid>

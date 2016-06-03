@@ -10,6 +10,7 @@
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
              d:DesignWidth="300" d:DesignHeight="559.756">
     <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:PalmImageConverter x:Key="PalmImageConverter"/>
         <converters:PalmDefectLenghtConverter x:Key="PalmDefectLenghtConverter"/>
         <converters:UserToStringConverter x:Key="UserToStringConverter"/>
@@ -75,7 +76,7 @@
                     </Style>
                 </Image.Style>
             </Image>
-            <Button Margin="20,10,20,10" Grid.Row="4" Grid.ColumnSpan="2" Content="Remove from base" Command="{Binding RemovePalmFromBaseCommand}" />
+            <Button Margin="20,10,20,10" Grid.Row="4" Grid.ColumnSpan="2" Content="Remove from base" Command="{Binding RemovePalmFromBaseCommand}" Visibility="{ Binding ElementName=PalmPropertiesControl, Path=ActiveRemoving, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <Label Margin="0,5" Grid.Column="0" Grid.Row="5" FontWeight="Bold" Content="Date"/>
             <Label Margin="0,5" Grid.Column="1" Grid.Row="5" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.Date}"/>
             <Label Margin="0,5" Grid.Column="0" Grid.Row="6" FontWeight="Bold" Content="User"/>
