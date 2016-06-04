@@ -21,36 +21,42 @@
                 </UniformGrid>
             </ItemsPanelTemplate>
         </ListBox.ItemsPanel>
+        <ListBox.ItemContainerStyle>
+            <Style TargetType="ListBoxItem">
+                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            </Style>
+        </ListBox.ItemContainerStyle>
         <ItemsControl.ItemTemplate>
             <DataTemplate>
-                <Border Height="250" >
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="MouseLeftButtonDown" >
-                            <i:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource AncestorType=Window, Mode=FindAncestor}, Path=DataContext.MouseDownBorderCommand }" CommandParameter="{Binding Item1}"/>
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-                    <Border.Style>
-                        <Style>
-                            <Style.Triggers>
-                                <Trigger Property="Border.IsMouseOver" Value="True">
-                                    <Setter Property="Border.BorderThickness" Value="10"/>
-                                    <Setter Property="Border.BorderBrush" Value="White" />
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="4*"/>
-                            <RowDefinition Height="1*"/>
-                        </Grid.RowDefinitions>
-                        <Image Stretch="Fill" Grid.Row="0" Source="{ Binding Path=Item1.Image, Converter={StaticResource PalmImageConverter} }"/>
-                        <StackPanel VerticalAlignment="Center" Grid.Row="1">
-                            <Label HorizontalContentAlignment="Center" Content="{Binding Path=Item2, Converter={StaticResource SimilarityStringConverter}}"/>
-                            <Label HorizontalContentAlignment="Center" Content="{Binding Path=Item3, Converter={StaticResource DistanceStringConverter}}"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="4*"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+                    <Border  Grid.Row="0" >
+                        <!--Height="250"-->
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseLeftButtonDown" >
+                                <i:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource AncestorType=Window, Mode=FindAncestor}, Path=DataContext.MouseDownBorderCommand }" CommandParameter="{Binding Item1}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        <Border.Style>
+                            <Style>
+                                <Style.Triggers>
+                                    <Trigger Property="Border.IsMouseOver" Value="True">
+                                        <Setter Property="Border.BorderThickness" Value="10"/>
+                                        <Setter Property="Border.BorderBrush" Value="White" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <Image  Stretch="Uniform" Source="{ Binding Path=Item1.Image, Converter={StaticResource PalmImageConverter} }"/>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center" Grid.Row="1">
+                        <Label HorizontalContentAlignment="Center" Content="{Binding Path=Item2, Converter={StaticResource SimilarityStringConverter}}"/>
+                        <Label HorizontalContentAlignment="Center" Content="{Binding Path=Item3, Converter={StaticResource DistanceStringConverter}}"/>
+                    </StackPanel>
+                </Grid>
             </DataTemplate>
         </ItemsControl.ItemTemplate>
     </ListBox>
