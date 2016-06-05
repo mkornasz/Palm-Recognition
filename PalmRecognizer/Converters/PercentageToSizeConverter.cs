@@ -11,7 +11,8 @@
 			double percent = double.Parse(values[0].ToString());
 			double size = double.Parse(values[1].ToString());
 
-			if (parameter != null) return percent * size - double.Parse(parameter.ToString());
+			double param;
+			if (parameter != null && double.TryParse(parameter.ToString(), out param)) return percent * size - param;
 
 			return percent * size;
 		}
