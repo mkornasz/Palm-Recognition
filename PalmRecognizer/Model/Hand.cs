@@ -27,12 +27,19 @@
 
 			defects.Sort(SortByX);
 
-			Fingers.Add(new Finger(mat, defects[0], defects[1]));
-			Fingers.Add(new Finger(mat, defects[1], defects[2]));
-			Fingers.Add(GetFinger(mat, defects, true));
-			Fingers.Add(GetFinger(mat, defects, false));
+            Finger[] fin = new Finger[4];
+            fin[0] = new Finger(mat, defects[0], defects[1]);
+            fin[1] = GetFinger(mat, defects, true);
+            fin[2] = GetFinger(mat, defects, false);
+            fin[3] = new Finger(mat, defects[1], defects[2]);
 
-			Diameter = CalculateHandDiameter(mat, defects);
+            if (fin[0].Height < fin[3].Height)
+                for (int i = 0; i < fin.Length; i++)
+                    Fingers.Add(fin[i]);
+            else
+                for (int i = fin.Length - 1; i >= 0; i--)
+                    Fingers.Add(fin[i]);
+            Diameter = CalculateHandDiameter(mat, defects);
 		}
 
 		#endregion Constructors
@@ -135,5 +142,13 @@
 		}
 
 		#endregion Private Methods
+
+        public enum FingersEnum
+        {
+            Pinky = 0,
+            Ring = 1,
+            Middle = 2,
+            Index = 3,
+        }
 	}
 }

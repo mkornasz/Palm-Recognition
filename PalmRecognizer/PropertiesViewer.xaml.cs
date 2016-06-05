@@ -26,15 +26,15 @@ namespace PalmRecognizer
             get { return (Palm)GetValue(PalmProperty); }
             set { SetValue(PalmProperty, value); }
         }
-
-        // <summary>
-        /// Gets or sets label
-        /// </summary>
-        public string LabelPalm
+        
+        public bool ActiveRemoving
         {
-            get { return (string)GetValue(LabelPalmProperty); }
-            set { SetValue(LabelPalmProperty, value); }
+            get { return (bool)GetValue(ActiveRemoveProperty); }
+            set { SetValue(ActiveRemoveProperty, value); }
         }
+        
+        public static DependencyProperty ActiveRemoveProperty =
+            DependencyProperty.Register("ActiveRemoving", typeof(bool), typeof(PropertiesViewer));
 
         /// <summary>
         /// Identified the Images dependency property
@@ -47,12 +47,6 @@ namespace PalmRecognizer
         /// </summary>
         public static DependencyProperty PalmProperty =
             DependencyProperty.Register("DisplayedPalm", typeof(Palm), typeof(PropertiesViewer));
-
-        /// <summary>
-        /// Identified the Label dependency property
-        /// </summary>
-        public static DependencyProperty LabelPalmProperty =
-            DependencyProperty.Register("LabelPalm", typeof(string), typeof(PropertiesViewer));
 
         public PropertiesViewer()
         {

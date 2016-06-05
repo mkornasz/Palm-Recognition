@@ -10,7 +10,7 @@
         xmlns:helpers="clr-namespace:PalmRecognizer.Helpers"
         xmlns:local="clr-namespace:PalmRecognizer"
         mc:Ignorable="d"
-        Title="Palm Recognizer" Height="800" Width="1300" WindowStartupLocation="CenterScreen">
+        Title="{Binding WindowTitle}" Height="800" Width="1300" WindowStartupLocation="CenterScreen">
     <i:Interaction.Behaviors>
         <helpers:EventToCommandBehavior Command="{Binding Path=MouseDownDefectCommand}" Event="MouseLeftButtonDown" PassArguments="True" />
         <helpers:EventToCommandBehavior Command="{Binding Path=MouseUpDefectCommand}" Event="MouseLeftButtonUp" PassArguments="True" />
@@ -40,24 +40,26 @@
             <Button Margin="2" Width="100" Content="Save file" IsEnabled="{Binding IsFileLoaded}" Command="{Binding SaveFileCommand}"/>
             <Button Margin="2" Width="100" Content="Detect edges" IsEnabled="{Binding IsFileLoaded}" Command="{Binding RecognizePalmCommand}"/>
             <Button Margin="2" Width="100" Content="Measure palm" IsEnabled="{Binding IsEdgesDetected}" Command="{Binding MeasurePalmCommand}"/>
-            <Button Margin="2" Width="100" Content="Add palm to base" IsEnabled="{Binding IsPalmMeasured}" Command="{Binding AddPalmToBaseCommand}"/>
-            <Button Margin="2" Width="100" Content="Search palm" IsEnabled="{Binding IsPalmMeasured}" Command="{Binding SearchPalmCommand}"/>
+            <Button Margin="2" Width="100" Content="Add palm to base" IsEnabled="{Binding IsPalmDefectsCalculated}" Command="{Binding AddPalmToBaseCommand}"/>
+            <Button Margin="2" Width="100" Content="Search palm" IsEnabled="{Binding IsPalmDefectsCalculated}" Command="{Binding SearchPalmCommand}"/>
+            <Button Margin="2" Width="100" Content="RESET" IsEnabled="{Binding IsFileLoaded}" Command="{Binding ResetCommand}"/>
             <Label Margin="70,2,2,2" Content="PALM RECOGNIZER" VerticalContentAlignment="Center" FontWeight="Bold"/>
             <Image Source="Hand.ico"/>
         </StackPanel>
         <StackPanel Grid.Row="1" Orientation="Horizontal" Background="LightBlue">
             <Label Margin="2" Content="Canny's threshold low:" VerticalContentAlignment="Center" />
-            <TextBox Margin="2" Width="50" Text="{Binding CannyParamLow}" VerticalContentAlignment="Center" />
+            <TextBox Margin="2" Width="50" Text="{Binding CannyParamLow}" IsEnabled="{Binding IsFileLoaded}" VerticalContentAlignment="Center" />
             <Label Margin="2" Content="Canny's threshold high:" VerticalContentAlignment="Center" />
-            <TextBox Margin="2" Width="50" Text="{Binding CannyParamHigh}" VerticalContentAlignment="Center" />
+            <TextBox Margin="2" Width="50" Text="{Binding CannyParamHigh}" IsEnabled="{Binding IsFileLoaded}" VerticalContentAlignment="Center" />
             <Label Margin="2" FontWeight="Bold" Content="Preprocessing:" VerticalContentAlignment="Center" />
             <Label Margin="2" Content="Contrast:" VerticalContentAlignment="Center" />
             <Slider Minimum="0" Maximum="3"  IsSnapToTickEnabled="True" TickFrequency="0.1" IsEnabled="{Binding IsFileLoaded}" Value="{Binding ContrastValue, Mode=TwoWay}" VerticalAlignment="Center" Width="100"/>
             <Label Margin="2" Content="Brightness:" VerticalContentAlignment="Center" />
             <Slider Minimum="-50" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="1" IsEnabled="{Binding IsFileLoaded}" Value="{Binding BrightnessValue, Mode=TwoWay}" VerticalAlignment="Center" Width="100"/>
             <ToggleButton Margin="2" Width="100"  Content="Crop image" IsEnabled="{Binding IsFileLoaded}" IsChecked="{Binding IsImageReadyForCrop, Mode=OneWay}" Command="{Binding CropFileCommand}"/>
-            <Button Margin="2" Width="140" Content="Histogram Equalization" IsEnabled="{Binding IsFileLoaded}" Command="{Binding HistogramEqualizationCommand}"/>
-            <Button Margin="2" Width="170" Content="Histogram Equalization UNDO" IsEnabled="{Binding IsFileLoaded}" Command="{Binding HistogramEqualizationUNDOCommand}"/>
+            <ComboBox IsEnabled="{Binding IsPalmDefectsCalculated}" HorizontalAlignment="Left"  Margin="2" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Width="150" SelectedIndex="{Binding MetricTypeIndex}" ItemsSource="{Binding Path=MetricTypes}" />
+            <!--<Button Margin="2" Width="140" Content="Histogram Equalization" IsEnabled="{Binding IsFileLoaded}" Command="{Binding HistogramEqualizationCommand}"/>
+            <Button Margin="2" Width="170" Content="Histogram Equalization UNDO" IsEnabled="{Binding IsFileLoaded}" Command="{Binding HistogramEqualizationUNDOCommand}"/>-->
         </StackPanel>
         <Border Grid.Row="2" BorderThickness="3" BorderBrush="DarkBlue">
             <TabControl x:Name="TabItems" IsEnabled="{Binding IsUserLogIn}" SelectedItem="{Binding SelectedTab}">
@@ -67,28 +69,28 @@
                             <ColumnDefinition Width="1*"/>
                             <ColumnDefinition Width="4*"/>
                         </Grid.ColumnDefinitions>
-                        <local:PropertiesViewer DisplayedPalm="{Binding SelectedPalm}" DisplayedPalmImages="{Binding SelectedPalmImage}" LabelPalm="CHOSEN DETAILS:" Grid.Column="0"/>
-                        <local:DataBaseViewer ImageCollection="{Binding PalmItems}" ShowSimilarity="False" Grid.Column="1"/>
+                        <local:PropertiesViewer ActiveRemoving="True" DisplayedPalm="{Binding SelectedPalm}" DisplayedPalmImages="{Binding SelectedPalmImage}" Grid.Column="0"/>
+                        <local:DataBaseViewer ImageCollection="{Binding PalmItems}" Grid.Column="1"/>
                     </Grid>
                 </TabItem>
-                <TabItem Header="Searching Results Browser" Visibility="{Binding IsResultsVisible, Converter={StaticResource BoolToVisibilityConverter}}" >
+                <TabItem Header="Results Browser" Visibility="{Binding IsResultsVisible, Converter={StaticResource BoolToVisibilityConverter}}" Selector.IsSelected="{Binding IsResultsVisible, Mode=OneWay}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1*"/>
                             <ColumnDefinition Width="3*"/>
                             <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
-                        <local:PropertiesViewer DisplayedPalm="{Binding SelectedPalm}" DisplayedPalmImages="{Binding SelectedPalmImage}" LabelPalm="CHOSEN DETAILS:" Grid.Column="0"/>
-                        <local:DataBaseViewer ImageCollection="{Binding FoundPalmItems}" Grid.Column="1" ShowSimilarity="True"/>
-                        <local:PropertiesViewer DisplayedPalm="{Binding WantedPalm}" DisplayedPalmImages="{Binding WantedPalmImage}" LabelPalm="WANTED DETAILS:" Grid.Column="2"/>
+                        <local:PropertiesViewer ActiveRemoving="False" DisplayedPalm="{Binding SelectedPalm}" DisplayedPalmImages="{Binding SelectedPalmImage}" Grid.Column="0"/>
+                        <local:ResultsViewer ImageCollection="{Binding FoundPalmItems}" Grid.Column="1"/>
+                        <local:WantedPropertiesViewer WantedPalmParameters="{Binding WantedPalmParameters}" WantedPalmImageSource="{Binding WantedPalmImage}" WantedPalmDefectsImageSource="{Binding WantedPalmDefectsImage}" Grid.Column="2"/>
                     </Grid>
                 </TabItem>
                 <TabItem Header="Contour" Visibility="{Binding IsPalmMeasured, Converter={StaticResource BoolToVisibilityConverter}}" Selector.IsSelected="{Binding IsPalmMeasured, Mode=OneWay}">
                     <Grid >
                         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
-                            <Button Width="100" Height="50" Command="{Binding RemoveDefectCommand}" Content="Remove Defect"/>
-                            <Button Width="100" Height="50" Command="{Binding AddDefectCommand}" Content="Add Defect"/>
-                            <Button Width="100" Height="50" Command="{Binding CalculateCommand}" Content="Calculate"/>
+                            <!--<Button Width="150" Height="50" Command="{Binding RemoveDefectCommand}" Content="Remove Defect"/>
+                            <Button Width="150" Height="50" Command="{Binding AddDefectCommand}" Content="Add Defect"/>-->
+                            <Button Width="150" Height="50" Command="{Binding CalculateCommand}" Content="Calculate Defects"/>
                         </StackPanel>
                         <Grid Name="DefectsCanvas">
                             <Image Name="DefectsImage" Stretch="Uniform" Source="{Binding PalmContourImage}"

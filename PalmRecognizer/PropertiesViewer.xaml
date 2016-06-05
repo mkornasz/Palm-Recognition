@@ -10,20 +10,23 @@
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
              d:DesignWidth="300" d:DesignHeight="559.756">
     <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:PalmImageConverter x:Key="PalmImageConverter"/>
+        <converters:PalmDefectLenghtConverter x:Key="PalmDefectLenghtConverter"/>
         <converters:UserToStringConverter x:Key="UserToStringConverter"/>
     </UserControl.Resources>
     <ScrollViewer>
         <Grid Background="LightBlue">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="2*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="10"/>
                 <RowDefinition/>
                 <RowDefinition Height="200"/>
                 <RowDefinition Height="200"/>
+                <RowDefinition Height="60"/>
                 <RowDefinition/>
                 <RowDefinition/>
                 <RowDefinition/>
@@ -37,11 +40,8 @@
                 <RowDefinition/>
                 <RowDefinition/>
                 <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
             </Grid.RowDefinitions>
-            <Label Grid.ColumnSpan="2" Grid.RowSpan="2" Grid.Row="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontWeight="Bold"  Content="{Binding ElementName=PalmPropertiesControl, Path=LabelPalm}"/>
+            <Label Grid.ColumnSpan="2" Grid.RowSpan="2" Grid.Row="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontWeight="Bold"  Content="CHOSEN DETAILS:"/>
             <Image  Grid.ColumnSpan="2" Grid.Row="2" Stretch="Uniform" Source="{ Binding ElementName=PalmPropertiesControl, Path=DisplayedPalmImages.Image, Converter={StaticResource PalmImageConverter}  }">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="MouseDown">
@@ -76,38 +76,33 @@
                     </Style>
                 </Image.Style>
             </Image>
-            <Label Margin="0,5" Grid.Column="0" Grid.Row="4" FontWeight="Bold" Content="Date"/>
-            <Label Margin="0,5" Grid.Column="1" Grid.Row="4" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.Date}"/>
-            <Label Margin="0,5" Grid.Column="0" Grid.Row="5" FontWeight="Bold" Content="User"/>
-            <Label Margin="0,5" Grid.Column="1" Grid.Row="5" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.UserId, Converter={StaticResource UserToStringConverter} }"/>
-            <Label Margin="0,5" Grid.Column="0" Grid.Row="6" FontWeight="Bold" Content="Description"/>
-            <ScrollViewer  Margin="5" Grid.ColumnSpan="2" Grid.Row="7" HorizontalScrollBarVisibility="Disabled" >
+            <Button Margin="20,10,20,10" Grid.Row="4" Grid.ColumnSpan="2" Content="Remove from base" Command="{Binding RemovePalmFromBaseCommand}" Visibility="{ Binding ElementName=PalmPropertiesControl, Path=ActiveRemoving, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <Label Margin="0,5" Grid.Column="0" Grid.Row="5" FontWeight="Bold" Content="Date"/>
+            <Label Margin="0,5" Grid.Column="1" Grid.Row="5" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.Date}"/>
+            <Label Margin="0,5" Grid.Column="0" Grid.Row="6" FontWeight="Bold" Content="User"/>
+            <Label Margin="0,5" Grid.Column="1" Grid.Row="6" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.UserId, Converter={StaticResource UserToStringConverter} }"/>
+            <Label Margin="0,5" Grid.Column="0" Grid.Row="7" FontWeight="Bold" Content="Description"/>
+            <ScrollViewer  Margin="5" Grid.ColumnSpan="2" Grid.Row="8" HorizontalScrollBarVisibility="Disabled" >
                 <TextBlock Text="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.Description}"/>
             </ScrollViewer>
-            <Label Margin="0,5" Grid.Column="0" Grid.Row="8" FontWeight="Bold" Content="Index Finger Length"/>
-            <Label Margin="0,5" Grid.Column="1" Grid.Row="8" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.IndexFingerLength}"/>
-            <Label Margin="0,5" Grid.Column="0" Grid.Row="9" FontWeight="Bold" Content="Index Finger Width"/>
-            <Label Margin="0,5" Grid.Column="1" Grid.Row="9" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.IndexFingerMid}"/>
-            <Label Margin="0,5" Grid.Column="0" Grid.Row="10" FontWeight="Bold" Content="Middle Finger Length"/>
-            <Label Margin="0,5" Grid.Column="1" Grid.Row="10" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.MiddleFingerLength}"/>
-            <Label Margin="0,5" Grid.Column="0" Grid.Row="11" FontWeight="Bold" Content="Middle Finger Width"/>
-            <Label Margin="0,5" Grid.Column="1" Grid.Row="11" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.MiddleFingerMid}"/>
-            <Label Margin="0,5" Grid.Column="0" Grid.Row="12" FontWeight="Bold" Content="Ring Finger Length"/>
-            <Label Margin="0,5" Grid.Column="1" Grid.Row="12" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.RingFingerLength}"/>
-            <Label Margin="0,5" Grid.Column="0" Grid.Row="13" FontWeight="Bold" Content="Ring Finger Width"/>
-            <Label Margin="0,5" Grid.Column="1" Grid.Row="13" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.RingFingerMid}"/>
-            <Label Margin="0,5" Grid.Column="0" Grid.Row="14" FontWeight="Bold" Content="Pinky Finger Length"/>
-            <Label Margin="0,5" Grid.Column="1" Grid.Row="14" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.PinkyFingerLength}"/>
-            <Label Margin="0,5" Grid.Column="0" Grid.Row="15" FontWeight="Bold" Content="Pinky Finger Width"/>
-            <Label Margin="0,5" Grid.Column="1" Grid.Row="15" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.PinkyFingerMid}"/>
-            <Label Margin="0,5" Grid.Column="0" Grid.Row="16" FontWeight="Bold" Content="Proportion1"/>
-            <Label Margin="0,5" Grid.Column="1" Grid.Row="16" Content="{Binding }"/>
-            <Label Margin="0,5" Grid.Column="0" Grid.Row="17" FontWeight="Bold" Content="Proportion2"/>
-            <Label Margin="0,5" Grid.Column="1" Grid.Row="17" Content="{Binding }"/>
-            <Label Margin="0,5" Grid.Column="0" Grid.Row="18" FontWeight="Bold" Content="Proportion3"/>
-            <Label Margin="0,5" Grid.Column="1" Grid.Row="18" Content="{Binding }"/>
-            <Label Margin="0,5" Grid.Column="0" Grid.Row="19" FontWeight="Bold" Content="Proportion4"/>
-            <Label Margin="0,5" Grid.Column="1" Grid.Row="19" Content="{Binding }"/>
+            <Label Margin="0,5" Grid.Column="0" Grid.Row="9" FontWeight="Bold" Content="Index Finger Length"/>
+            <Label Margin="0,5" Grid.Column="1" Grid.Row="9" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.IndexFingerLength, Converter={StaticResource PalmDefectLenghtConverter}}"/>
+            <Label Margin="0,5" Grid.Column="0" Grid.Row="10" FontWeight="Bold" Content="Index Finger Width"/>
+            <Label Margin="0,5" Grid.Column="1" Grid.Row="10" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.IndexFingerMid, Converter={StaticResource PalmDefectLenghtConverter}}"/>
+            <Label Margin="0,5" Grid.Column="0" Grid.Row="11" FontWeight="Bold" Content="Middle Finger Length"/>
+            <Label Margin="0,5" Grid.Column="1" Grid.Row="11" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.MiddleFingerLength, Converter={StaticResource PalmDefectLenghtConverter}}"/>
+            <Label Margin="0,5" Grid.Column="0" Grid.Row="12" FontWeight="Bold" Content="Middle Finger Width"/>
+            <Label Margin="0,5" Grid.Column="1" Grid.Row="12" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.MiddleFingerMid, Converter={StaticResource PalmDefectLenghtConverter}}"/>
+            <Label Margin="0,5" Grid.Column="0" Grid.Row="13" FontWeight="Bold" Content="Ring Finger Length"/>
+            <Label Margin="0,5" Grid.Column="1" Grid.Row="13" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.RingFingerLength, Converter={StaticResource PalmDefectLenghtConverter}}"/>
+            <Label Margin="0,5" Grid.Column="0" Grid.Row="14" FontWeight="Bold" Content="Ring Finger Width"/>
+            <Label Margin="0,5" Grid.Column="1" Grid.Row="14" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.RingFingerMid, Converter={StaticResource PalmDefectLenghtConverter}}"/>
+            <Label Margin="0,5" Grid.Column="0" Grid.Row="15" FontWeight="Bold" Content="Pinky Finger Length"/>
+            <Label Margin="0,5" Grid.Column="1" Grid.Row="15" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.PinkyFingerLength, Converter={StaticResource PalmDefectLenghtConverter}}"/>
+            <Label Margin="0,5" Grid.Column="0" Grid.Row="16" FontWeight="Bold" Content="Pinky Finger Width"/>
+            <Label Margin="0,5" Grid.Column="1" Grid.Row="16" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.PinkyFingerMid, Converter={StaticResource PalmDefectLenghtConverter}}"/>
+            <Label Margin="0,5" Grid.Column="0" Grid.Row="17" FontWeight="Bold" Content="Palm Width"/>
+            <Label Margin="0,5" Grid.Column="1" Grid.Row="17" Content="{Binding ElementName=PalmPropertiesControl, Path=DisplayedPalm.PalmRadius, Converter={StaticResource PalmDefectLenghtConverter}}"/>
         </Grid>
     </ScrollViewer>
 </UserControl>

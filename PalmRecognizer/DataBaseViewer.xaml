@@ -11,16 +11,18 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
         <converters:PalmImageConverter x:Key="PalmImageConverter"/>
-        <converters:BoolToHeightConverter x:Key="BoolToHeightConverter"/>
-        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </UserControl.Resources>
     <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" Grid.Column="1" ItemsSource="{Binding ElementName=DataBaseViewerControl, Path=ImageCollection}">
         <ListBox.ItemsPanel>
             <ItemsPanelTemplate>
-                <UniformGrid Columns="4">
-                </UniformGrid>
+                <UniformGrid Columns="4"/>
             </ItemsPanelTemplate>
         </ListBox.ItemsPanel>
+        <ListBox.ItemContainerStyle>
+            <Style TargetType="ListBoxItem">
+                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            </Style>
+        </ListBox.ItemContainerStyle>
         <ItemsControl.ItemTemplate>
             <DataTemplate>
                 <Border Height="250" >
@@ -39,16 +41,7 @@
                             </Style.Triggers>
                         </Style>
                     </Border.Style>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="4*"/>
-                            <RowDefinition  Height="{Binding  ElementName=DataBaseViewerControl, Path=ShowSimilarity, Converter={StaticResource BoolToHeightConverter}}"/>
-                        </Grid.RowDefinitions>
-                        <Image Stretch="Fill" Grid.Row="0" Source="{ Binding Path=Image, Converter={StaticResource PalmImageConverter} }"/>
-                        <StackPanel VerticalAlignment="Center" Grid.Row="1" Visibility="{Binding ElementName=DataBaseViewerControl, Path=ShowSimilarity, Converter={StaticResource BoolToVisibilityConverter}}" Orientation="Horizontal">
-                            <Label Content="Similarity:  "/> <!--DODAC LABEL Z PROCENTEM-->
-                        </StackPanel>
-                    </Grid>
+                    <Image Stretch="Uniform"  Grid.Row="0" Source="{ Binding Path=Image, Converter={StaticResource PalmImageConverter} }"/>
                 </Border>
             </DataTemplate>
         </ItemsControl.ItemTemplate>

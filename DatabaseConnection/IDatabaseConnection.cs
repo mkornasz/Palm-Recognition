@@ -14,7 +14,7 @@ namespace DatabaseConnection
         void RemoveData(int palmId);
         List<PalmImage> GetAllImages();
         List<Palm> GetAll();
-        List<Palm> Identify(PalmParameters parameters);
+        List<Tuple<PalmImage, double, double>> Identify(PalmParameters parameters, int maxResults, MetricType metricType);
         Image ByteArraytToImage(byte[] data);
     }
 }

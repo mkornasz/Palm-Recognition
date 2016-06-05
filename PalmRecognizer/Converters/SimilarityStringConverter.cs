@@ -1,15 +1,15 @@
-﻿namespace PalmRecognizer.Converters
-{
-    using System;
-    using System.Globalization;
-    using System.Windows;
-    using System.Windows.Data;
+﻿using System;
+using System.Globalization;
+using System.Windows.Data;
 
-    class BoolToHeightConverter : IValueConverter
+namespace PalmRecognizer.Converters
+{
+    class SimilarityStringConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return (bool)value ? "1*" : "0*";
+            double valueDouble = (double)value;
+            return "Similarity: " + valueDouble.ToString() + "%";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Database.cs" />
+    <Compile Include="Metrics.cs" />
     <Compile Include="Model\PalmImage.cs" />
     <Compile Include="PasswordEncoder.cs" />
     <Compile Include="IDatabaseConnection.cs" />

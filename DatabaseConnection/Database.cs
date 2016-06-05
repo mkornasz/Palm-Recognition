@@ -49,15 +49,19 @@ namespace DatabaseConnection
                 palm.IndexFingerBot = parameters.IndexFingerBot;
                 palm.IndexFingerMid = parameters.IndexFingerMid;
                 palm.IndexFingerTop = parameters.IndexFingerTop;
+                palm.IndexFingerLength = parameters.IndexFingerLength;
                 palm.MiddleFingerBot = parameters.MiddleFingerBot;
                 palm.MiddleFingerMid = parameters.MiddleFingerMid;
                 palm.MiddleFingerTop = parameters.MiddleFingerTop;
+                palm.MiddleFingerLength = parameters.MiddleFingerLength;
                 palm.PinkyFingerBot = parameters.PinkyFingerBot;
                 palm.PinkyFingerMid = parameters.PinkyFingerMid;
                 palm.PinkyFingerTop = parameters.PinkyFingerTop;
+                palm.PinkyFingerLength = parameters.PinkyFingerLength;
                 palm.RingFingerBot = parameters.RingFingerBot;
                 palm.RingFingerMid = parameters.RingFingerMid;
                 palm.RingFingerTop = parameters.RingFingerTop;
+                palm.RingFingerLength = parameters.RingFingerLength;
                 palm.PalmRadius = parameters.PalmRadius;
 
                 db.Palms.Add(palm);
@@ -83,15 +87,19 @@ namespace DatabaseConnection
                 palm.IndexFingerBot = parameters.IndexFingerBot;
                 palm.IndexFingerMid = parameters.IndexFingerMid;
                 palm.IndexFingerTop = parameters.IndexFingerTop;
+                palm.IndexFingerLength = parameters.IndexFingerLength;
                 palm.MiddleFingerBot = parameters.MiddleFingerBot;
                 palm.MiddleFingerMid = parameters.MiddleFingerMid;
                 palm.MiddleFingerTop = parameters.MiddleFingerTop;
+                palm.MiddleFingerLength = parameters.MiddleFingerLength;
                 palm.PinkyFingerBot = parameters.PinkyFingerBot;
                 palm.PinkyFingerMid = parameters.PinkyFingerMid;
                 palm.PinkyFingerTop = parameters.PinkyFingerTop;
+                palm.PinkyFingerLength = parameters.PinkyFingerLength;
                 palm.RingFingerBot = parameters.RingFingerBot;
                 palm.RingFingerMid = parameters.RingFingerMid;
                 palm.RingFingerTop = parameters.RingFingerTop;
+                palm.RingFingerLength = parameters.RingFingerLength;
                 palm.PalmRadius = parameters.PalmRadius;
 
                 db.Palms.Add(palm);
@@ -120,12 +128,29 @@ namespace DatabaseConnection
             }
         }
 
-        public List<Model.Palm> Identify(PalmParameters parameters)
+        public List<Tuple<PalmImage, double, double>> Identify(PalmParameters parameters, int maxResults, MetricType metricType)
         {
-            throw new NotImplementedException();
+            List<Tuple<PalmImage, double, double>> result = new List<Tuple<PalmImage, double, double>>();
+            using (var db = new PalmContext())
+            {
+                var palms = (from p in db.Palms
+                             select p).AsEnumerable().Select(p => new { p, score = Metrics.EvaluateDistance(PalmParametersToArray(parameters), PalmToArray(p), metricType) }).OrderBy(x => x.score);
+                double maxScore = palms.Last().score;
+                var palmsList = palms.Take(maxResults);
+
+                foreach (var elem in palmsList)
+                {
+                    var palmImage = (from pi in db.PalmImages
+                                     where pi.PalmId == elem.p.PalmId
+                                     select pi).FirstOrDefault();
+                    double score = Math.Round(100 * (1 - elem.score / maxScore), 2);
+                    result.Add(new Tuple<PalmImage, double, double>(palmImage, score, Math.Round(elem.score, 4)));
+                }
+            }
+            return result;
         }
 
-        public bool AddNewUser(string login, string password) // zmienić, żeby login był unikalny
+        public bool AddNewUser(string login, string password)
         {
             using (var db = new PalmContext())
             {
@@ -180,15 +205,15 @@ namespace DatabaseConnection
         public List<PalmImage> GetAllImages()
         {
             List<PalmImage> result = new List<PalmImage>();
-            //using (var db = new PalmContext())
-            //{
-            //    var palms = from p in db.PalmImages
-            //                orderby p.PalmId
-            //                select p;
+			using (var db = new PalmContext())
+			{
+				var palms = from p in db.PalmImages
+							orderby p.PalmId
+							select p;
 
-            //    result = palms.ToList();
-            //}
-            return result;
+				result = palms.ToList();
+			}
+			return result;
         }
         #endregion
         #region Private Methods
@@ -197,6 +222,38 @@ namespace DatabaseConnection
             MemoryStream ms = new MemoryStream();
             image.Save(ms, ImageFormat.Gif);
             return ms.ToArray();
+        }
+
+        private double[] PalmParametersToArray(PalmParameters palmParameters)
+        {
+            //pytanie czy zostawiamy tą 1 z dzielenia, zrobiłem tak żeby łatwiej było podstawiać różne proporcje
+            double denominator = palmParameters.IndexFingerMid;
+            if (denominator == 0)
+                denominator = double.Epsilon;
+            double[] scaledArray = new double[] { palmParameters.PalmRadius, palmParameters.IndexFingerBot, palmParameters.IndexFingerMid, palmParameters.IndexFingerTop, palmParameters.IndexFingerLength,
+                palmParameters.MiddleFingerBot, palmParameters.MiddleFingerMid, palmParameters.MiddleFingerTop, palmParameters.MiddleFingerLength,
+                palmParameters.RingFingerBot, palmParameters.RingFingerMid, palmParameters.RingFingerTop, palmParameters.RingFingerLength,
+                palmParameters.PinkyFingerBot, palmParameters.PinkyFingerMid, palmParameters.PinkyFingerTop, palmParameters.PinkyFingerLength};
+
+            for (int i = 0; i < scaledArray.Length; i++)
+                scaledArray[i] = scaledArray[i] / denominator;
+            return scaledArray;
+        }
+
+
+
+        private double[] PalmToArray(Palm palm)
+        {
+            double denominator = palm.IndexFingerMid;
+            if (denominator == 0)
+                denominator = double.Epsilon;
+            double[] scaledArray = new double[] { palm.PalmRadius, palm.IndexFingerBot, palm.IndexFingerMid, palm.IndexFingerTop, palm.IndexFingerLength,
+                palm.MiddleFingerBot, palm.MiddleFingerMid, palm.MiddleFingerTop, palm.MiddleFingerLength,
+                palm.RingFingerBot, palm.RingFingerMid, palm.RingFingerTop, palm.RingFingerLength,
+                palm.PinkyFingerBot, palm.PinkyFingerMid, palm.PinkyFingerTop, palm.PinkyFingerLength};
+            for (int i = 0; i < scaledArray.Length; i++)
+                scaledArray[i] = scaledArray[i] / denominator;
+            return scaledArray;
         }
         #endregion
     }

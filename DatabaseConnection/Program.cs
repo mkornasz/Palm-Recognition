@@ -7,7 +7,7 @@ namespace DatabaseConnection
     {
         static void Main(string[] args)
         {
-            /*IDatabaseConnection connection = Database.Instance;
+            IDatabaseConnection connection = Database.Instance;
             try
             {
                 bool au1 = connection.AddNewUser("aaa", "xyz");
@@ -24,8 +24,8 @@ namespace DatabaseConnection
                 Console.WriteLine(ex.Message);
             }
 
-            Image image = Image.FromFile(@"C:\Users\Kuba\Desktop\test.png");
-            connection.AddNewData("aaa", DateTime.Now, image, "testtest", new PalmParameters() { PalmRadius = 100 });*/
+           // Image image = Image.FromFile(@"C:\Users\Kuba\Desktop\test.png");
+            //connection.AddNewData("aaa", DateTime.Now, image, "testtest", new PalmParameters() { PalmRadius = 100 });
             
             /*List<Palm> list = connection.GetAll();
             foreach (var elem in list)

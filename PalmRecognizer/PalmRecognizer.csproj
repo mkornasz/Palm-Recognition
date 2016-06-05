@@ -65,6 +65,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Emgu.CV, Version=3.0.0.2157, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=MSIL">
@@ -128,9 +129,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Converters\BoolToHeightConverter.cs" />
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
+    <Compile Include="Converters\DistanceStringConverter.cs" />
+    <Compile Include="Converters\PalmDefectLenghtConverter.cs" />
     <Compile Include="Converters\PercentageToSizeConverter.cs" />
+    <Compile Include="Converters\SimilarityStringConverter.cs" />
     <Compile Include="Converters\UserToStringConverter.cs" />
     <Compile Include="DataBaseViewer.xaml.cs">
       <DependentUpon>DataBaseViewer.xaml</DependentUpon>
@@ -151,6 +154,9 @@
     </Compile>
     <Compile Include="Model\Finger.cs" />
     <Compile Include="Model\Hand.cs" />
+    <Compile Include="ResultsViewer.xaml.cs">
+      <DependentUpon>ResultsViewer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ViewModels\MeasurementDetector.cs" />
     <Compile Include="NewUserWindow.xaml.cs">
       <DependentUpon>NewUserWindow.xaml</DependentUpon>
@@ -160,6 +166,9 @@
     <Compile Include="Model\Point2d.cs" />
     <Compile Include="ViewModels\ViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
+    <Compile Include="WantedPropertiesViewer.xaml.cs">
+      <DependentUpon>WantedPropertiesViewer.xaml</DependentUpon>
+    </Compile>
     <Page Include="DataBaseViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -185,6 +194,14 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="PropertiesViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ResultsViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WantedPropertiesViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
