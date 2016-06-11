@@ -17,7 +17,7 @@ namespace DatabaseConnection
 
     public static class Metrics
     {
-        public static double EvaluateDistance(double[] x, double[] y, MetricType metricType, double hamingDistancePresicion = 0)
+        public static double EvaluateDistance(double[] x, double[] y, MetricType metricType, double hamingDistancePresicion = 0.1)
         {
             switch(metricType)
             {
