@@ -205,15 +205,15 @@ namespace DatabaseConnection
         public List<PalmImage> GetAllImages()
         {
             List<PalmImage> result = new List<PalmImage>();
-            using (var db = new PalmContext())
-            {
-                var palms = from p in db.PalmImages
-                            orderby p.PalmId
-                            select p;
+			using (var db = new PalmContext())
+			{
+				var palms = from p in db.PalmImages
+							orderby p.PalmId
+							select p;
 
-                result = palms.ToList();
-            }
-            return result;
+				result = palms.ToList();
+			}
+			return result;
         }
         #endregion
         #region Private Methods

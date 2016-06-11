@@ -15,10 +15,14 @@
     <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" Grid.Column="1" ItemsSource="{Binding ElementName=DataBaseViewerControl, Path=ImageCollection}">
         <ListBox.ItemsPanel>
             <ItemsPanelTemplate>
-                <UniformGrid Columns="4">
-                </UniformGrid>
+                <UniformGrid Columns="4"/>
             </ItemsPanelTemplate>
         </ListBox.ItemsPanel>
+        <ListBox.ItemContainerStyle>
+            <Style TargetType="ListBoxItem">
+                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            </Style>
+        </ListBox.ItemContainerStyle>
         <ItemsControl.ItemTemplate>
             <DataTemplate>
                 <Border Height="250" >
@@ -37,7 +41,7 @@
                             </Style.Triggers>
                         </Style>
                     </Border.Style>
-                    <Image Stretch="Fill" Grid.Row="0" Source="{ Binding Path=Image, Converter={StaticResource PalmImageConverter} }"/>
+                    <Image Stretch="Uniform"  Grid.Row="0" Source="{ Binding Path=Image, Converter={StaticResource PalmImageConverter} }"/>
                 </Border>
             </DataTemplate>
         </ItemsControl.ItemTemplate>

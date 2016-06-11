@@ -628,10 +628,13 @@
         private void MouseUpCommandExecuted(object o)
         {
             _isMouseDown = false;
+            if (_startMousePointImage.X + _startMousePointImage.Y + _startMousePoint.X + _startMousePoint.Y == 0) return;
             if (IsImageReadyForCrop == false) return;
             if (MessageBox.Show("Image cropped properly?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
             {
                 if (_imageCroppedArea != null) _imageCroppedArea.Visibility = Visibility.Collapsed;
+                _startMousePoint = new Point();
+                _startMousePointImage = new Point();
                 return;
             }
             IsImageReadyForCrop = false;

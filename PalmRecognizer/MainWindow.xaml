@@ -100,7 +100,7 @@
                             <ItemsControl ItemsSource="{Binding Defects}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <Canvas Width="{Binding ElementName=DefectsImage, Path=ActualWidth}" Height="{Binding ElementName=DefectsImage, Path=ActualWidth}"/>
+                                        <Canvas Width="{Binding ElementName=DefectsImage, Path=ActualWidth}" Height="{Binding ElementName=DefectsImage, Path=ActualHeight}"/>
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
@@ -205,6 +205,18 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
+                            <!--<Canvas Width="{Binding ElementName=DefectsImage, Path=ActualWidth}" Height="{Binding ElementName=DefectsImage, Path=ActualHeight}">
+                                <Line X1="200" Y1="200" X2="210" Y2="200" StrokeThickness="4" Fill="Red">
+                                    <Line.RenderTransform>
+                                        <RotateTransform Angle="45"></RotateTransform>
+                                    </Line.RenderTransform>
+                                </Line>
+                                <Line X1="200" Y1="200" X2="210" Y2="200" StrokeThickness="4" Fill="Red">
+                                    <Line.RenderTransform>
+                                        <RotateTransform Angle="-45"></RotateTransform>
+                                    </Line.RenderTransform>
+                                </Line>
+                            </Canvas>-->
                         </Grid>
                     </Grid>
                 </TabItem>
