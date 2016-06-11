@@ -805,6 +805,8 @@
                 if (MessageBox.Show("Image rotated properly?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
                     _isImageReadyForRotation = true;
             }
+            else
+                IsEdgesDetected = false;
 
         }
 
@@ -826,7 +828,7 @@
             IsResultsVisible = true;
             FoundPalmItems = _connection.Identify(_tool.MeasuredParameters, NROFRESULTSTOSHOW, (MetricType)MetricTypeIndex);
             OnPropertyChanged("FoundPalmItems");
-            _logWriter.AddSearchingInfo(_actualUser);
+            _logWriter.AddSearchingInfo(_actualUser, ((MetricType)MetricTypeIndex).ToString());
             OnPropertyChanged("LogContent");
         }
 

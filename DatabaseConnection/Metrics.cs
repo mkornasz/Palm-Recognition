@@ -17,7 +17,7 @@ namespace DatabaseConnection
 
     public static class Metrics
     {
-        public static double EvaluateDistance(double[] x, double[] y, MetricType metricType, double hamingDistancePresicion = 0.1)
+        public static double EvaluateDistance(double[] x, double[] y, MetricType metricType, double hammingDistancePresicion = 0.05)
         {
             switch(metricType)
             {
@@ -28,7 +28,7 @@ namespace DatabaseConnection
                 case MetricType.Canberra:
                     return CanberraDistance(x, y);
                 case MetricType.Hamming:
-                    return HammingDistance(x, y, hamingDistancePresicion);
+                    return HammingDistance(x, y, hammingDistancePresicion);
             }
             return -1;
         }

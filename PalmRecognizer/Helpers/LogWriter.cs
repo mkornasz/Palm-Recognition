@@ -82,15 +82,16 @@
             this.LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " Measured palm from image. Detected parameters:   " + Environment.NewLine;
             //dodac wszystkie wymiary????
         }
-        public void AddSearchingInfo(string user)
+        public void AddSearchingInfo(string user, string metricType)
         {
-            this.LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " looked for palm in database." + Environment.NewLine;
+            this.LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " looked for palm in database using " + metricType + " metric." + Environment.NewLine;
             //dodac kilka pozycji ustawionych wg % podobienstwa????
         }
 
         public void SaveLogFile()
         {
-            string name = "PalmRecognizerLog" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".txt";
+            Directory.CreateDirectory("AllLogs");
+            string name = "AllLogs\\PalmRecognizerLog" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".txt";
             using (var streamWriter = new StreamWriter(name))
             {
                 streamWriter.Write(this.LogContent);
