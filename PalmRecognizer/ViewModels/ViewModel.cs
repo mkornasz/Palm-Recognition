@@ -629,10 +629,11 @@
         {
             _isMouseDown = false;
             if (_startMousePointImage.X + _startMousePointImage.Y + _startMousePoint.X + _startMousePoint.Y == 0) return;
-            if (IsImageReadyForCrop == false) return;
-            if (MessageBox.Show("Image cropped properly?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+            if ((_imageCroppedArea != null && (_imageCroppedArea.Width < 5 || _imageCroppedArea.Height < 5))
+            || (IsImageReadyForCrop == false || _imageCroppedArea == null || MessageBox.Show("Image cropped properly?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No))
             {
                 if (_imageCroppedArea != null) _imageCroppedArea.Visibility = Visibility.Collapsed;
+                _imageCroppedArea = null;
                 _startMousePoint = new Point();
                 _startMousePointImage = new Point();
                 return;
@@ -640,6 +641,9 @@
             IsImageReadyForCrop = false;
             _imageCroppedArea.Visibility = Visibility.Collapsed;
             CropImage();
+            _imageCroppedArea = null;
+            _startMousePoint = new Point();
+            _startMousePointImage = new Point();
         }
 
         private void MouseDownCommandExecuted(object o)

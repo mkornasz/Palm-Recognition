@@ -79,13 +79,11 @@
 
         public void AddPalmMetricsInfo(string user)
         {
-            this.LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " Measured palm from image. Detected parameters:   " + Environment.NewLine;
-            //dodac wszystkie wymiary????
+            this.LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " Measured palm from image." + Environment.NewLine;
         }
         public void AddSearchingInfo(string user, string metricType)
         {
             this.LogContent += Environment.NewLine + DateTime.Now.ToString() + " User " + user + " looked for palm in database using " + metricType + " metric." + Environment.NewLine;
-            //dodac kilka pozycji ustawionych wg % podobienstwa????
         }
 
         public void SaveLogFile()
