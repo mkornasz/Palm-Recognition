@@ -78,8 +78,10 @@
 		{
 			if (defects.Count < 3)
 			{
-				throw new Exception("It's not a hand.");
+				MessageBox.Show("Measurements cannot be calculated with a number of defects other than 3.");
+				return this._mContour;
 			}
+
             _m = _mContour.Clone();
 			Hand =  new Hand(_m, defects.ToList());
 			return _m;

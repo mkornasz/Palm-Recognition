@@ -100,6 +100,14 @@ namespace PalmRecognizer.Model
 			Id = Guid.NewGuid().ToString();
 		}
 
+		public Defect(Point2d ptStart, Point2d ptEnd, Point2d ptFar)
+		{
+			Start = ptStart;
+			End = ptEnd;
+			Far = ptFar;
+			Id = Guid.NewGuid().ToString();
+		}
+
 		#endregion Constructors
 	}
 }

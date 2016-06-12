@@ -88,8 +88,8 @@
                 <TabItem Header="Contour" Visibility="{Binding IsPalmMeasured, Converter={StaticResource BoolToVisibilityConverter}}" Selector.IsSelected="{Binding IsPalmMeasured, Mode=OneWay}">
                     <Grid >
                         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
-                            <!--<Button Width="150" Height="50" Command="{Binding RemoveDefectCommand}" Content="Remove Defect"/>
-                            <Button Width="150" Height="50" Command="{Binding AddDefectCommand}" Content="Add Defect"/>-->
+                            <Button Width="150" Height="50" Command="{Binding RemoveDefectCommand}" Content="Remove Defect"/>
+                            <Button Width="150" Height="50" Command="{Binding AddDefectCommand}" Content="Add Defect"/>
                             <Button Width="150" Height="50" Command="{Binding CalculateCommand}" Content="Calculate Defects"/>
                         </StackPanel>
                         <Grid Name="DefectsCanvas">
@@ -205,18 +205,10 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                            <!--<Canvas Width="{Binding ElementName=DefectsImage, Path=ActualWidth}" Height="{Binding ElementName=DefectsImage, Path=ActualHeight}">
-                                <Line X1="200" Y1="200" X2="210" Y2="200" StrokeThickness="4" Fill="Red">
-                                    <Line.RenderTransform>
-                                        <RotateTransform Angle="45"></RotateTransform>
-                                    </Line.RenderTransform>
-                                </Line>
-                                <Line X1="200" Y1="200" X2="210" Y2="200" StrokeThickness="4" Fill="Red">
-                                    <Line.RenderTransform>
-                                        <RotateTransform Angle="-45"></RotateTransform>
-                                    </Line.RenderTransform>
-                                </Line>
-                            </Canvas>-->
+                            <Canvas Width="{Binding ElementName=DefectsImage, Path=ActualWidth}" Height="{Binding ElementName=DefectsImage, Path=ActualHeight}">
+                                <TextBlock Visibility="{Binding RemoveDefect, Converter={StaticResource BoolToVisibilityConverter}}" Text="Click on a defect to remove." Foreground="Red" FontSize="16"/>
+                                <TextBlock Visibility="{Binding AddDefect, Converter={StaticResource BoolToVisibilityConverter}}" Text="Add a defect." Foreground="Red" FontSize="16"/>
+                            </Canvas>
                         </Grid>
                     </Grid>
                 </TabItem>
