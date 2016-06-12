@@ -76,10 +76,10 @@
 
 		public Mat MeasureHand(ObservableCollection<Defect> defects)
 		{
-			if (defects.Count < 3)
+			if (defects.Count != 3)
 			{
 				MessageBox.Show("Measurements cannot be calculated with a number of defects other than 3.");
-				return this._mContour;
+				return _mContour;
 			}
 
             _m = _mContour.Clone();
