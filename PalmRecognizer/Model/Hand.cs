@@ -47,8 +47,8 @@
 			var h = defects[0].Far - (defects[0].Far - defects[2].Far) / 2;
 			var half = new System.Drawing.Point((int)(h.X * mat.Cols), (int)(h.Y * mat.Rows));
 
-			var left = defects[0].Far + fingerLine - perpendicular;
-			var right = defects[2].Far - fingerLine - perpendicular;
+			var left = defects[0].Far + fingerLine - perpendicular * 0.75;
+			var right = defects[2].Far - fingerLine - perpendicular * 0.75;
 			CvInvoke.Line(m, new System.Drawing.Point((int)(left.X * mat.Cols), (int)(left.Y * mat.Rows)),
 				new System.Drawing.Point((int)(right.X * mat.Cols), (int)(right.Y * mat.Rows)), new MCvScalar(255, 255, 255), 3);
 
