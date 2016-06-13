@@ -2,7 +2,6 @@
 {
 	using System;
 	using System.Collections.ObjectModel;
-	using System.Drawing;
 	using System.Linq;
 	using System.Windows;
 
@@ -11,7 +10,7 @@
 	using Emgu.CV.Structure;
 	using Emgu.CV.Util;
 
-	using PalmRecognizer.Model;
+	using Model;
 
 	using Point = System.Drawing.Point;
 
@@ -20,8 +19,6 @@
 		#region Private Members
 
 		private Mat _originalImg;
-
-		private VectorOfPoint _fingerTips;
 
 		private ObservableCollection<Defect> _defects;
 
@@ -70,7 +67,7 @@
             _mContour = new Mat(_originalImg.Size, DepthType.Cv8U, 3);
             _mContour.SetTo(zeroValue);
 
-            var isHand = GetImageDefects(_m);
+            GetImageDefects(_m);
 			return _m;
 		}
 
@@ -82,6 +79,16 @@
 				return _mContour;
 			}
 
+			foreach (var defect in defects)
+			{
+				if (defect.Start.X < defect.End.X)
+				{
+					var tmp = defect.Start;
+					defect.Start = defect.End;
+					defect.End = tmp;
+				}
+			}
+
             _m = _mContour.Clone();
 			Hand =  new Hand(_m, defects.ToList());
 			return _m;
@@ -91,7 +98,7 @@
 
 		#region Private Methods
 
-		private bool GetImageDefects(Mat m)
+		private void GetImageDefects(Mat m)
 		{
 			var defects = new VectorOfRect();
 
@@ -116,9 +123,6 @@
                     DrawDefects(m, contours, maxContourIndex, convexHullP, defects);
                 }
 			}
-
-			var boundingBox = CvInvoke.BoundingRectangle(_contour);
-			return DetectIfHand(defects, boundingBox);
 		}
 
 		private int FindBiggestContour(VectorOfVectorOfPoint contours)
@@ -127,7 +131,7 @@
 			double sizeOfBiggestContour = 0;
 			for (int i = 0; i < contours.Size; i++)
 			{
-				var contourSize = CvInvoke.ContourArea(contours[i], false);
+				var contourSize = CvInvoke.ContourArea(contours[i]);
 				if (contourSize > sizeOfBiggestContour)
 				{
 					sizeOfBiggestContour = contourSize;
@@ -142,7 +146,6 @@
 		{
 			var boundingBox = CvInvoke.BoundingRectangle(_contour);
 			int minTolerance = boundingBox.Height / 5;
-			int maxTolerance = boundingBox.Height / 2;
 
 			double angleMinTol = 5;
 			double angleMaxTol = 40;
@@ -183,23 +186,6 @@
 			double angle = Math.Acos(dot / (l1 * l2));
 			angle = angle * 180 / Math.PI;
 			return angle;
-		}
-
-		private bool DetectIfHand(VectorOfRect defects, Rectangle boundingBox)
-		{
-			double h = boundingBox.Height;
-			double w = boundingBox.Width;
-
-			if (defects.Size > 5
-				|| h == 0 || w == 0
-				|| h / w > 4 || w / h > 4
-				|| boundingBox.X < 20)
-			{
-				MessageBox.Show("The provided photo doesn't present a hand");
-				return false;
-			}
-
-			return true;
 		}
 
 		private void DrawDefects(Mat m, VectorOfVectorOfPoint contours, int maxContourIndex, VectorOfPoint convexHullP, VectorOfRect defects)
