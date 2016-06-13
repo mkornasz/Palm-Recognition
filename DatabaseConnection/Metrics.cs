@@ -80,8 +80,9 @@ namespace DatabaseConnection
             for (int i = 0; i < x.Length; i++)
             {
                 if (x[i] + y[i] == 0) // u nas są same dodatnie wartości, więc to nie zajdzie i tak
-                    return -1;
-                distance += (Math.Abs(x[i] - y[i]) / Math.Abs(x[i] + y[i]));
+                    distance += (Math.Abs(x[i] - y[i]) / Math.Abs(double.Epsilon));
+                else
+                    distance += (Math.Abs(x[i] - y[i]) / Math.Abs(x[i] + y[i]));
             }
             return distance;
         }

@@ -27,7 +27,7 @@
     using System.Windows.Data;
     class ViewModel : ViewModelBase
     {
-        private const int NROFRESULTSTOSHOW = 5;
+        private const int NROFRESULTSTOSHOW = 8;
 
         #region Variables
         private IDatabaseConnection _connection;
