@@ -10,7 +10,8 @@
 
     using PalmRecognizer.Helpers;
     using PalmRecognizer.Model;
-
+    using System.IO;
+    using System.Windows.Media.Imaging;
     class PalmTool : ViewModelBase
     {
         #region Private Members
@@ -118,13 +119,13 @@
             this._palmEdges = new Mat();
             CvInvoke.Canny(matToFindEdges, this._palmEdges, this.CannyParamLow, this.CannyParamHigh);
         }
-        
+
         public Mat CalculateMeasurements(ObservableCollection<Defect> defects)
         {
             var result = _measurementDetector.MeasureHand(defects);
 
             MeasuredParameters = new DatabaseConnection.PalmParameters();
-            if(_measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Index]!=null)
+            if (_measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Index] != null)
             {
                 MeasuredParameters.IndexFingerBot = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Index].DiameterOneThird;
                 MeasuredParameters.IndexFingerMid = _measurementDetector.Hand.Fingers[(int)Hand.FingersEnum.Index].DiameterHalf;
@@ -158,6 +159,20 @@
 
         public void SaveRotatedBitmap(Bitmap rotated)
         {
+            if (rotated.Height > 900 || rotated.Height > 900)
+            {
+                var rotatedSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(rotated.GetHbitmap(), IntPtr.Zero, System.Windows.Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                var scale = rotatedSource.PixelWidth > 900 ? 900.0 / rotatedSource.PixelWidth : 900.0 / rotatedSource.PixelHeight;
+                rotatedSource = new TransformedBitmap(rotatedSource, new System.Windows.Media.ScaleTransform(scale, scale));
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    PngBitmapEncoder encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(rotatedSource));
+                    encoder.Save(ms);
+                    rotated = new Bitmap(ms);
+                }
+            }
+
             Image<Bgr, Byte> newEdges = new Image<Bgr, byte>(rotated);
             CvInvoke.CvtColor(newEdges.Mat, this._palmEdges, Emgu.CV.CvEnum.ColorConversion.Bgr2Gray);
         }
