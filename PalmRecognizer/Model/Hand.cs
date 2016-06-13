@@ -27,18 +27,11 @@
 
 			defects.Sort(SortByX);
 
-            Finger[] fin = new Finger[4];
-            fin[0] = new Finger(mat, defects[0], defects[1]);
-            fin[1] = GetFinger(mat, defects, true);
-            fin[2] = GetFinger(mat, defects, false);
-            fin[3] = new Finger(mat, defects[1], defects[2]);
+            Fingers.Add(GetFinger(mat, defects, true));
+            Fingers.Add(new Finger(mat, defects[0], defects[1]));
+            Fingers.Add(new Finger(mat, defects[1], defects[2]));
+            Fingers.Add(GetFinger(mat, defects, false));
 
-            if (fin[0].Height < fin[3].Height)
-                for (int i = 0; i < fin.Length; i++)
-                    Fingers.Add(fin[i]);
-            else
-                for (int i = fin.Length - 1; i >= 0; i--)
-                    Fingers.Add(fin[i]);
             Diameter = CalculateHandDiameter(mat, defects);
 		}
 

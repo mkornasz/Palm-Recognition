@@ -1101,7 +1101,7 @@
 			_isFileLoaded = false;
 			_isPalmMeasured = false;
 			_isPalmDefectsCalculated = false;
-			_isUserLogIn = true;
+			_isUserLogIn = false;
 			_isResultsVisible = false;
 			_cannyParamHigh = 250;
 			_cannyParamLow = 100;
