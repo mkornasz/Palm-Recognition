@@ -1174,17 +1174,16 @@
             OnPropertyChanged("LogContent");
         }
 
-
         private Bitmap RotateImage(Bitmap bmp, float angle)
         {
             angle = angle % 360;
             if (angle > 180)
                 angle -= 360;
 
-            float sin = (float)Math.Abs(Math.Sin(angle * Math.PI / 180.0)); 
-            float cos = (float)Math.Abs(Math.Cos(angle * Math.PI / 180.0)); 
+            float sin = (float)Math.Abs(Math.Sin(angle * Math.PI / 180.0));
+            float cos = (float)Math.Abs(Math.Cos(angle * Math.PI / 180.0));
 
-            float newImgWidth = sin * bmp.Height + cos * bmp.Width;                                         
+            float newImgWidth = sin * bmp.Height + cos * bmp.Width;
             newImgWidth = bmp.Width + (Math.Abs(newImgWidth - bmp.Width) / 2);
             float newImgHeight = sin * bmp.Width + cos * bmp.Height;
             newImgHeight = bmp.Height + (Math.Abs(newImgHeight - bmp.Height) / 2);
@@ -1196,7 +1195,7 @@
                 graphics.TranslateTransform((float)newBmp.Width / 2, (float)newBmp.Height / 2);
                 graphics.RotateTransform(angle);
                 graphics.TranslateTransform(-(float)newBmp.Width / 2, -(float)newBmp.Height / 2);
-                graphics.DrawImageUnscaled(bmp, 0, 0); 
+                graphics.DrawImageUnscaled(bmp, 0, 0);
             }
             return newBmp;
         }
