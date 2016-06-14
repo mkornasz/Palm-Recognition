@@ -230,7 +230,6 @@ namespace DatabaseConnection
 
         private double[] PalmParametersToArray(PalmParameters palmParameters)
         {
-            //pytanie czy zostawiamy tą 1 z dzielenia, zrobiłem tak żeby łatwiej było podstawiać różne proporcje
             double denominator = palmParameters.IndexFingerMid;
             if (denominator == 0)
                 denominator = double.Epsilon;
