@@ -773,6 +773,8 @@
             _palmRotatedEdgesBitmap = null;
             _palmFilename = "";
             PalmLoadedImage = PalmEdgesImage = PalmBlurImage = PalmBwImage = PalmGrayImage = PalmContourImage = null;
+            SelectedPalm = null;
+            SelectedPalmImage = null;
         }
 
         private void SaveFileCommandExecuted(object o)
@@ -860,6 +862,8 @@
 
         private void SearchPalmCommandExecuted(object o)
         {
+            SelectedPalm = null;
+            SelectedPalmImage = null;
             SetWantedPalm();
             IsResultsVisible = true;
             FoundPalmItems = _connection.Identify(_tool.MeasuredParameters, NROFRESULTSTOSHOW, (MetricType)MetricTypeIndex);
