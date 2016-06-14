@@ -135,6 +135,8 @@ namespace DatabaseConnection
             {
                 var palms = (from p in db.Palms
                              select p).AsEnumerable().Select(p => new { p, score = Metrics.EvaluateDistance(PalmParametersToArray(parameters), PalmToArray(p), metricType) }).OrderBy(x => x.score);
+                if (palms.Count() == 0)
+                    return result;
                 double maxScore = palms.Last().score;
                 var palmsList = palms.Take(maxResults);
 
@@ -144,6 +146,8 @@ namespace DatabaseConnection
                                      where pi.PalmId == elem.p.PalmId
                                      select pi).FirstOrDefault();
                     double score = Math.Round(100 * (1 - elem.score / maxScore), 2);
+                    if (elem.score == 0)
+                        score = 100;
                     result.Add(new Tuple<PalmImage, double, double>(palmImage, score, Math.Round(elem.score, 4)));
                 }
             }
