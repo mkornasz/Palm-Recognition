@@ -12,6 +12,7 @@
     using PalmRecognizer.Model;
     using System.IO;
     using System.Windows.Media.Imaging;
+    
     class PalmTool : ViewModelBase
     {
         #region Private Members
@@ -122,6 +123,12 @@
 
         public Mat CalculateMeasurements(ObservableCollection<Defect> defects)
         {
+            if (defects.Count != 3)
+            {
+                System.Windows.MessageBox.Show("Measurements cannot be calculated with a number of defects other than 3.");
+                return null;
+            }
+
             var result = _measurementDetector.MeasureHand(defects);
 
             MeasuredParameters = new DatabaseConnection.PalmParameters();

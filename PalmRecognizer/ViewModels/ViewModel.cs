@@ -1085,7 +1085,13 @@
 
         private void CalculateCommandExecuted(object obj)
         {
-            PalmContourImage = ConvertFromBitmapToBitmapSource(_tool.CalculateMeasurements(Defects).Bitmap);
+            var tmp = _tool.CalculateMeasurements(Defects);
+            if(tmp == null)
+            {
+                IsPalmDefectsCalculated = false;
+                return;
+            }
+            PalmContourImage = ConvertFromBitmapToBitmapSource(tmp.Bitmap);
             IsPalmDefectsCalculated = true;
         }
 
