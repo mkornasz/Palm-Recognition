@@ -142,16 +142,13 @@ namespace DatabaseConnection
 
                 foreach (var elem in palmsList)
                 {
-                    var elem_score = elem.score;
                     var palmImage = (from pi in db.PalmImages
                                      where pi.PalmId == elem.p.PalmId
                                      select pi).FirstOrDefault();
-                    if (double.IsNaN(elem_score))
-                        elem_score = maxScore;
-                    double score = double.IsNaN(maxScore) ? 0 : maxScore == 0 ? 0 : Math.Round(100 * (1 - elem_score / maxScore), 2);
-                    if (elem_score == 0)
+                    double score = Math.Round(100 * (1 - elem.score / maxScore), 2);
+                    if (elem.score == 0)
                         score = 100;
-                    result.Add(new Tuple<PalmImage, double, double>(palmImage, score, Math.Round(elem_score, 4)));
+                    result.Add(new Tuple<PalmImage, double, double>(palmImage, double.IsNaN(score) ? 0 : score, Math.Round(elem.score, 4)));
                 }
             }
             return result;
