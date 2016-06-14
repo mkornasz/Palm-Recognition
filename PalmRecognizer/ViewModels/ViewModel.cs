@@ -725,6 +725,18 @@
             fileDialog.Filter = "Image files (*.png;*.jpg;*.bmp;*.gif)|*.png;*.jpg;*.bmp;*.gif";
             if (fileDialog.ShowDialog() != true) return;
 
+            _palmFilename = fileDialog.FileName;
+            _palmFilenameExtension = System.IO.Path.GetExtension(_palmFilename);
+            try
+            {
+                PalmLoadedImage = new BitmapImage(new Uri(_palmFilename));
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Couldn't upload the file.");
+                return;
+            }
+
             PalmEdgesImage = PalmContourImage = PalmGrayImage = PalmBwImage = null;
             IsEdgesDetected = false;
             IsPalmMeasured = false;
@@ -732,9 +744,6 @@
             IsResultsVisible = false;
             IsFileLoaded = true;
             _palmRotatedEdgesBitmap = null;
-            _palmFilename = fileDialog.FileName;
-            _palmFilenameExtension = System.IO.Path.GetExtension(_palmFilename);
-            PalmLoadedImage = new BitmapImage(new Uri(_palmFilename));
             _palmBitmap = ConvertFromBitmapSourceToBitmap(_palmImage as BitmapSource);
             _tool = new PalmTool(_palmFilename, _cannyParamHigh, _cannyParamLow, _contrastParam, _brightnessParam);
 
