@@ -38,7 +38,7 @@
         private bool _isFileLoaded, _isPalmMeasured, _isPalmDefectsCalculated, _isEdgesDetected, _isResultsVisible, _isUserLogIn, _isMouseDown, _isImageReadyForRotation, _isImageReadyForCrop;
         private string _palmFilename, _palmFilenameExtension, _actualUser, _windowTitle;
         private System.Windows.Shapes.Rectangle _imageCroppedArea;
-        private Point _startMousePoint, _startMousePointImage;
+        private Point _startMousePoint, _startMousePointImage, _endMousePointImage;
         private ImageSource _palmImage, _palmEdgesImage, _palmBlurImage, _palmGrayImage, _palmContourImage, _palmBwImage;
         private Bitmap _palmBitmap, _palmEdgesBitmap, _palmRotatedEdgesBitmap;
         private DatabaseConnection.Model.Palm _selectedPalm;
@@ -637,11 +637,13 @@
             PalmLoadedImage = ConvertFromBitmapToBitmapSource(_tool.UNDOHistogramEqualization());
         }
 
+
         private void MouseMoveCommandExecuted(object o)
         {
             if (_isMouseDown == false) return;
 
             var selectionPanelPoint = Mouse.GetPosition((Application.Current.MainWindow as MainWindow).SelecionPanel);
+            _endMousePointImage = Mouse.GetPosition((Application.Current.MainWindow as MainWindow).ImageArea);
             _imageCroppedArea = (Application.Current.MainWindow as MainWindow).SelectionRectangle;
 
             _imageCroppedArea.SetValue(Canvas.LeftProperty, Math.Min(selectionPanelPoint.X, _startMousePoint.X));
@@ -664,6 +666,7 @@
                 _imageCroppedArea = null;
                 _startMousePoint = new Point();
                 _startMousePointImage = new Point();
+                _endMousePointImage = new Point();
                 return;
             }
             IsImageReadyForCrop = false;
@@ -672,6 +675,7 @@
             _imageCroppedArea = null;
             _startMousePoint = new Point();
             _startMousePointImage = new Point();
+            _endMousePointImage = new Point();
         }
 
         private void MouseDownCommandExecuted(object o)
@@ -769,6 +773,8 @@
             _palmRotatedEdgesBitmap = null;
             _palmFilename = "";
             PalmLoadedImage = PalmEdgesImage = PalmBlurImage = PalmBwImage = PalmGrayImage = PalmContourImage = null;
+            SelectedPalm = null;
+            SelectedPalmImage = null;
         }
 
         private void SaveFileCommandExecuted(object o)
@@ -856,6 +862,8 @@
 
         private void SearchPalmCommandExecuted(object o)
         {
+            SelectedPalm = null;
+            SelectedPalmImage = null;
             SetWantedPalm();
             IsResultsVisible = true;
             FoundPalmItems = _connection.Identify(_tool.MeasuredParameters, NROFRESULTSTOSHOW, (MetricType)MetricTypeIndex);
@@ -1086,7 +1094,7 @@
         private void CalculateCommandExecuted(object obj)
         {
             var tmp = _tool.CalculateMeasurements(Defects);
-            if(tmp == null)
+            if (tmp == null)
             {
                 IsPalmDefectsCalculated = false;
                 return;
@@ -1149,8 +1157,11 @@
         {
             var img = (Application.Current.MainWindow as MainWindow).ImageArea;
             var bmp = ConvertFromBitmapSourceToBitmap(_palmImage as BitmapSource);
-            var cropX = (int)((_startMousePointImage.X) * (_palmImage as BitmapSource).PixelWidth / (img.ActualWidth));
-            var cropY = (int)((_startMousePointImage.Y) * (_palmImage as BitmapSource).PixelHeight / (img.ActualHeight));
+
+            double left = Math.Min(_startMousePointImage.X, _endMousePointImage.X);
+            double top = Math.Min(_startMousePointImage.Y, _endMousePointImage.Y);
+            var cropX = (int)((left) * (_palmImage as BitmapSource).PixelWidth / (img.ActualWidth));
+            var cropY = (int)((top) * (_palmImage as BitmapSource).PixelHeight / (img.ActualHeight));
             var cropWidth = (int)((_imageCroppedArea.Width) * (_palmImage as BitmapSource).PixelWidth / (img.ActualWidth));
             var cropHeight = (int)((_imageCroppedArea.Height) * (_palmImage as BitmapSource).PixelHeight / (img.ActualHeight));
             if (cropX + cropWidth > PalmLoadedImage.Width || cropY + cropHeight > PalmLoadedImage.Height) return;
